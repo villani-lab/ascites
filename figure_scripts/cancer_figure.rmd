@@ -14,7 +14,6 @@ library(ComplexHeatmap)
 library(reticulate)
 use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
 
-
 setwd('/projects/home/tlchan/github_code/ascites/functions')
 source('plot_fgsea.R')
 ```
@@ -208,5 +207,18 @@ draw(fgsea_hmap,
 
 ## Figure 1D
 ```{r message = F, results = F, warning = F, fig.width = 5, fig.height = 8, fig_1D}
+gene_sets <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/gene_programs/canon_gene_sets.csv")
 
+EMT_gs <- gene_sets %>%
+    filter(program_name == "EMT") %>%
+    pull(genes) %>%
+    str_split(",")
+
+cancer_B2M_data <- read.csv(glue('cancer/cancer_de_by_B2M_2v0_all_results.csv'))
+cancer_fgsea <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/gene_programs/FGSEA_scores/by_lineage/cancer_combo_fgsea.csv")
+EMT_fgsea <- cancer_fgsea %>%
+    filter(pathway == "EMT") %>%
+    filter(variable == "B2M_2v0")
+
+plot_fgsea(EMT_fgsea, cancer_B2M_data, EMT_gs, "cancer", "B2M_2v0", "EMT")
 ```

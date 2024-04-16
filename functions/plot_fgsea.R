@@ -1,4 +1,4 @@
-plot_fgsea <- function(fgsea_res, ranks, gene_sets, lin, var, gs) {
+plot_fgsea <- function(fgsea_res, ranks, genes, lin, var, gs) {
     nes <- round(fgsea_res$NES[fgsea_res$pathway == gs], 3)
     pval <- round(fgsea_res$pval[fgsea_res$pathway == gs], 3)
     n_genes <- fgsea_res$size[fgsea_res$pathway == gs]
@@ -10,7 +10,7 @@ plot_fgsea <- function(fgsea_res, ranks, gene_sets, lin, var, gs) {
     statsAdj <- sign(statsAdj) * (abs(statsAdj)^1)
     statsAdj <- statsAdj / max(abs(statsAdj))
 
-    pathway <- unname(as.vector(na.omit(match(gene_sets[[gs]], names(statsAdj)))))
+    pathway <- unname(as.vector(na.omit(match(genes, names(statsAdj)))))
     pathway <- sort(pathway)
 
     gseaRes <- calcGseaStat(statsAdj, selectedStats = pathway,
