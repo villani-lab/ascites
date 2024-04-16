@@ -4,17 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aee87acb-409f-4fe5-9563-ed1282dce336" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/figure_scripts/cancer_figure.rmd" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/figure_scripts/supp_figure_1/supp_figure_1.rmd" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/figure_scripts/test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/functions/plot_fgsea.R" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/rAvailablePackageCache.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/rAvailablePackageCache.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/figure_scripts/figure_1/figure_1.rmd" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/figure_scripts/figure_1/figure_1_files/fig_1A.pdf" beforeDir="false" />
-    </list>
+    <list default="true" id="aee87acb-409f-4fe5-9563-ed1282dce336" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -70,7 +60,7 @@
       <workItem from="1713144219442" duration="339000" />
       <workItem from="1713288002564" duration="398000" />
       <workItem from="1713291978111" duration="25000" />
-      <workItem from="1713292013871" duration="8199000" />
+      <workItem from="1713292013871" duration="8451000" />
     </task>
     <servers />
   </component>
