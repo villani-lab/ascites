@@ -1,17 +1,11 @@
----
-title: "Figure 1"
-output: rmarkdown::github_document
----
-Run this to render:
-Change front matter (output: html_document)
-On bcb-mega, run R from command line
-library(rmarkdown)
-render(PATH) -- PATH of Rmd
+Figure 1
+================
 
 ## Set up
 
 Load R libraries
-```{r message = F, load_r_libraries}
+
+``` r
 # load packages
 library(tidyverse)
 library(glue)
@@ -26,7 +20,8 @@ use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
 ```
 
 Load python libraries
-```{python load_python_packages}
+
+``` python
 import pegasus as pg
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -34,8 +29,18 @@ import scanpy as sc
 ```
 
 ## Figure 1B
-```{python results = 'hold', fig_1A}
+
+``` python
 mpl.rcParams['pdf.fonttype'] = 42
+
+lineage_palette = {
+    "B/Plasma cells": "#FF0029",
+    "CD4+ T/NK cells": "#377EB8",
+    "CD8+ T/NK cells": "#66A61E",
+    "Dendritic cells": "#984EA3",
+    "Monocytes/Macrophages": "#00D2D5",
+    "Cancer cells": "#FF7F00"
+}
 
 # Load single-cell object
 global_data = pg.read_input(
@@ -70,8 +75,16 @@ plt.show()
 plt.close()
 ```
 
+    ## 2024-04-16 19:00:58,055 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-04-16 19:00:58,055 - pegasusio.readwrite - INFO - Function 'read_input' finished in 11.71s.
+    ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+    ##   cax = scatter(
+
+<img src="figure_1_files/figure-gfm/fig_1B-1.png" width="576" />
+
 ## Figure 1C
-```{r message = F, results = F, warning = F, fig_1C}
+
+``` r
 tissue_palette <- list("ascites" = "#00BFC4",
                        "blood" = "#F8766D",
                        "other" = "#000000")
@@ -145,8 +158,11 @@ p <- ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0))
 annotate_figure(p, top = text_grob(glue("Percent native immune by lineage"), size = 16))
 ```
 
+![](/tmp/figure_1-21.rmd/figure_1_files/figure-gfm/fig_1C-3.png)<!-- -->
+
 ## Figure 1D
-```{r message = F, results = F, warning = F, fig_1D}
+
+``` r
 # Read in metadata
 metadata <- read_csv("/projects/home/tlchan/projects/ascites/figure_panels/metadata_heatmap.csv")
 
@@ -156,17 +172,21 @@ metadata_mtx <- metadata %>%
     as.matrix()
 rownames(metadata_mtx) <- metadata$patient_id
 metadata_mtx <- t(metadata_mtx)
+
 rownames(metadata_mtx) <- c("Age", "Sex:Male", "Survival", "B2M",
                             "scRNA-Ascites", "scRNA-Blood",
                             "CITEseq-Ascites", "CITEseq-Blood",
                             "proteomics-Ascites", "proteomics-Blood")
 
+# Get age data
+age_mtx <- metadata_mtx['Age', ]
+metadata_mtx <- metadata_mtx[-1,]
+
 # Split row
-row_split <- c(rep("meta", 4), rep("analyses", 6))
+row_split <- c(rep("meta", 3), rep("analyses", 6))
 row_split <- factor(row_split, levels = unique(row_split))
 
 # Add colors
-col_age <- colorRamp2(c(32, 77), hcl_palette = "YlOrRd")
 col_survival <- colorRamp2(c(3, 501), hcl_palette = "YlOrRd")
 col_B2M <- colorRamp2(c(0, 1, 2), hcl_palette = "YlOrRd")
 
@@ -174,17 +194,12 @@ make_rect <- function(j, i, x, y, width, height, fill) {
     grid.rect(x = x, y = y,
               width = width, height = height,
               gp = gpar(col = "black"))
-    if (i == 1) { # ie age
-        grid.rect(x = x, y = y,
-                  width = width, height = height,
-                  gp = gpar(fill = col_age(as.numeric(metadata_mtx[i, j])), col = "black"))
-    }
-    else if (i == 3) { # ie survival
+    if (i == 2) { # ie survival
         grid.rect(x = x, y = y,
                   width = width, height = height,
                   gp = gpar(fill = col_survival(as.numeric(metadata_mtx[i, j])), col = "black"))
     }
-    else if (i == 4) { # ie B2m
+    else if (i == 3) { # ie B2M
         grid.rect(x = x, y = y,
                   width = width, height = height,
                   gp = gpar(fill = col_B2M(as.numeric(metadata_mtx[i, j])), col = "black"))
@@ -200,7 +215,7 @@ make_rect <- function(j, i, x, y, width, height, fill) {
     }
 }
 
-# Add percent cells
+# Add percent cells and age annotation
 lineage_cols <- c("B/Plasma cells" = "#FF0029",
                      "CD4+ T/NK cells" = "#377EB8",
                      "CD8+ T/NK cells" = "#66A61E",
@@ -219,7 +234,9 @@ perc_mtx <- global_lineage %>%
 
 perc_mtx <- perc_mtx[colnames(metadata_mtx), names(lineage_cols)]
 
-lin_bar = HeatmapAnnotation("Cell fraction" = anno_barplot(perc_mtx, height = unit(2, "cm"), gp = gpar(fill = lineage_cols)))
+top_bar <- HeatmapAnnotation("Cell fraction" = anno_barplot(perc_mtx, height = unit(3, "cm"), gp = gpar(fill = lineage_cols)),
+                             "Age" = anno_points(age_mtx, height = unit(1, "cm")))
+
 
 # Make heatmap body
 ht <- Heatmap(metadata_mtx,
@@ -232,7 +249,7 @@ ht <- Heatmap(metadata_mtx,
               row_title = NULL,
               row_split = row_split,
               row_gap = unit(2, "mm"),
-              top_annotation = lin_bar,
+              top_annotation = top_bar,
               column_names_side = "bottom",
               row_names_side = "right",
               show_heatmap_legend = FALSE,
@@ -246,11 +263,6 @@ ht <- Heatmap(metadata_mtx,
 lin_lgd <- Legend(labels = colnames(perc_mtx),
                   title = "Lineage",
                   legend_gp = gpar(fill = lineage_cols),
-                  border = "black")
-
-age_lgd <- Legend(col_fun = col_age,
-                  title = "Age",
-                  legend_gp = gpar(fill = col_age),
                   border = "black")
 
 survival_lgd <- Legend(col_fun = col_survival,
@@ -269,14 +281,17 @@ fill_lgd <- Legend(labels = c("True", "False"),
                    legend_gp = gpar(fill = c("#5A5A5A", "white")),
                    border = "black")
 
-pd <- packLegend(age_lgd, survival_lgd, B2M_lgd, lin_lgd, fill_lgd, max_height = nrow(metadata_mtx) * unit(6, "mm"))
+pd <- packLegend(survival_lgd, B2M_lgd, lin_lgd, fill_lgd, max_height = nrow(metadata_mtx) * unit(6, "mm"))
 
 draw(ht)
-draw(pd, x = unit(0.93, "npc"), y = unit(0.43, "npc"))
+draw(pd, x = unit(0.90, "npc"), y = unit(0.50, "npc"))
 ```
 
+![](/tmp/figure_1-21.rmd/figure_1_files/figure-gfm/fig_1D-1.png)<!-- -->
+
 ## Figure 1E
-```{r message = F, results = F, warning = F, fig_1E}
+
+``` r
 library(tidyverse)
 library(glue)
 library(limma)
@@ -365,3 +380,5 @@ ggplot(res, aes(x = logFC, y = -log10(p))) +
     ggtitle("Secreted factors: ascites vs. plasma") +
     theme_classic(base_size = 15)
 ```
+
+![](/tmp/figure_1-21.rmd/figure_1_files/figure-gfm/fig_1E-1.png)<!-- -->
