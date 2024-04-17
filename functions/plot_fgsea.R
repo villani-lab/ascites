@@ -1,3 +1,5 @@
+library(fgsea)
+
 plot_fgsea <- function(fgsea_res, ranks, genes, lin, var, gs) {
     nes <- round(fgsea_res$NES[fgsea_res$pathway == gs], 3)
     pval <- round(fgsea_res$pval[fgsea_res$pathway == gs], 3)

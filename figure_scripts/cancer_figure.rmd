@@ -214,7 +214,13 @@ EMT_gs <- gene_sets %>%
     pull(genes) %>%
     str_split(",")
 
-cancer_B2M_data <- read.csv(glue('cancer/cancer_de_by_B2M_2v0_all_results.csv'))
+cancer_B2M_data <- read.csv(glue('/projects/home/tlchan/cancer/cancer_de_by_B2M_2v0_all_results.csv')) %>%
+    select(c("gene_symbol", "stat")) %>%
+    na.omit() %>%
+    distinct() %>%
+    group_by(gene_symbol) %>%
+    summarize(stat = mean(stat)) %>%
+    deframe()
 cancer_fgsea <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/gene_programs/FGSEA_scores/by_lineage/cancer_combo_fgsea.csv")
 EMT_fgsea <- cancer_fgsea %>%
     filter(pathway == "EMT") %>%
