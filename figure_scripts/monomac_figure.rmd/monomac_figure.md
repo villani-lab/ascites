@@ -77,8 +77,8 @@ plt.show()
 plt.close()
 ```
 
-    ## 2024-04-17 18:52:10,271 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-04-17 18:52:10,271 - pegasusio.readwrite - INFO - Function 'read_input' finished in 3.18s.
+    ## 2024-04-17 19:50:39,429 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-04-17 19:50:39,429 - pegasusio.readwrite - INFO - Function 'read_input' finished in 3.14s.
     ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
     ##   cax = scatter(
 
@@ -109,7 +109,7 @@ ggplot(cd4_data, aes(x = Patient, y = Count, fill = Cluster)) +
     scale_fill_manual(values = cluster_palette)
 ```
 
-![](/tmp/monomac_figure-5.rmd/monomac_figure_files/figure-gfm/fig_1B-3.png)<!-- -->
+![](/tmp/monomac_figure-9.rmd/monomac_figure_files/figure-gfm/fig_1B-3.png)<!-- -->
 
 ## Figure 1C
 
@@ -199,7 +199,7 @@ p <- ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0))
 annotate_figure(p, top = text_grob(glue("{toupper(lin)} percent native immune by cluster"), size = 16))
 ```
 
-![](/tmp/monomac_figure-5.rmd/monomac_figure_files/figure-gfm/fig_1C-1.png)<!-- -->
+![](/tmp/monomac_figure-9.rmd/monomac_figure_files/figure-gfm/fig_1C-1.png)<!-- -->
 
 ## Figure 1D
 
@@ -209,7 +209,7 @@ mpl.rcParams['pdf.fonttype'] = 42
 lineage_data = pg.read_input(
     '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip')
 
-genes = ["CCL2", "IL10", "CXCL8", "CXCL1", "VEGF"]
+genes = ["CCL2", "IL10", "CXCL8", "CXCL1", "VEGFA"]
 
 # Get UMAP coordinates for base
 blood_data = lineage_data[lineage_data.obs['tissue_type'] == 'blood'].copy()
@@ -291,8 +291,8 @@ plt.show()
 plt.close()
 ```
 
-    ## 2024-04-17 18:52:18,597 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-04-17 18:52:18,597 - pegasusio.readwrite - INFO - Function 'read_input' finished in 3.14s.
+    ## 2024-04-17 19:50:47,434 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-04-17 19:50:47,434 - pegasusio.readwrite - INFO - Function 'read_input' finished in 2.73s.
 
 <img src="monomac_figure_files/figure-gfm/fig_1D-1.png" width="960" />
 
@@ -336,7 +336,7 @@ ggplot(sf_data, aes(x = type, y = log_concentration, fill = type)) +
     scale_fill_manual(values = tissue_palette)
 ```
 
-![](/tmp/monomac_figure-5.rmd/monomac_figure_files/figure-gfm/fig_1E-3.png)<!-- -->
+![](/tmp/monomac_figure-9.rmd/monomac_figure_files/figure-gfm/fig_1E-3.png)<!-- -->
 
 ## Figure 1F
 
@@ -428,8 +428,8 @@ plt.show()
 plt.close()
 ```
 
-    ## 2024-04-17 18:52:33,848 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-04-17 18:52:33,849 - pegasusio.readwrite - INFO - Function 'read_input' finished in 3.14s.
+    ## 2024-04-17 19:51:04,338 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-04-17 19:51:04,338 - pegasusio.readwrite - INFO - Function 'read_input' finished in 3.26s.
 
 <img src="monomac_figure_files/figure-gfm/fig_1F-1.png" width="960" />
 
@@ -472,7 +472,7 @@ bp <- ggplot(plot_data, aes(x = tissue_type, y = median_count, fill = tissue_typ
 ggarrange(hp, bp, nrow = 2)
 ```
 
-![](/tmp/monomac_figure-5.rmd/monomac_figure_files/figure-gfm/fig_1G-3.png)<!-- -->
+![](/tmp/monomac_figure-9.rmd/monomac_figure_files/figure-gfm/fig_1G-3.png)<!-- -->
 
 ## Figure 1H
 
@@ -489,7 +489,8 @@ meta <- meta %>%
     mutate(survival_bin = case_when(survival < 92 ~ "Low", survival > 183 ~ "High")) %>%
     filter(survival_bin == ref_var | survival_bin == test_var) %>%
     mutate(survival_bin = factor(survival_bin, levels = c(ref_var, test_var))) %>%
-    mutate(sex = factor(sex, levels = c('M', 'F')))
+    mutate(sex = factor(sex, levels = c('M', 'F'))) %>%
+    filter(tissue_type == "ascites")
 
 meta_cluster <- meta[meta$cluster == clust,]
 
@@ -505,7 +506,7 @@ top <- res[res$log2FoldChange > fc_cutoff & res$padj < p_cutoff,]
 top20 <- head(top[order(top$padj),], 20L)
 bottom <- res[res$log2FoldChange < -fc_cutoff & res$padj < p_cutoff,]
 bottom20 <- head(bottom[order(bottom$padj),], 20L)
-plot_title <- sprintf('%s %s: %s (%i) vs %s (%i)', "CD4", clust, test_var,
+plot_title <- sprintf('%s %s: %s (%i) vs %s (%i)', "Mono/Mac", clust, test_var,
                       nrow(meta_cluster[meta_cluster$survival_bin == test_var,]), ref_var,
                       nrow(meta_cluster[meta_cluster$survival_bin == ref_var,]))
 plot_subtitle <- sprintf('%i total cells, %i cell cutoff, abs(log2fc) > %1.1f, and padj < %1.2f',
@@ -524,4 +525,4 @@ ggplot(res, aes(x = log2FoldChange, y = -log10(pvalue))) +
     theme_bw(base_size = 15)
 ```
 
-![](/tmp/monomac_figure-5.rmd/monomac_figure_files/figure-gfm/fig_1H-1.png)<!-- -->
+![](/tmp/monomac_figure-9.rmd/monomac_figure_files/figure-gfm/fig_1H-1.png)<!-- -->

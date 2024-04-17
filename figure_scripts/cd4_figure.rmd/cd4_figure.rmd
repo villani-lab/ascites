@@ -307,7 +307,8 @@ meta <- meta %>%
     mutate(survival_bin = case_when(survival < 92 ~ "Low", survival > 183 ~ "High")) %>%
     filter(survival_bin == ref_var | survival_bin == test_var) %>%
     mutate(survival_bin = factor(survival_bin, levels = c(ref_var, test_var))) %>%
-    mutate(sex = factor(sex, levels = c('M', 'F')))
+    mutate(sex = factor(sex, levels = c('M', 'F'))) %>%
+    filter(tissue_type == "ascites")
 
 plot_list <- lapply(c(2, 3, 6), function(clust) {
     meta_cluster <- meta[meta$cluster == clust,]
