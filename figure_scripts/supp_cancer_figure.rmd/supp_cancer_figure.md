@@ -6,10 +6,9 @@ Supplemental Cancer
 Load R libraries
 
 ``` r
-# load packages
-library(tidyverse)
 library(circlize)
 library(ComplexHeatmap)
+library(tidyverse)
 ```
 
 ## Figure 1A
@@ -96,4 +95,4 @@ draw(hmap,
      column_title_gp = grid::gpar(fontsize = 16))
 ```
 
-![](/tmp/supp_cancer.rmd/supp_cancer_files/figure-gfm/fig_1A-1.png)<!-- -->
+![](/tmp/supp_cancer_figure.rmd/supp_cancer_figure_files/figure-gfm/fig_1A-1.png)<!-- -->

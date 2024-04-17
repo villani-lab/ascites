@@ -6,15 +6,18 @@ Figure 1
 Load R libraries
 
 ``` r
-# load packages
-library(tidyverse)
-library(glue)
-library(ggplot2)
-library(ComplexHeatmap)
 library(circlize)
+library(ComplexHeatmap)
+library(ggplot2)
+library(ggpubr)
+library(ggrepel)
+library(glue)
+library(limma)
 library(parameters)
 library(rstatix)
-library(ggpubr)
+library(tidyverse)
+library(xlsx)
+
 library(reticulate)
 use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
 ```
@@ -22,9 +25,9 @@ use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
 Load python libraries
 
 ``` python
-import pegasus as pg
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import pegasus as pg
 import scanpy as sc
 ```
 
@@ -75,8 +78,8 @@ plt.show()
 plt.close()
 ```
 
-    ## 2024-04-16 19:00:58,055 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-04-16 19:00:58,055 - pegasusio.readwrite - INFO - Function 'read_input' finished in 11.71s.
+    ## 2024-04-17 05:48:26,269 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-04-17 05:48:26,269 - pegasusio.readwrite - INFO - Function 'read_input' finished in 10.27s.
     ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
     ##   cax = scatter(
 
@@ -292,12 +295,6 @@ draw(pd, x = unit(0.90, "npc"), y = unit(0.50, "npc"))
 ## Figure 1E
 
 ``` r
-library(tidyverse)
-library(glue)
-library(limma)
-library(xlsx)
-library(ggrepel)
-
 data_dir <- "/projects/home/tlchan/projects/ascites/second_data_freeze/data/secreted_factors"
 fig_dir <- "/projects/home/tlchan/projects/ascites/second_data_freeze/figures/secreted_factors"
 

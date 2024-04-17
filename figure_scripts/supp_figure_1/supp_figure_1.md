@@ -6,12 +6,12 @@ Supplemental Figure 1
 Load R libraries
 
 ``` r
-# load packages
-library(tidyverse)
-library(glue)
 library(ggplot2)
-library(gtools)
 library(ggpubr)
+library(glue)
+library(gtools)
+library(tidyverse)
+
 library(reticulate)
 use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
 ```
@@ -69,7 +69,7 @@ lineage_pp <- ggplot(lineage_cite, aes(x = Protein, y = fct_rev(Cluster), fill =
 ggarrange(lineage_gp, lineage_pp, ncol = 2, nrow = 1, widths = c(1.0, 0.5), align = "h")
 ```
 
-![](/tmp/supp_figure_1-1.rmd/supp_figure_1_files/figure-gfm/fig_1C-1.png)<!-- -->
+![](/tmp/supp_figure_1.rmd/supp_figure_1_files/figure-gfm/fig_1C-1.png)<!-- -->
 
 ## Figure 1D
 
@@ -111,8 +111,8 @@ plt.show()
 plt.close()
 ```
 
-    ## 2024-04-16 19:25:52,528 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-04-16 19:25:52,528 - pegasusio.readwrite - INFO - Function 'read_input' finished in 9.93s.
+    ## 2024-04-17 05:51:15,329 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-04-17 05:51:15,329 - pegasusio.readwrite - INFO - Function 'read_input' finished in 9.79s.
     ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
     ##   cax = scatter(
 
@@ -136,4 +136,4 @@ ggplot(global_lineage, aes(x = Patient, y = Count, fill = Lineage)) +
     scale_fill_manual(values = lineage_palette)
 ```
 
-![](/tmp/supp_figure_1-1.rmd/supp_figure_1_files/figure-gfm/fig_1E-3.png)<!-- -->
+![](/tmp/supp_figure_1.rmd/supp_figure_1_files/figure-gfm/fig_1E-3.png)<!-- -->

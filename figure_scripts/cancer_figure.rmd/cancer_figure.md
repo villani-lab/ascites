@@ -6,12 +6,12 @@ Cancer Figure
 Load R libraries
 
 ``` r
-# load packages
-library(tidyverse)
-library(glue)
 library(ComplexHeatmap)
-library(reticulate)
 library(ggpubr)
+library(glue)
+library(tidyverse)
+
+library(reticulate)
 use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
 
 setwd('/projects/home/tlchan/github_code/ascites/functions')
@@ -21,12 +21,12 @@ source('plot_fgsea.R')
 Load python libraries
 
 ``` python
-import pegasus as pg
-import scanpy as sc
-import pandas as pd
-import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import pegasus as pg
+import scanpy as sc
 ```
 
 ## Figure 1A
@@ -81,8 +81,8 @@ plt.show()
 plt.close()
 ```
 
-    ## 2024-04-17 05:16:01,541 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cancer_R3_300mg_20pm_multi_res/1.3/data/pseudobulk/ascites_cancer_R3_300mg_20pm_1_3_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-04-17 05:16:01,541 - pegasusio.readwrite - INFO - Function 'read_input' finished in 3.05s.
+    ## 2024-04-17 05:44:47,166 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cancer_R3_300mg_20pm_multi_res/1.3/data/pseudobulk/ascites_cancer_R3_300mg_20pm_1_3_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-04-17 05:44:47,166 - pegasusio.readwrite - INFO - Function 'read_input' finished in 3.04s.
     ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
     ##   cax = scatter(
 
@@ -99,7 +99,7 @@ genes = ['EPCAM', 'DCN', 'MKI67', 'HLA-DRA', 'ERBB2', 'CLDN18', 'EGFR', 'cite_EG
 
 lineage_data = pg.read_input("/projects/home/tlchan/data_objects/cancer.zarr.zip")
 
-# get umap coordinates for base
+# Get UMAP coordinates for base
 umap_coords = pd.DataFrame(lineage_data.obsm['X_umap'], columns=['x', 'y'])
 x = umap_coords['x']
 y = umap_coords['y']
@@ -112,7 +112,7 @@ ax = axes.ravel()
 
 # Plot for each gene
 for num, gene in enumerate(genes):
-    # get counts for each gene
+    # Get counts for each gene
     norm_counts = lineage_data[:, gene].copy().get_matrix('X').todense().transpose()
     norm_counts = np.squeeze(np.asarray(norm_counts))
 
@@ -169,15 +169,14 @@ plt.show()
 plt.close()
 ```
 
-    ## 2024-04-17 05:16:05,121 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/data_objects/cancer.zarr.zip' is loaded.
-    ## 2024-04-17 05:16:05,121 - pegasusio.readwrite - INFO - Function 'read_input' finished in 2.00s.
+    ## 2024-04-17 05:44:50,558 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/data_objects/cancer.zarr.zip' is loaded.
+    ## 2024-04-17 05:44:50,558 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.80s.
 
 <img src="cancer_figure_files/figure-gfm/fig_1B-3.png" width="1920" />
 
 ## Figure 1C
 
 ``` r
-# Make cancer heatmap
 all_fgsea <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/gene_programs/FGSEA_scores/canonical_combo_fgsea.csv")
 
 cancer_fgsea <- all_fgsea %>%

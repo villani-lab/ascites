@@ -7,10 +7,9 @@ output: rmarkdown::github_document
 
 Load R libraries
 ```{r message = F, results = F, warning = F, load_r_libraries}
-# load packages
-library(tidyverse)
 library(circlize)
 library(ComplexHeatmap)
+library(tidyverse)
 ```
 
 ## Figure 1A

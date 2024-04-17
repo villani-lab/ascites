@@ -604,12 +604,12 @@ body {
 <h1 id="supplemental-figure-1">Supplemental Figure 1</h1>
 <h2 id="set-up">Set up</h2>
 <p>Load R libraries</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="co"># load packages</span></a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="kw">library</span>(tidyverse)</a>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="kw">library</span>(ggpubr)</a>
 <a class="sourceLine" id="cb1-3" title="3"><span class="kw">library</span>(glue)</a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="kw">library</span>(ggplot2)</a>
-<a class="sourceLine" id="cb1-5" title="5"><span class="kw">library</span>(gtools)</a>
-<a class="sourceLine" id="cb1-6" title="6"><span class="kw">library</span>(ggpubr)</a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="kw">library</span>(gtools)</a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="kw">library</span>(tidyverse)</a>
+<a class="sourceLine" id="cb1-6" title="6"></a>
 <a class="sourceLine" id="cb1-7" title="7"><span class="kw">library</span>(reticulate)</a>
 <a class="sourceLine" id="cb1-8" title="8"><span class="kw">use_python</span>(<span class="st">&quot;/projects/home/tlchan/.conda/envs/myenv/bin/python&quot;</span>)</a></code></pre></div>
 <p>Load python libraries</p>
@@ -694,8 +694,8 @@ body {
 <a class="sourceLine" id="cb4-33" title="33">tissue_ax.set_rasterization_zorder(<span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb4-34" title="34">plt.show()</a>
 <a class="sourceLine" id="cb4-35" title="35">plt.close()</a></code></pre></div>
-<pre><code>## 2024-04-16 19:25:52,528 - pegasusio.readwrite - INFO - zarr file &#39;/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip&#39; is loaded.
-## 2024-04-16 19:25:52,528 - pegasusio.readwrite - INFO - Function &#39;read_input&#39; finished in 9.93s.
+<pre><code>## 2024-04-17 05:51:15,329 - pegasusio.readwrite - INFO - zarr file &#39;/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip&#39; is loaded.
+## 2024-04-17 05:51:15,329 - pegasusio.readwrite - INFO - Function &#39;read_input&#39; finished in 9.79s.
 ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via &#39;c&#39;. Parameters &#39;cmap&#39; will be ignored
 ##   cax = scatter(
 </code></pre>

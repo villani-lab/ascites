@@ -1,5 +1,5 @@
 ---
-title: "Figure 1"
+title: "CD8 Figure"
 output: rmarkdown::github_document
 ---
 
@@ -7,17 +7,13 @@ output: rmarkdown::github_document
 
 Load R libraries
 ```{r message = F, results = F, warning = F, load_r_libraries}
-library(circlize)
-library(ComplexHeatmap)
 library(ggplot2)
 library(ggpubr)
-library(ggrepel)
 library(glue)
-library(limma)
-library(parameters)
-library(rstatix)
+library(gtools)
+library(openxlsx)
 library(tidyverse)
-library(xlsx)
+
 
 library(reticulate)
 use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
@@ -31,125 +27,102 @@ import pegasus as pg
 import scanpy as sc
 ```
 
-## Figure 1B
-```{python results = 'hold', fig_1B}
+## Figure 1A
+```{python results = 'hold', fig_1A}
 mpl.rcParams['pdf.fonttype'] = 42
 
-lineage_palette = {
-    "B/Plasma cells": "#FF0029",
-    "CD4+ T/NK cells": "#377EB8",
-    "CD8+ T/NK cells": "#66A61E",
-    "Dendritic cells": "#984EA3",
-    "Monocytes/Macrophages": "#00D2D5",
-    "Cancer cells": "#FF7F00"
+cluster_palette = {
+    "1": "#FF0029",
+    "2": "#377EB8",
+    "3": "#66A61E",
+    "4": "#984EA3",
+    "5": "#00D2D5",
+    "6": "#FF7F00",
+    "7": "#AF8D00",
+    "8": "#7F80CD",
+    "9": "#B3E900",
+    "10": "#C42E60",
+    "11": "#A65628",
+    "12": "#F781BF",
+    "13": "#8DD3C7",
+    "14": "#BEBADA",
+    "15": "#FB8072"
 }
 
 # Load single-cell object
-global_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip')
+lineage_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cd8_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.9/data/pseudobulk/ascites_cd8_cite_concat_R7_300mg_20pm_harm_channel_1_9_complete_with_pb.zarr.zip')
 
-lineage_dict = {
-    'cd4': 'CD4+ T/NK cells',
-    'cd8': 'CD8+ T/NK cells',
-    'monomac': 'Monocytes/Macrophages',
-    'dc': 'Dendritic cells',
-    'bplasma': 'B/Plasma cells'
-}
+# Relabel obs for function
+lineage_data.obs['Cluster'] = lineage_data.obs['leiden_pca_cite_concat'].cat.remove_unused_categories().astype(str)
+lineage_data.obsm['X_umap'] = lineage_data.obsm['X_umap_pca_cite_concat']
 
-# Rename labels for plot
-pg.annotate(global_data, 'Lineage', 'lineage', lineage_dict)
-
-lineage_fig, lineage_ax = plt.subplots(1)
-lineage_umap = sc.pl.umap(adata=global_data.to_anndata(),
-                          color="Lineage",
+cluster_fig, cluster_ax = plt.subplots(1)
+cluster_umap = sc.pl.umap(adata=lineage_data.to_anndata(),
+                          color="Cluster",
                           use_raw=True,
-                          palette=lineage_palette,
+                          palette=cluster_palette,
                           legend_loc="on data",
                           legend_fontoutline=5,
                           title="",
                           show=False,
-                          ax=lineage_ax)
-lineage_fig = plt.gcf()
-lineage_fig.set_size_inches(6, 3.7)
-lineage_fig.tight_layout()
-lineage_ax.set_rasterization_zorder(2)
+                          ax=cluster_ax)
+
+cluster_fig = plt.gcf()
+cluster_fig.set_size_inches(6, 3.7)
+cluster_fig.tight_layout()
+cluster_ax.set_rasterization_zorder(2)
 plt.show()
 plt.close()
 ```
 
-## Figure 1C
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, fig_1C}
-tissue_palette <- list("ascites" = "#00BFC4",
-                       "blood" = "#F8766D",
-                       "other" = "#000000")
+## Figure 1B
+```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, fig_1B}
 
-# Load data
-abundance <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/metadata/ascites_abundance.csv")
+cd8_genes <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_markers.csv') %>%
+    filter(lineage == 'cd8') %>%
+    pull(genes) %>%
+    strsplit(",") %>%
+    unlist()
 
-# Remove cancer cells
-abundance <- abundance %>%
-    filter(lineage != "cancer")
+cd8_clusters <- read.xlsx('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_labels.xlsx', sheet = "cd8") %>%
+    mutate(cluster = glue("{cluster}. {name}")) %>%
+    pull(cluster) %>%
+    unlist
 
-# Get lin count
-abundance <- abundance %>%
-    group_by(patient_id, tissue_type, lineage) %>%
-    mutate(lin_count = sum(immune == "True")) %>%
-    select(patient_id, tissue_type, lineage, lin_count) %>%
-    distinct()
+cd8_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/cd8_gene_exp.csv') %>%
+    mutate(Gene = factor(Gene, levels = cd8_genes), Cluster = factor(Cluster, levels = cd8_clusters))
 
-# Account for patient/tissue pairs that contributed zero cells to clusters
-combos <- expand.grid(unique(abundance$patient_id), unique(abundance$tissue_type), unique(abundance$lineage)) %>% `colnames<-`(c("patient_id", "tissue_type", "lineage"))
+cd8_gp <- ggplot(cd8_gex, aes(x = Gene, y = fct_rev(Cluster), fill = Count, size = Percent_Expressed)) +
+    geom_point(color = "black", shape = 21) +
+    ylab('Cluster') +
+    labs(size = "% Expressed") +
+    scale_fill_gradient(low = "#fff5f0", high = "#67000c") +
+    lims(size = c(0, 100)) +
+    theme_light(base_size = 12) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    theme(legend.key.size = unit(.25, "cm"))
 
-abundance <- combos %>%
-    left_join(abundance, by = c("patient_id", "tissue_type", "lineage")) %>%
-    replace(is.na(.), 0)
+cd8_proteins <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_markers.csv') %>%
+    filter(lineage == 'cd8') %>%
+    pull(proteins) %>%
+    strsplit(",") %>%
+    unlist()
 
-# Remove patients with fewer than 250 immune native fraction cells
-abundance <- abundance %>%
-    group_by(patient_id, tissue_type) %>%
-    filter(sum(lin_count) > 250)
+cd8_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/cd8_cite_exp.csv') %>%
+    mutate(Protein = factor(Protein, levels = cd8_proteins), Cluster = factor(Cluster, levels = cd8_clusters))
 
-# Get statistics
-abundance <- abundance %>%
-    group_by(patient_id, tissue_type) %>%
-    mutate(total_count = sum(lin_count)) %>%
-    mutate(lin_percentage = lin_count / total_count * 100) %>%
-    mutate(log_lin_percentage = log1p(lin_percentage)) %>%
-    mutate(tissue_type = factor(tissue_type, levels = c("blood", "ascites")))
+cd8_pp <- ggplot(cd8_cite, aes(x = Protein, y = fct_rev(Cluster), fill = Count, size = Percent_Expressed)) +
+    geom_point(color = "black", shape = 21) +
+    labs(size = "% Expressed") +
+    scale_fill_gradient(low = "#fff5f0", high = "#08306b") +
+    lims(size = c(0, 100)) +
+    theme_light(base_size = 12) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
+    theme(legend.key.size = unit(.25, "cm"))
 
-bp <- ggplot(abundance, aes(x = log_lin_percentage, y = factor(lineage), fill = tissue_type)) +
-    geom_boxplot(outlier.shape = NA) +
-    geom_point(pch = 21, position = position_jitterdodge(), aes(fill = tissue_type), size = 2) +
-    annotation_logticks(side = "b", outside = TRUE) +
-    coord_cartesian(clip = "off") +
-    labs(fill = "Tissue type") +
-    xlab("log1p(Percent native immune)") +
-    ylab("") +
-    theme_classic(base_size = 16)
-
-lm_res <- lapply(unique(abundance$lineage), function(lin) {
-    lm_data <- abundance %>% filter(lineage == lin)
-    stats <- parameters(lm(log_lin_percentage ~ tissue_type, lm_data))
-    stats$lineage <- lin
-    stats <- stats %>% filter(Parameter != "(Intercept)")
-    return(stats)
-}) %>%
-    do.call(rbind, .) %>%
-    mutate(padj = p.adjust(p, method = "fdr")) %>%
-    mutate(color = case_when(padj < 0.1 & Coefficient > 0 ~ "ascites", padj < 0.1 & Coefficient < 0 ~ "blood", padj >= 0.1 ~ "other"))
-
-fp <- ggplot(lm_res, aes(x = Coefficient, y = factor(lineage), color = color)) +
-    geom_point(size = 3) +
-    geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high, height = 0)) +
-    geom_vline(xintercept = 0) +
-    guides(color = "none") +
-    xlab("Log2FoldChange") +
-    ylab("Lineage") +
-    theme_classic(base_size = 16) +
-    scale_color_manual(values = tissue_palette)
-
-p <- ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0))
-annotate_figure(p, top = text_grob(glue("Percent native immune by lineage"), size = 16))
+ggarrange(cd8_gp, cd8_pp, ncol = 2, nrow = 1, widths = c(1.0, 0.5), align = "h")
 ```
 
 ## Figure 1D
