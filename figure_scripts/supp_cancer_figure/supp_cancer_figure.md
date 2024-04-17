@@ -1,4 +1,4 @@
-Supplemental Cancer
+Supplemental Cancer Figure
 ================
 
 ## Set up
