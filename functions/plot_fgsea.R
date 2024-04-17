@@ -28,7 +28,7 @@ plot_fgsea <- function(fgsea_res, ranks, genes, lin, var, gs) {
 
     diff <- (max(tops) - min(bottoms)) / 8
 
-    ggplot(toPlot, aes(x = x, y = y)) +
+    fgsea_plot <- ggplot(toPlot, aes(x = x, y = y)) +
         geom_line(color = "blue") +
         geom_hline(yintercept = 0, colour = "black") +
         geom_segment(data = data.frame(x = pathway),
@@ -42,6 +42,8 @@ plot_fgsea <- function(fgsea_res, ranks, genes, lin, var, gs) {
         annotate("text", label = glue("NES : {nes}"), x = length(ranks) - 1000, y = 0.9) +
         annotate("text", label = glue("p-value : {pval}"), x = length(ranks) - 1000, y = 0.8) +
         annotate("text", label = glue("# genes : {n_genes}"), x = length(ranks) - 1000, y = 0.7) +
-        ggtitle(glue("{lin}, {var}, {gs} signature")) +
+        ggtitle(glue("{lin}, {var}, {gsub('_', ' ', gs)} signature")) +
         theme_classic(base_size = 12)
+
+    return(fgsea_plot)
 }
