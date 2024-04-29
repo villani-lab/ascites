@@ -153,7 +153,7 @@ annotate_figure(p, top = text_grob(glue("Percent native immune by lineage"), siz
 ```
 
 ## Figure 1D
-```{r message = F, results = F, warning = F, fig.width = 16, fig.height = 6, fig_1D}
+```{r message = F, results = F, warning = F, fig.width = 18, fig.height = 10, fig_1D}
 # Read in metadata
 metadata <- read_csv("/projects/home/tlchan/projects/ascites/figure_panels/metadata_heatmap.csv")
 
@@ -170,7 +170,7 @@ rownames(metadata_mtx) <- c("Age", "Sex:Male", "Survival", "B2M",
                             "proteomics-Ascites", "proteomics-Blood")
 
 # Get age data
-age_mtx <- metadata_mtx['Age', ]
+age_mtx <- metadata_mtx['Age',]
 metadata_mtx <- metadata_mtx[-1,]
 
 # Split row
@@ -179,18 +179,18 @@ row_split <- factor(row_split, levels = unique(row_split))
 
 # Add colors
 col_survival <- colorRamp2(c(3, 501), hcl_palette = "YlOrRd")
-col_B2M <- colorRamp2(c(0, 1, 2), hcl_palette = "YlOrRd")
+col_B2M <- colorRamp2(c(0, 1, 2), hcl_palette = "PuBu", reverse = TRUE)
 
 make_rect <- function(j, i, x, y, width, height, fill) {
     grid.rect(x = x, y = y,
               width = width, height = height,
               gp = gpar(col = "black"))
-    if (i == 2) { # ie survival
+    if (i == 2) { # ie. survival
         grid.rect(x = x, y = y,
                   width = width, height = height,
                   gp = gpar(fill = col_survival(as.numeric(metadata_mtx[i, j])), col = "black"))
     }
-    else if (i == 3) { # ie B2M
+    else if (i == 3) { # ie. B2M
         grid.rect(x = x, y = y,
                   width = width, height = height,
                   gp = gpar(fill = col_B2M(as.numeric(metadata_mtx[i, j])), col = "black"))
@@ -208,11 +208,11 @@ make_rect <- function(j, i, x, y, width, height, fill) {
 
 # Add percent cells and age annotation
 lineage_cols <- c("B/Plasma cells" = "#FF0029",
-                     "CD4+ T/NK cells" = "#377EB8",
-                     "CD8+ T/NK cells" = "#66A61E",
-                     "Dendritic cells" = "#984EA3",
-                     "Monocytes/Macrophages" = "#00D2D5",
-                     "Cancer cells" = "#FF7F00")
+                  "CD4+ T/NK cells" = "#377EB8",
+                  "CD8+ T/NK cells" = "#66A61E",
+                  "Dendritic cells" = "#984EA3",
+                  "Monocytes/Macrophages" = "#00D2D5",
+                  "Cancer cells" = "#FF7F00")
 
 global_lineage <- read.csv("/projects/home/tlchan/projects/ascites/figure_panels/abundance_data/global_lineage_counts.csv", check.names = F)
 perc_mtx <- global_lineage %>%
@@ -226,7 +226,7 @@ perc_mtx <- global_lineage %>%
 perc_mtx <- perc_mtx[colnames(metadata_mtx), names(lineage_cols)]
 
 top_bar <- HeatmapAnnotation("Cell fraction" = anno_barplot(perc_mtx, height = unit(3, "cm"), gp = gpar(fill = lineage_cols)),
-                             "Age" = anno_points(age_mtx, height = unit(1, "cm")))
+                             "Age" = anno_points(age_mtx, height = unit(1.2, "cm")))
 
 
 # Make heatmap body
@@ -261,9 +261,10 @@ survival_lgd <- Legend(col_fun = col_survival,
                        legend_gp = gpar(fill = col_survival),
                        border = "black")
 
-B2M_lgd <- Legend(col_fun = col_B2M,
+at <- seq(0, 2, by = 1)
+B2M_lgd <- Legend(at = at,
                   title = "B2M",
-                  legend_gp = gpar(fill = col_survival),
+                  legend_gp = gpar(fill = col_B2M(at)),
                   border = "black")
 
 fill_lgd <- Legend(labels = c("True", "False"),
@@ -272,10 +273,10 @@ fill_lgd <- Legend(labels = c("True", "False"),
                    legend_gp = gpar(fill = c("#5A5A5A", "white")),
                    border = "black")
 
-pd <- packLegend(survival_lgd, B2M_lgd, lin_lgd, fill_lgd, max_height = nrow(metadata_mtx) * unit(6, "mm"))
+pd <- packLegend(lin_lgd, survival_lgd, B2M_lgd, fill_lgd, direction = "vertical")
 
 draw(ht)
-draw(pd, x = unit(0.90, "npc"), y = unit(0.50, "npc"))
+draw(pd, x = unit(0.93, "npc"), y = unit(0.58, "npc"))
 ```
 
 ## Figure 1E
@@ -359,6 +360,5 @@ ggplot(res, aes(x = logFC, y = -log10(p))) +
     geom_point(data = res[res$logFC > 0 & res$p.adj < 0.1,], color = "#1F77B4") +
     geom_point(data = res[res$logFC < 0 & res$p.adj < 0.1,], color = "#D62728") +
     geom_text_repel(data = res[res$ID %in% label_genes,], aes(label = ID), max.overlaps = Inf) +
-    ggtitle("Secreted factors: ascites vs. plasma") +
     theme_classic(base_size = 15)
 ```

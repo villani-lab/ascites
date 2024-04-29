@@ -78,8 +78,8 @@ plt.show()
 plt.close()
 ```
 
-    ## 2024-04-17 05:48:26,269 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-04-17 05:48:26,269 - pegasusio.readwrite - INFO - Function 'read_input' finished in 10.27s.
+    ## 2024-04-29 21:57:29,049 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-04-29 21:57:29,049 - pegasusio.readwrite - INFO - Function 'read_input' finished in 12.07s.
     ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
     ##   cax = scatter(
 
@@ -161,7 +161,7 @@ p <- ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0))
 annotate_figure(p, top = text_grob(glue("Percent native immune by lineage"), size = 16))
 ```
 
-![](/tmp/figure_1-21.rmd/figure_1_files/figure-gfm/fig_1C-3.png)<!-- -->
+![](/tmp/figure_1-18.rmd/figure_1_files/figure-gfm/fig_1C-3.png)<!-- -->
 
 ## Figure 1D
 
@@ -182,7 +182,7 @@ rownames(metadata_mtx) <- c("Age", "Sex:Male", "Survival", "B2M",
                             "proteomics-Ascites", "proteomics-Blood")
 
 # Get age data
-age_mtx <- metadata_mtx['Age', ]
+age_mtx <- metadata_mtx['Age',]
 metadata_mtx <- metadata_mtx[-1,]
 
 # Split row
@@ -191,18 +191,18 @@ row_split <- factor(row_split, levels = unique(row_split))
 
 # Add colors
 col_survival <- colorRamp2(c(3, 501), hcl_palette = "YlOrRd")
-col_B2M <- colorRamp2(c(0, 1, 2), hcl_palette = "YlOrRd")
+col_B2M <- colorRamp2(c(0, 1, 2), hcl_palette = "PuBu", reverse = TRUE)
 
 make_rect <- function(j, i, x, y, width, height, fill) {
     grid.rect(x = x, y = y,
               width = width, height = height,
               gp = gpar(col = "black"))
-    if (i == 2) { # ie survival
+    if (i == 2) { # ie. survival
         grid.rect(x = x, y = y,
                   width = width, height = height,
                   gp = gpar(fill = col_survival(as.numeric(metadata_mtx[i, j])), col = "black"))
     }
-    else if (i == 3) { # ie B2M
+    else if (i == 3) { # ie. B2M
         grid.rect(x = x, y = y,
                   width = width, height = height,
                   gp = gpar(fill = col_B2M(as.numeric(metadata_mtx[i, j])), col = "black"))
@@ -220,11 +220,11 @@ make_rect <- function(j, i, x, y, width, height, fill) {
 
 # Add percent cells and age annotation
 lineage_cols <- c("B/Plasma cells" = "#FF0029",
-                     "CD4+ T/NK cells" = "#377EB8",
-                     "CD8+ T/NK cells" = "#66A61E",
-                     "Dendritic cells" = "#984EA3",
-                     "Monocytes/Macrophages" = "#00D2D5",
-                     "Cancer cells" = "#FF7F00")
+                  "CD4+ T/NK cells" = "#377EB8",
+                  "CD8+ T/NK cells" = "#66A61E",
+                  "Dendritic cells" = "#984EA3",
+                  "Monocytes/Macrophages" = "#00D2D5",
+                  "Cancer cells" = "#FF7F00")
 
 global_lineage <- read.csv("/projects/home/tlchan/projects/ascites/figure_panels/abundance_data/global_lineage_counts.csv", check.names = F)
 perc_mtx <- global_lineage %>%
@@ -238,7 +238,7 @@ perc_mtx <- global_lineage %>%
 perc_mtx <- perc_mtx[colnames(metadata_mtx), names(lineage_cols)]
 
 top_bar <- HeatmapAnnotation("Cell fraction" = anno_barplot(perc_mtx, height = unit(3, "cm"), gp = gpar(fill = lineage_cols)),
-                             "Age" = anno_points(age_mtx, height = unit(1, "cm")))
+                             "Age" = anno_points(age_mtx, height = unit(1.2, "cm")))
 
 
 # Make heatmap body
@@ -273,9 +273,10 @@ survival_lgd <- Legend(col_fun = col_survival,
                        legend_gp = gpar(fill = col_survival),
                        border = "black")
 
-B2M_lgd <- Legend(col_fun = col_B2M,
+at <- seq(0, 2, by = 1)
+B2M_lgd <- Legend(at = at,
                   title = "B2M",
-                  legend_gp = gpar(fill = col_survival),
+                  legend_gp = gpar(fill = col_B2M(at)),
                   border = "black")
 
 fill_lgd <- Legend(labels = c("True", "False"),
@@ -284,13 +285,13 @@ fill_lgd <- Legend(labels = c("True", "False"),
                    legend_gp = gpar(fill = c("#5A5A5A", "white")),
                    border = "black")
 
-pd <- packLegend(survival_lgd, B2M_lgd, lin_lgd, fill_lgd, max_height = nrow(metadata_mtx) * unit(6, "mm"))
+pd <- packLegend(lin_lgd, survival_lgd, B2M_lgd, fill_lgd, direction = "vertical")
 
 draw(ht)
-draw(pd, x = unit(0.90, "npc"), y = unit(0.50, "npc"))
+draw(pd, x = unit(0.93, "npc"), y = unit(0.58, "npc"))
 ```
 
-![](/tmp/figure_1-21.rmd/figure_1_files/figure-gfm/fig_1D-1.png)<!-- -->
+![](/tmp/figure_1-18.rmd/figure_1_files/figure-gfm/fig_1D-1.png)<!-- -->
 
 ## Figure 1E
 
@@ -374,8 +375,7 @@ ggplot(res, aes(x = logFC, y = -log10(p))) +
     geom_point(data = res[res$logFC > 0 & res$p.adj < 0.1,], color = "#1F77B4") +
     geom_point(data = res[res$logFC < 0 & res$p.adj < 0.1,], color = "#D62728") +
     geom_text_repel(data = res[res$ID %in% label_genes,], aes(label = ID), max.overlaps = Inf) +
-    ggtitle("Secreted factors: ascites vs. plasma") +
     theme_classic(base_size = 15)
 ```
 
-![](/tmp/figure_1-21.rmd/figure_1_files/figure-gfm/fig_1E-1.png)<!-- -->
+![](/tmp/figure_1-18.rmd/figure_1_files/figure-gfm/fig_1E-1.png)<!-- -->
