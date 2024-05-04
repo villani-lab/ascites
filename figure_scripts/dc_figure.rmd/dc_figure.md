@@ -7,38 +7,33 @@ Load R libraries
 
 ``` r
 library(ggplot2)
-library(ggpubr)
-library(ggrepel)
-library(glue)
-library(gtools)
-library(openxlsx)
-library(parameters)
 library(tidyverse)
 
 library(reticulate)
 use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
 
 setwd('/projects/home/tlchan/github_code/ascites/functions')
+source('plot_abundance.R')
+source('plot_deg.R')
+source('plot_dotplot.R')
 source('plot_fgsea.R')
+source('plot_sf_boxplot.R')
 ```
 
 Load python libraries
 
 ``` python
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 import pegasus as pg
-import scanpy as sc
+
+import sys
+sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
+import python_functions
 ```
 
 ## Figure 1A
 
 ``` python
-mpl.rcParams['pdf.fonttype'] = 42
-
-cluster_palette = {
+dc_cluster_palette = {
     "1": "#FF0029",
     "2": "#377EB8",
     "3": "#66A61E",
@@ -52,33 +47,18 @@ cluster_palette = {
 }
 
 # Load single-cell object
-lineage_data = pg.read_input(
+dc_data = pg.read_input(
     '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip')
 
 # Relabel obs for function
-lineage_data.obs['Cluster'] = lineage_data.obs['leiden_labels'].cat.remove_unused_categories().astype(str)
+dc_data.obs['Cluster'] = dc_data.obs['leiden_labels'].cat.remove_unused_categories().astype(str)
 
-cluster_fig, cluster_ax = plt.subplots(1)
-cluster_umap = sc.pl.umap(adata=lineage_data.to_anndata(),
-                          color="Cluster",
-                          use_raw=True,
-                          palette=cluster_palette,
-                          legend_loc="on data",
-                          legend_fontoutline=5,
-                          title="",
-                          show=False,
-                          ax=cluster_ax)
-
-cluster_fig = plt.gcf()
-cluster_fig.set_size_inches(6, 6)
-cluster_fig.tight_layout()
-cluster_ax.set_rasterization_zorder(2)
-plt.show()
-plt.close()
+python_functions.plot_umap(lin_data=dc_data,
+                           palette=dc_cluster_palette)
 ```
 
-    ## 2024-04-17 20:30:26,013 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-04-17 20:30:26,013 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.79s.
+    ## 2024-05-04 20:14:29,442 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-04 20:14:29,443 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.82s.
     ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
     ##   cax = scatter(
 
@@ -87,319 +67,61 @@ plt.close()
 ## Figure 1B
 
 ``` r
-dc_genes <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_markers.csv') %>%
-    filter(lineage == 'dc') %>%
-    pull(genes) %>%
-    strsplit(",") %>%
-    unlist()
+dc_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/dc_gene_exp.csv')
+dc_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/dc_cite_exp.csv')
 
-dc_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/dc_gene_exp.csv') %>%
-    mutate(Gene = factor(Gene, levels = dc_genes), Cluster = factor(Cluster, levels = mixedsort(unique(Cluster))))
-
-dc_gp <- ggplot(dc_gex, aes(x = Gene, y = fct_rev(Cluster), fill = Count, size = Percent_Expressed)) +
-    geom_point(color = "black", shape = 21) +
-    ylab('Cluster') +
-    labs(size = "% Expressed") +
-    scale_fill_gradient(low = "#fff5f0", high = "#67000c") +
-    lims(size = c(0, 100)) +
-    theme_light(base_size = 12) +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-    theme(legend.key.size = unit(.25, "cm"))
-
-dc_proteins <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_markers.csv') %>%
-    filter(lineage == 'dc') %>%
-    pull(proteins) %>%
-    strsplit(",") %>%
-    unlist()
-
-dc_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/dc_cite_exp.csv') %>%
-    mutate(Protein = factor(Protein, levels = dc_proteins), Cluster = factor(Cluster, levels = mixedsort(unique(Cluster))))
-
-dc_pp <- ggplot(dc_cite, aes(x = Protein, y = fct_rev(Cluster), fill = Count, size = Percent_Expressed)) +
-    geom_point(color = "black", shape = 21) +
-    labs(size = "% Expressed") +
-    scale_fill_gradient(low = "#fff5f0", high = "#08306b") +
-    lims(size = c(0, 100)) +
-    theme_light(base_size = 12) +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-    theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
-    theme(legend.key.size = unit(.25, "cm"))
-
-ggarrange(dc_gp, dc_pp, ncol = 2, nrow = 1, widths = c(1.0, 0.4), align = "h")
+plot_dotplot(lin_gex = dc_gex,
+             lin_cite = dc_cite,
+             lin = "dc")
 ```
 
-![](/tmp/dc_figure-4.rmd/dc_figure_files/figure-gfm/fig_1B-3.png)<!-- -->
+![](/tmp/dc_figure-15.rmd/dc_figure_files/figure-gfm/fig_1B-3.png)<!-- -->
 
 ## Figure 1C
 
 ``` r
-tissue_palette <- list("ascites" = "#00BFC4",
-                       "blood" = "#F8766D",
-                       "other" = "#000000")
-
-# Load data
-abundance <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/metadata/ascites_abundance.csv")
-
-# Remove cancer cells and doublets
-abundance <- abundance %>%
-    filter(lineage != "cancer")
-
-# Get immune count
-abundance <- abundance %>%
-    group_by(patient_id, tissue_type, lineage, cluster) %>%
-    mutate(clust_count = sum(immune == "True")) %>%
-    select(patient_id, tissue_type, lineage, cluster, clust_count) %>%
-    distinct()
-
-# Account for patient/tissue pairs that contributed zero cells to clusters
-combos <- expand.grid(unique(abundance$patient_id), unique(abundance$tissue_type), unique(abundance$lineage), unique(abundance$cluster)) %>% `colnames<-`(c("patient_id", "tissue_type", "lineage", "cluster"))
-
-abundance <- combos %>%
-    left_join(abundance, by = c("patient_id", "tissue_type", "lineage", "cluster")) %>%
-    replace(is.na(.), 0)
-
-# Remove patients with fewer than 250 immune native fraction cells
-abundance <- abundance %>%
-    group_by(patient_id, tissue_type) %>%
-    filter(sum(clust_count) > 250)
-
-# Get statistics
-abundance <- abundance %>%
-    group_by(patient_id, tissue_type) %>%
-    mutate(total_count = sum(clust_count)) %>%
-    mutate(clust_percentage = clust_count / total_count * 100) %>%
-    mutate(log_clust_percentage = log1p(clust_percentage)) %>%
-    mutate(tissue_type = factor(tissue_type, levels = c("blood", "ascites")))
-
-# Subset abundance
-lin <- "dc"
-abundance_lineage <- abundance %>% filter(lineage == lin)
-
-# Remove extra clusters
-abundance_lineage <- abundance_lineage %>%
-    group_by(cluster) %>%
-    filter(sum(clust_count) != 0) %>%
-    droplevels()
-
-bp <- ggplot(abundance_lineage, aes(x = log_clust_percentage, y = factor(cluster), fill = tissue_type)) +
-    geom_boxplot(outlier.shape = NA) +
-    geom_point(pch = 21, position = position_jitterdodge(), aes(fill = tissue_type), size = 2) +
-    annotation_logticks(side = "b", outside = TRUE) +
-    coord_cartesian(clip = "off") +
-    scale_y_discrete(limits = rev) +
-    labs(fill = "Tissue type") +
-    xlab("log1p(Percent native immune)") +
-    ylab("") +
-    theme_classic(base_size = 16)
-
-lm_res <- lapply(unique(abundance_lineage$cluster), function(clust) {
-    lm_data <- abundance_lineage %>% filter(cluster == clust)
-    stats <- parameters(lm(log_clust_percentage ~ tissue_type, lm_data))
-    stats$cluster <- clust
-    stats <- stats %>% filter(Parameter != "(Intercept)")
-    return(stats)
-}) %>%
-    do.call(rbind, .) %>%
-    mutate(padj = p.adjust(p, method = "fdr")) %>%
-    mutate(color = case_when(padj < 0.1 & Coefficient > 0 ~ "ascites", padj < 0.1 & Coefficient < 0 ~ "blood", padj >= 0.1 ~ "other"))
-
-fp <- ggplot(lm_res, aes(x = Coefficient, y = factor(cluster), color = color)) +
-    geom_point(size = 3) +
-    geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high, height = 0)) +
-    geom_vline(xintercept = 0) +
-    scale_y_discrete(limits = rev) +
-    guides(color = "none") +
-    xlab("Log2FoldChange") +
-    ylab("Cluster") +
-    theme_classic(base_size = 16) +
-    scale_color_manual(values = tissue_palette)
-
-p <- ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0))
-annotate_figure(p, top = text_grob(glue("{toupper(lin)} percent native immune by cluster"), size = 16))
+plot_cluster_abundance("dc")
 ```
 
-![](/tmp/dc_figure-4.rmd/dc_figure_files/figure-gfm/fig_1C-1.png)<!-- -->
+![](/tmp/dc_figure-15.rmd/dc_figure_files/figure-gfm/fig_1C-1.png)<!-- -->
 
 ## Figure 1D
 
 ``` python
-mpl.rcParams['pdf.fonttype'] = 42
-
-lineage_data = pg.read_input(
+dc_data = pg.read_input(
     '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip')
 
-genes = ["CXCR3", "CXCL16", "IL18"]
-
-# Get UMAP coordinates for base
-blood_data = lineage_data[lineage_data.obs['tissue_type'] == 'blood'].copy()
-blood_coords = pd.DataFrame(blood_data.obsm['X_umap'], columns=['x', 'y'])
-blood_x = blood_coords['x']
-blood_y = blood_coords['y']
-
-ascites_data = lineage_data[lineage_data.obs['tissue_type'] == 'ascites'].copy()
-ascites_coords = pd.DataFrame(ascites_data.obsm['X_umap'], columns=['x', 'y'])
-ascites_x = ascites_coords['x']
-ascites_y = ascites_coords['y']
-
-x = [blood_x, ascites_x]
-y = [blood_y, ascites_y]
-
-# set up figure structure
-ncol = 2
-nrow = len(genes)
-fig_size = (5 * ncol, 4 * nrow)
-fig, axes = plt.subplots(nrows=nrow, ncols=ncol, figsize=fig_size, sharex=True, sharey=True)
-ax = axes.ravel()
-title = ['Blood', 'Ascites']
-
-# Plot for each gene
-for num, gene in enumerate(genes):
-    # Get gene counts
-    blood_cts = blood_data[:, gene].copy().get_matrix('X').todense().transpose()
-    blood_cts = np.squeeze(np.asarray(blood_cts))
-    if blood_cts.size == 0:  # ie. All empty/zero in sparce matrix
-        blood_cts = np.zeros(blood_cts.shape[1])
-    blood_n = (blood_cts != 0).sum()
-    blood_perc = blood_n / blood_cts.shape[0]
-
-    ascites_cts = ascites_data[:, gene].copy().get_matrix('X').todense().transpose()
-    ascites_cts = np.squeeze(np.asarray(ascites_cts))
-    if ascites_cts.size == 0:  # ie. All empty/zero in sparce matrix
-        ascites_cts = np.zeros(ascites_cts.shape[1])
-    ascites_n = (ascites_cts != 0).sum()
-    ascites_perc = (ascites_cts != 0).sum() / ascites_cts.shape[0]
-
-    norm_counts = [blood_cts, ascites_cts]
-    cb_max = max(max(blood_cts), max(ascites_cts))  # Makes sure colorbars are the same
-
-    # Create heatmap
-    for i in range(2):
-        hb = ax[num * 2 + i].hexbin(x=x[i],
-                                    y=y[i],
-                                    C=norm_counts[i],
-                                    cmap='YlOrRd',
-                                    gridsize=150,
-                                    vmin=0,
-                                    vmax=cb_max,
-                                    edgecolors="none")
-        cb = fig.colorbar(hb, ax=ax[num * 2 + i], shrink=.75, aspect=10)
-        cb.ax.set_title('logCPM', loc='left', fontsize=14)
-        if i == 0:
-            # ie. Blood
-            ax[num * 2 + i].set_ylabel('UMAP2', fontsize=18)
-            ax[num * 2 + i].annotate(f'{blood_n:,} ({blood_perc:.1%}) cells',
-                                     xy=(0.01, 0), xycoords='axes fraction',
-                                     fontsize=10,
-                                     horizontalalignment='left',
-                                     verticalalignment='bottom')
-        if num + 1 == len(genes):
-            # ie. Blood and only one row
-            ax[num * 2 + i].set_xlabel('UMAP1', fontsize=18)
-        if i == 1:
-            # ie. Ascites
-            ax[num * 2 + i].annotate(f'{ascites_n:,} ({ascites_perc:.1%}) cells',
-                                     xy=(0.01, 0), xycoords='axes fraction',
-                                     fontsize=10,
-                                     horizontalalignment='left',
-                                     verticalalignment='bottom')
-        ax[num * 2 + i].set_title(f'{title[i]}: {gene}', fontsize=18)
-        ax[num * 2 + i].tick_params(left=False, labelleft=False,
-                                    bottom=False, labelbottom=False)
-fig.tight_layout()
-plt.show()
-plt.close()
+python_functions.plot_feature_by_tissue_type(lin_data=dc_data,
+                                             genes=["CXCR3", "CXCL16", "IL18"])
 ```
 
-    ## 2024-04-17 20:30:31,083 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-04-17 20:30:31,083 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.77s.
+    ## 2024-05-04 20:14:34,503 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-04 20:14:34,503 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.82s.
 
 <img src="dc_figure_files/figure-gfm/fig_1D-1.png" width="960" />
 
 ## Figure 1E
 
 ``` r
-tissue_palette <- list("ascites" = "#00BFC4",
-                       "plasma" = "#F8766D")
-
-# Load and prepare data
-sf_data <- read.csv(glue("/projects/home/tlchan/projects/ascites/second_data_freeze/data/secreted_factors/secreted_factors_updated.csv"), row.names = 1)
-sf_data <- sf_data[sf_data["diluted"] == "No",]
-sf_data <- sf_data[sf_data["type"] != "pleural",]
-sf_data$log_concentration <- log(sf_data$concentration)
-
-# Remap to common names
-sf_names <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/secreted_factors/sf_common_names.csv")
-sf_data <- merge(sf_data, sf_names, all.x = TRUE)
-sf_data$analyte <- ifelse(!(is.na(sf_data$common_name)), sf_data$common_name, sf_data$analyte)
-
-# Select paired samples and specific analytes
-analyte_list <- c("6CKine", "SCF", "IL-6", "FLT-3L")
-paired_list <- list('ASC_41', 'ASC_43', 'ASC_45', 'ASC_46', 'ASC_48', 'ASC_52', 'ASC_57', 'ASC_61', 'ASC_62', 'ASC_65', 'ASC_66', 'ASC_67')
-sf_data <- sf_data %>%
-    filter(panel == "96-cytokine") %>%
-    filter(patient_id %in% paired_list) %>%
-    filter(analyte %in% analyte_list) %>%
-    mutate(analyte = factor(analyte, levels = analyte_list))
-
-ggplot(sf_data, aes(x = type, y = log_concentration, fill = type)) +
-    geom_boxplot(outlier.shape = NA, alpha = 0.75) +
-    geom_line(aes(group = patient_id)) +
-    geom_point(pch = 20, size = 2) +
-    stat_compare_means(paired = TRUE, label.x.npc = "center", aes(label = paste0("p = ", after_stat(p.format)))) +
-    xlab("Type") +
-    ylab("log(Concentration)") +
-    ggtitle("Gene concentration by tissue type") +
-    facet_wrap(~analyte, scales = "free_y", nrow = 3) +
-    theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank()) +
-    scale_fill_manual(values = tissue_palette)
+plot_sf_boxplot(c("6CKine", "SCF", "IL-6", "FLT-3L"))
 ```
 
-![](/tmp/dc_figure-4.rmd/dc_figure_files/figure-gfm/fig_1E-3.png)<!-- -->
+![](/tmp/dc_figure-15.rmd/dc_figure_files/figure-gfm/fig_1E-3.png)<!-- -->
 
 ## Figure 1F
 
 ``` r
-all_res <- read.csv('/projects/home/tlchan/dc/dc_ascites_de_by_B2M_all_results.csv')
-meta <- read.csv('/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_pseudobulk_meta.csv', row.names = 1)
-cell_cutoff <- 10
-fc_cutoff <- 0
-p_cutoff <- 0.1
-clust <- 10
+dc_res <- read.csv('/projects/home/tlchan/dc/dc_ascites_de_by_B2M_all_results.csv')
+dc_meta <- read.csv('/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_pseudobulk_meta.csv', row.names = 1)
 
-meta <- meta %>% filter(tissue_type == "ascites")
-
-meta_cluster <- meta[meta$cluster == clust,]
-
-# Filtering for sample/clusters that have more than cell_cutoff cells
-meta_cluster <- meta_cluster[meta_cluster$n_cells >= cell_cutoff,]
-tot_cells <- sum(meta_cluster$n_cells)
-
-# Filter results
-res <- all_res %>% filter(cluster == clust)
-
-# Make plot
-top <- res[res$log2FoldChange > fc_cutoff & res$padj < p_cutoff,]
-top20 <- head(top[order(top$padj),], 20L)
-bottom <- res[res$log2FoldChange < -fc_cutoff & res$padj < p_cutoff,]
-bottom20 <- head(bottom[order(bottom$padj),], 20L)
-plot_title <- "DC 9"
-plot_subtitle <- sprintf('%i total cells, %i cell cutoff, abs(log2fc) > %1.1f, and padj < %1.2f', tot_cells, cell_cutoff, fc_cutoff, p_cutoff)
-ggplot(res, aes(x = log2FoldChange, y = -log10(pvalue))) +
-    geom_point(data = res[abs(res$log2FoldChange) < fc_cutoff | res$padj > p_cutoff,], color = "grey") +
-    geom_point(data = top, color = "red") +
-    geom_point(data = bottom, color = "blue") +
-    geom_hline(yintercept = -log10(p_cutoff), linetype = 'dashed', size = 0.75) +
-    geom_vline(xintercept = fc_cutoff, linetype = 'dashed', size = 0.75) +
-    geom_vline(xintercept = -fc_cutoff, linetype = 'dashed', size = 0.75) +
-    geom_text_repel(data = top20, aes(label = gene_symbol), max.overlaps = Inf) +
-    geom_text_repel(data = bottom20, aes(label = gene_symbol), max.overlaps = Inf) +
-    xlab("log2 Fold Change") +
-    ggtitle(plot_title, subtitle = plot_subtitle) +
-    theme_bw(base_size = 15)
+p <- plot_deg(res = dc_res,
+              meta = dc_meta,
+              lin = "DC",
+              clust = 10)
+return(p)
 ```
 
-![](/tmp/dc_figure-4.rmd/dc_figure_files/figure-gfm/fig_1F-1.png)<!-- -->
+![](/tmp/dc_figure-15.rmd/dc_figure_files/figure-gfm/fig_1F-1.png)<!-- -->
 
 ## Figure 1G
 
@@ -426,7 +148,7 @@ counts <- counts %>% filter(rownames(counts) == 'IL4I1')
 meta <- read.csv(meta_filepath, row.names = 1) %>% filter(tissue_type == "ascites")
 
 # Subset counts
-counts <- dplyr::select(counts, rownames(meta))
+counts <- select(counts, rownames(meta))
 
 # Subset to cluster 10
 meta_cluster <- meta[meta$cluster == 10,]
@@ -447,23 +169,20 @@ ggplot(plot_data, aes(x = factor(B2M), y = IL4I1)) +
     labs(fill = "B2M") +
     ylab("log(count + 1)") +
     xlab("B2M") +
-    ggtitle("DC 10, IL4I1 by B2M") +
     theme_classic(base_size = 12)
 ```
 
-![](/tmp/dc_figure-4.rmd/dc_figure_files/figure-gfm/fig_1G-1.png)<!-- -->
+![](/tmp/dc_figure-15.rmd/dc_figure_files/figure-gfm/fig_1G-1.png)<!-- -->
 
 ## Figure 1H
 
 ``` r
-gene_sets <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/dc_analysis/mreg/gene_sets.csv")
 dc_fgsea <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/dc_analysis/mreg/mreg_fgsea_results.csv")
+gene_sets <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/dc_analysis/mreg/gene_sets.csv")
 
-cDC2_gs <- gene_sets %>%
-    filter(program_name == "cDC2") %>%
-    pull(genes) %>%
-    str_split(",") %>%
-    unlist()
+cDC2_fgsea <- dc_fgsea %>%
+    filter(pathway == "cDC2") %>%
+    filter(variable == "B2M_2v0")
 
 dc_mreg_B2M_data <- read.csv(glue('/projects/home/tlchan/dc_mregs/dc_mregs_de_by_B2M_2v0_all_results.csv')) %>%
     select(c("gene_symbol", "stat")) %>%
@@ -473,11 +192,13 @@ dc_mreg_B2M_data <- read.csv(glue('/projects/home/tlchan/dc_mregs/dc_mregs_de_by
     summarize(stat = mean(stat)) %>%
     deframe()
 
-cDC2_fgsea <- dc_fgsea %>%
-    filter(pathway == "cDC2") %>%
-    filter(variable == "B2M_2v0")
+cDC2_gs <- gene_sets %>%
+    filter(program_name == "cDC2") %>%
+    pull(genes) %>%
+    str_split(",") %>%
+    unlist()
 
 plot_fgsea(cDC2_fgsea, dc_mreg_B2M_data, cDC2_gs, "DC mreg", "B2M (2 vs. 0)", "cDC2")
 ```
 
-![](/tmp/dc_figure-4.rmd/dc_figure_files/figure-gfm/fig_1H-1.png)<!-- -->
+![](/tmp/dc_figure-15.rmd/dc_figure_files/figure-gfm/fig_1H-1.png)<!-- -->

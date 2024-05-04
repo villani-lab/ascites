@@ -18,26 +18,26 @@ library(reticulate)
 use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
 
 setwd('/projects/home/tlchan/github_code/ascites/functions')
-source('plot_fgsea.R')
+source('plot_sf_boxplot.R')
 ```
 
 Load python libraries
 ```{python load_python_packages}
-import matplotlib as mpl
 import matplotlib.pyplot as plt
-import numpy as np
 import os
 import pandas as pd
 import pegasus as pg
 from pyscenic.plotting import plot_rss
 import scanpy as sc
+
+import sys
+sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
+import python_functions
 ```
 
 ## Figure 1A
 ```{python results = 'hold', fig_1A}
-mpl.rcParams['pdf.fonttype'] = 42
-
-cluster_palette = {
+dc_cluster_palette = {
     "1": "#FF0029",
     "2": "#377EB8",
     "3": "#66A61E",
@@ -51,29 +51,14 @@ cluster_palette = {
 }
 
 # Load single-cell object
-lineage_data = pg.read_input(
+dc_data = pg.read_input(
     '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip')
 
 # Relabel obs for function
-lineage_data.obs['Cluster'] = lineage_data.obs['leiden_labels'].cat.remove_unused_categories().astype(str)
+dc_data.obs['Cluster'] = dc_data.obs['leiden_labels'].cat.remove_unused_categories().astype(str)
 
-cluster_fig, cluster_ax = plt.subplots(1)
-cluster_umap = sc.pl.umap(adata=lineage_data.to_anndata(),
-                          color="Cluster",
-                          use_raw=True,
-                          palette=cluster_palette,
-                          legend_loc="on data",
-                          legend_fontoutline=5,
-                          title="",
-                          show=False,
-                          ax=cluster_ax)
-
-cluster_fig = plt.gcf()
-cluster_fig.set_size_inches(6, 6)
-cluster_fig.tight_layout()
-cluster_ax.set_rasterization_zorder(2)
-plt.show()
-plt.close()
+python_functions.plot_umap(lin_data=dc_data,
+                           palette=dc_cluster_palette)
 ```
 
 ## Figure 1B
@@ -152,14 +137,22 @@ for (gene in annotation_genes) {
 
 mean_genes <- annot_info["mean_genes",] %>%
     mutate_each(funs(as.numeric(as.character(.)))) %>%
-    select(colnames(heatmap_data)) # To order them like they will be ordered in the heatmap (same as how GEX data was read in)
+    select(colnames(heatmap_data))
 
 gene_col_fun <- colorRamp2(c(min(mean_genes), max(mean_genes)), c("#1d111d", "#bbe7c8"))
-gene_bar <- HeatmapAnnotation("mean # genes" = as.numeric(mean_genes), col = list("mean # genes" = gene_col_fun), show_legend = FALSE)
-gene_lgd <- Legend(col_fun = gene_col_fun, title = "# genes", legend_height = unit(4, "cm"), title_position = "topcenter")
+gene_bar <- HeatmapAnnotation("mean # genes" = as.numeric(mean_genes),
+                              col = list("mean # genes" = gene_col_fun),
+                              show_legend = FALSE)
+gene_lgd <- Legend(col_fun = gene_col_fun,
+                   title = "# genes",
+                   legend_height = unit(4, "cm"),
+                   title_position = "topcenter")
 
 heatmap_col_fun <- colorRamp2(c(min(heatmap_data), 0, max(heatmap_data)), c("purple", "black", "yellow"))
-heatmap_lgd <- Legend(col_fun = heatmap_col_fun, title = "z-score", legend_height = unit(4, "cm"), title_position = "topcenter")
+heatmap_lgd <- Legend(col_fun = heatmap_col_fun,
+                      title = "z-score",
+                      legend_height = unit(4, "cm"),
+                      title_position = "topcenter")
 
 lgd_list <- packLegend(heatmap_lgd, gene_lgd, column_gap = unit(1, "cm"), direction = "horizontal")
 
@@ -195,102 +188,40 @@ for (clust in order) {
 }
 
 left_annotation <- HeatmapAnnotation(blk = anno_block(gp = gpar(fill = clust_cols, col = clust_cols)),
-                                     which = "row", width = unit(1.5, "mm"))
-heatmap_list <- Heatmap(heatmap_data, name = "z-score", col = heatmap_col_fun, cluster_rows = FALSE, cluster_columns = col_hc,
-                        clustering_method_columns = "ward.D2", clustering_distance_columns = "euclidean",
-                        column_dend_reorder = FALSE, top_annotation = gene_bar, show_heatmap_legend = FALSE,
+                                     which = "row",
+                                     width = unit(1.5, "mm"))
+heatmap_list <- Heatmap(heatmap_data,
+                        name = "z-score",
+                        col = heatmap_col_fun,
+                        cluster_rows = FALSE,
+                        cluster_columns = col_hc,
+                        clustering_method_columns = "ward.D2",
+                        clustering_distance_columns = "euclidean",
+                        column_dend_reorder = FALSE,
+                        top_annotation = gene_bar,
+                        show_heatmap_legend = FALSE,
                         column_names_gp = gpar(col = col_label_colors, fontface = "bold"),
-                        split = split, left_annotation = left_annotation, show_column_names = TRUE) +
-    rowAnnotation(link = anno_mark(at = match(annotation_genes, rownames(heatmap_data)), labels = annotation_genes,
-                                   labels_gp = gpar(col = gene_cols, fontsize = 8, fontface = "bold")))
+                        split = split,
+                        left_annotation = left_annotation,
+                        show_column_names = TRUE) +
+    rowAnnotation(link = anno_mark(at = match(annotation_genes, rownames(heatmap_data)), labels = annotation_genes, labels_gp = gpar(col = gene_cols, fontsize = 8, fontface = "bold")))
 draw(heatmap_list, heatmap_legend_list = lgd_list)
 ```
 
 ## Figure 1C
 ```{python results = 'hold', fig_1C}
-mpl.rcParams['pdf.fonttype'] = 42
+dc_data = pg.read_input("/projects/home/tlchan/projects/ascites/data_cite_objects/dc.zarr.zip")
 
-ncol = 3
-nrow = 4
-genes = ['PIGR', 'RORC', 'PRDM16', 'KIT', 'S100B', 'SFTPD', 'cite_CD11c', 'cite_CD1c', 'cite_CD273', 'cite_CD123', 'cite_CD141', 'cite_CD103']
-
-lineage_data = pg.read_input("/projects/home/tlchan/data_objects/dc.zarr.zip")
-
-# Get UMAP coordinates for base
-umap_coords = pd.DataFrame(lineage_data.obsm['X_umap'], columns=['x', 'y'])
-x = umap_coords['x']
-y = umap_coords['y']
-
-# Set up figure structure
-fig_size = (5 * ncol, 4 * nrow)
-fig, axes = plt.subplots(nrows=nrow, ncols=ncol, figsize=fig_size,
-                         sharex=True, sharey=True)
-ax = axes.ravel()
-
-# Plot for each gene
-for num, gene in enumerate(genes):
-    # Get counts for each gene
-    norm_counts = lineage_data[:, gene].copy().get_matrix('X').todense().transpose()
-    norm_counts = np.squeeze(np.asarray(norm_counts))
-
-    if norm_counts.size == 0:  # ie. All empty/zero in sparce matrix
-        norm_counts = np.zeros(norm_counts.shape[1])
-
-    # Get n cells and perc cells
-    ncells = (norm_counts != 0).sum()
-    pcells = ncells / norm_counts.shape[0]
-
-    if gene.startswith('cite_'):
-        cmap = 'PuBu'
-    else:
-        cmap = 'YlOrRd'
-
-    # Create heatmap
-    hb = ax[num].hexbin(x=x,
-                        y=y,
-                        C=norm_counts,
-                        cmap=cmap,
-                        gridsize=150,
-                        edgecolors="none")
-
-    # Add percent expression
-    ax[num].annotate(f'{ncells:,} ({pcells:.1%}) cells',
-                     xy=(0.01, 0), xycoords='axes fraction',
-                     fontsize=10,
-                     horizontalalignment='left',
-                     verticalalignment='bottom')
-
-    # Add axes and colorbar information
-    cb = fig.colorbar(hb, ax=ax[num], shrink=.75, aspect=10)
-    cb.ax.set_title('logCPM', loc='left', fontsize=14)
-    ax[num].set_title(gene, fontsize=18)
-    ax[num].tick_params(left=False, labelleft=False,
-                        bottom=False, labelbottom=False)
-    if (num + ncol) % ncol == 0:
-        # Start of row
-        ax[num].set_ylabel('UMAP2', fontsize=18)
-    if nrow == 1:
-        # Only one row
-        ax[num].set_xlabel('UMAP1', fontsize=18)
-    elif num > (len(genes) - ncol - 1):
-        # Last row if more than one row
-        ax[num].set_xlabel('UMAP1', fontsize=18)
-
-    # Rasterize
-    ax[num].set_rasterization_zorder(2)
-
-for i in range(len(ax) - (len(ax) - len(genes)), len(ax)):
-    ax[i].set_axis_off()
-fig.tight_layout()
-plt.show()
-plt.close()
+python_functions.plot_feature(lin_data=dc_data,
+                              genes=['PIGR', 'RORC', 'PRDM16', 'KIT', 'S100B', 'SFTPD', 'cite_CD11c', 'cite_CD1c', 'cite_CD273', 'cite_CD123', 'cite_CD141', 'cite_CD103'],
+                              ncol=3,
+                              nrow=4)
 ```
 
 ## Figure 1D
 ```{python results = 'hold', fig_1D}
-mpl.rcParams['pdf.fonttype'] = 42
-
-dc_data = pg.read_input('/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/filter_qc/ascites_dc_R8_300mg_20pm_harm_channel_1_1.zarr.zip')
+dc_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/filter_qc/ascites_dc_R8_300mg_20pm_harm_channel_1_1.zarr.zip')
 
 dc_adata = dc_data.to_anndata()
 
@@ -299,9 +230,9 @@ sc.pp.neighbors(dc_adata)
 sc.tl.paga(adata=dc_adata, groups="leiden_labels")
 
 fig, ax = plt.subplots(figsize=(9, 9))
-paga_plot = sc.pl.paga(adata=dc_adata, ax=ax, node_size_scale=2)
+sc.pl.paga(adata=dc_adata, ax=ax, node_size_scale=2)
 plt.show()
-plt.close()
+plt.close(fig)
 ```
 
 ## Figure 1E
@@ -345,51 +276,16 @@ ggplot(abundance, aes(x = patient_id, y = log_clust_percentage, fill = tissue_ty
     xlab("Patient") +
     ylab("log1p(percent native cluster abundance)") +
     labs(fill = "Tissue type") +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 ```
 
 ## Figure 1F
 ```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 8, fig_1F}
-tissue_palette <- list("ascites" = "#00BFC4",
-                       "plasma" = "#F8766D")
-
-# Load and prepare data
-sf_data <- read.csv(glue("/projects/home/tlchan/projects/ascites/second_data_freeze/data/secreted_factors/secreted_factors_updated.csv"), row.names = 1)
-sf_data <- sf_data[sf_data["diluted"] == "No",]
-sf_data <- sf_data[sf_data["type"] != "pleural",]
-sf_data$log_concentration <- log(sf_data$concentration)
-
-# Remap to common names
-sf_names <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/secreted_factors/sf_common_names.csv")
-sf_data <- merge(sf_data, sf_names, all.x = TRUE)
-sf_data$analyte <- ifelse(!(is.na(sf_data$common_name)), sf_data$common_name, sf_data$analyte)
-
-# Select paired samples and specific analytes
-analyte_list <- c("MIP-3α")
-paired_list <- list('ASC_41', 'ASC_43', 'ASC_45', 'ASC_46', 'ASC_48', 'ASC_52', 'ASC_57', 'ASC_61', 'ASC_62', 'ASC_65', 'ASC_66', 'ASC_67')
-sf_data <- sf_data %>%
-    filter(panel == "96-cytokine") %>%
-    filter(patient_id %in% paired_list) %>%
-    filter(analyte %in% analyte_list) %>%
-    mutate(analyte = factor(analyte, levels = analyte_list))
-
-ggplot(sf_data, aes(x = type, y = log_concentration, fill = type)) +
-    geom_boxplot(outlier.shape = NA, alpha = 0.75) +
-    geom_line(aes(group = patient_id)) +
-    geom_point(pch = 20, size = 2) +
-    stat_compare_means(paired = TRUE, label.x.npc = "center", aes(label = paste0("p = ", after_stat(p.format)))) +
-    xlab("Type") +
-    ylab("log(Concentration)") +
-    facet_wrap(~analyte, scales = "free_y", nrow = 3) +
-    theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank()) +
-    scale_fill_manual(values = tissue_palette)
+plot_sf_boxplot(c("MIP-3α"))
 ```
 
 ## Figure 1G
 ```{python results = 'hold', fig_1G}
-mpl.rcParams['pdf.fonttype'] = 42
-
 rss_list = list()
 for i in range(0, 10):
     DATA_FOLDER = "/projects/home/tlchan/projects/ascites/second_data_freeze/data/dc_analysis/pigr/test_500"
@@ -411,7 +307,7 @@ ax.set_ylabel('Regulon specificity score (RSS)')
 ax.set_xlabel('Regulon')
 plt.tight_layout()
 plt.show()
-plt.close()
+plt.close(fig)
 ```
 
 ## Figure 1H
@@ -460,7 +356,6 @@ rownames(rss_data) <- str_sub(rownames(rss_data), end = -4)
 
 # Function for coloring the heatmap
 heatmap_col_fun <- colorRamp2(c(min(rss_data), 0, max(rss_data)), c("purple", "black", "yellow"))
-# This creates the dendrogram for the samples, using euclidean distance and Ward method
 
 # This creates the dendrogram for the genes
 row_order <- c("IRF8", "KLF4", "NFIL3", "MEIS1", "IRF7", "TCF4", "IRF4", "SPIB", "KLF5", "HIC1", "AHR", "RARA", "HOXA6",
@@ -481,7 +376,5 @@ hmap <- Heatmap(rss_data,
                 show_heatmap_legend = TRUE,
                 column_title = "Cluster",
                 row_title = "Regulons")
-draw(hmap,
-     column_title = "RSS by DC cluster",
-     column_title_gp = grid::gpar(fontsize = 16))
+draw(hmap)
 ```

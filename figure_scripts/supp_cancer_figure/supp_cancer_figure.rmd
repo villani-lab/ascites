@@ -57,12 +57,10 @@ patient_col_fun <- c("#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", "#008941", "#00
                      "#1B4400", "#4FC601", "#3B5DFF", "#4A3B53", "#FF2F80")
 names(patient_col_fun) <- patients
 
-patient_bar <- HeatmapAnnotation(
-    patient_id = patients,
-    col = list(patient_id = patient_col_fun),
-    show_legend = TRUE,
-    show_annotation_name = FALSE
-)
+patient_bar <- HeatmapAnnotation(patient_id = patients,
+                                 col = list(patient_id = patient_col_fun),
+                                 show_legend = TRUE,
+                                 show_annotation_name = FALSE)
 
 # This creates the dendrogram for the samples, using euclidean distance and Ward method. These can def be changed. see documentation
 clustering_cols <- hclust(dist(t(heatmap_mtx), method = "euclidean"), method = "ward.D2")
@@ -72,25 +70,28 @@ col_hc <- as.dendrogram(clustering_cols)
 genes <- rownames(heatmap_mtx)
 programs <- paste(lapply(genes, function(gene) gene_df$program_name[match(gene, gene_df$gene)]), sep = " ", collapse = NULL)
 
-gene_bar <- rowAnnotation(
-    program = programs,
-    col = list(program = c('gastric' = '#fff2ac', 'colon' = '#fd9941')),
-    show_legend = TRUE,
-    show_annotation_name = FALSE
-)
+gene_bar <- rowAnnotation(program = programs,
+                          col = list(program = c('gastric' = '#fff2ac', 'colon' = '#fd9941')),
+                          show_legend = TRUE,
+                          show_annotation_name = FALSE)
 
 # This creates the dendrogram for the genes
 clustering_rows <- hclust(dist(heatmap_mtx, method = "euclidean"), method = "ward.D2")
 row_hc <- as.dendrogram(clustering_rows)
 
-hmap <- Heatmap(heatmap_mtx, name = "z-score", col = heatmap_col_fun,
-                top_annotation = patient_bar, right_annotation = gene_bar, show_column_names = TRUE,
-                show_row_names = TRUE, row_names_gp = gpar(cex = 0.5),
-                cluster_columns = col_hc, cluster_rows = row_hc,
-                show_heatmap_legend = TRUE, column_title = "Patient",
+hmap <- Heatmap(heatmap_mtx,
+                name = "z-score",
+                col = heatmap_col_fun,
+                top_annotation = patient_bar,
+                right_annotation = gene_bar,
+                show_column_names = TRUE,
+                show_row_names = TRUE,
+                row_names_gp = gpar(cex = 0.5),
+                cluster_columns = col_hc,
+                cluster_rows = row_hc,
+                show_heatmap_legend = TRUE,
+                column_title = "Patient",
                 row_title = "Genes")
 
-draw(hmap,
-     column_title = "Cancer: NatureMed Classification",
-     column_title_gp = grid::gpar(fontsize = 16))
+draw(hmap, column_title = "Cancer: NatureMed Classification", column_title_gp = grid::gpar(fontsize = 16))
 ```

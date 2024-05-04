@@ -6,9 +6,9 @@ Cancer Figure
 Load R libraries
 
 ``` r
+library(circlize)
 library(ComplexHeatmap)
 library(ggpubr)
-library(glue)
 library(tidyverse)
 
 library(reticulate)
@@ -21,19 +21,16 @@ source('plot_fgsea.R')
 Load python libraries
 
 ``` python
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 import pegasus as pg
-import scanpy as sc
+
+import sys
+sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
+import python_functions
 ```
 
 ## Figure 1A
 
 ``` python
-mpl.rcParams['pdf.fonttype'] = 42
-
 patient_palette = {
     "ASC_1": "#FF0029",
     "ASC_10": "#377EB8",
@@ -59,118 +56,39 @@ patient_palette = {
     "GC-PC_5": "#CF8C00",
     "GC-PC_7": "#1B9E77"
 }
+
 cancer_data = pg.read_input(
     '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cancer_R3_300mg_20pm_multi_res/1.3/data/pseudobulk/ascites_cancer_R3_300mg_20pm_1_3_complete_with_pb.zarr.zip')
 cancer_data.obs["Patient"] = cancer_data.obs["patient_id"]
 
-cancer_fig, cancer_ax = plt.subplots(1)
-cancer_umap = sc.pl.umap(adata=cancer_data.to_anndata(),
-                         color="Patient",
-                         use_raw=True,
-                         palette=patient_palette,
-                         # legend_loc="on data",
-                         legend_fontoutline=5,
-                         title="",
-                         show=False,
-                         ax=cancer_ax)
-cancer_fig = plt.gcf()
-cancer_fig.set_size_inches(6, 3.7)
-cancer_fig.tight_layout()
-cancer_ax.set_rasterization_zorder(2)
-plt.show()
-plt.close()
+python_functions.plot_umap(lin_data=cancer_data,
+                           palette=patient_palette,
+                           color="Patient",
+                           legend_loc="right margin",
+                           width=8,
+                           height=6)
 ```
 
-    ## 2024-04-17 05:44:47,166 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cancer_R3_300mg_20pm_multi_res/1.3/data/pseudobulk/ascites_cancer_R3_300mg_20pm_1_3_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-04-17 05:44:47,166 - pegasusio.readwrite - INFO - Function 'read_input' finished in 3.04s.
+    ## 2024-05-04 20:01:13,420 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cancer_R3_300mg_20pm_multi_res/1.3/data/pseudobulk/ascites_cancer_R3_300mg_20pm_1_3_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-04 20:01:13,420 - pegasusio.readwrite - INFO - Function 'read_input' finished in 2.95s.
     ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
     ##   cax = scatter(
 
-<img src="cancer_figure_files/figure-gfm/fig_1A-1.png" width="576" />
+<img src="cancer_figure_files/figure-gfm/fig_1A-1.png" width="768" />
 
 ## Figure 1B
 
 ``` python
-mpl.rcParams['pdf.fonttype'] = 42
+cancer_data = pg.read_input("/projects/home/tlchan/projects/ascites/data_cite_objects/cancer.zarr.zip")
 
-ncol = 4
-nrow = 2
-genes = ['EPCAM', 'DCN', 'MKI67', 'HLA-DRA', 'ERBB2', 'CLDN18', 'EGFR', 'cite_EGFR']
-
-lineage_data = pg.read_input("/projects/home/tlchan/data_objects/cancer.zarr.zip")
-
-# Get UMAP coordinates for base
-umap_coords = pd.DataFrame(lineage_data.obsm['X_umap'], columns=['x', 'y'])
-x = umap_coords['x']
-y = umap_coords['y']
-
-# Set up figure structure
-fig_size = (5 * ncol, 4 * nrow)
-fig, axes = plt.subplots(nrows=nrow, ncols=ncol, figsize=fig_size,
-                         sharex=True, sharey=True)
-ax = axes.ravel()
-
-# Plot for each gene
-for num, gene in enumerate(genes):
-    # Get counts for each gene
-    norm_counts = lineage_data[:, gene].copy().get_matrix('X').todense().transpose()
-    norm_counts = np.squeeze(np.asarray(norm_counts))
-
-    if norm_counts.size == 0:  # ie. All empty/zero in sparce matrix
-        norm_counts = np.zeros(norm_counts.shape[1])
-
-    # Get n cells and perc cells
-    ncells = (norm_counts != 0).sum()
-    pcells = ncells / norm_counts.shape[0]
-
-    if gene.startswith('cite_'):
-        cmap = 'PuBu'
-    else:
-        cmap = 'YlOrRd'
-
-    # Create heatmap
-    hb = ax[num].hexbin(x=x,
-                        y=y,
-                        C=norm_counts,
-                        cmap=cmap,
-                        gridsize=150,
-                        edgecolors="none")
-
-    # Add percent expression
-    ax[num].annotate(f'{ncells:,} ({pcells:.1%}) cells',
-                     xy=(0.01, 0), xycoords='axes fraction',
-                     fontsize=10,
-                     horizontalalignment='left',
-                     verticalalignment='bottom')
-
-    # Add axes and colorbar information
-    cb = fig.colorbar(hb, ax=ax[num], shrink=.75, aspect=10)
-    cb.ax.set_title('logCPM', loc='left', fontsize=14)
-    ax[num].set_title(gene, fontsize=18)
-    ax[num].tick_params(left=False, labelleft=False,
-                        bottom=False, labelbottom=False)
-    if (num + ncol) % ncol == 0:
-        # Start of row
-        ax[num].set_ylabel('UMAP2', fontsize=18)
-    if nrow == 1:
-        # Only one row
-        ax[num].set_xlabel('UMAP1', fontsize=18)
-    elif num > (len(genes) - ncol - 1):
-        # Last row if more than one row
-        ax[num].set_xlabel('UMAP1', fontsize=18)
-
-    # Rasterize
-    ax[num].set_rasterization_zorder(2)
-
-for i in range(len(ax) - (len(ax) - len(genes)), len(ax)):
-    ax[i].set_axis_off()
-fig.tight_layout()
-plt.show()
-plt.close()
+python_functions.plot_feature(lin_data=cancer_data,
+                              genes=['EPCAM', 'DCN', 'MKI67', 'HLA-DRA', 'ERBB2', 'CLDN18', 'EGFR', 'cite_EGFR'],
+                              ncol=4,
+                              nrow=2)
 ```
 
-    ## 2024-04-17 05:44:50,558 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/data_objects/cancer.zarr.zip' is loaded.
-    ## 2024-04-17 05:44:50,558 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.80s.
+    ## 2024-05-04 20:01:16,877 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/data_cite_objects/cancer.zarr.zip' is loaded.
+    ## 2024-05-04 20:01:16,877 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.92s.
 
 <img src="cancer_figure_files/figure-gfm/fig_1B-3.png" width="1920" />
 
@@ -215,24 +133,21 @@ fgsea_hmap <- Heatmap(nes_mtx,
                               grid.text("•", x, y, gp = gpar(fontsize = 20))
                       })
 
-draw(fgsea_hmap,
-     column_title = glue("Cancer FGSEA"),
-     column_title_gp = grid::gpar(fontsize = 16))
+draw(fgsea_hmap)
 ```
 
-![](/tmp/cancer_figure-6.rmd/cancer_figure_files/figure-gfm/fig_1C-5.png)<!-- -->
+![](/tmp/cancer_figure-7.rmd/cancer_figure_files/figure-gfm/fig_1C-5.png)<!-- -->
 
 ## Figure 1D
 
 ``` r
-gene_sets <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/gene_programs/canon_gene_sets.csv")
 cancer_fgsea <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/gene_programs/FGSEA_scores/by_lineage/cancer_combo_fgsea.csv")
+gene_sets <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/gene_programs/canon_gene_sets.csv")
 
-EMT_gs <- gene_sets %>%
-    filter(program_name == "EMT") %>%
-    pull(genes) %>%
-    str_split(",") %>%
-    unlist()
+EMT_fgsea <- cancer_fgsea %>%
+    filter(pathway == "EMT") %>%
+    filter(variable == "B2M_2v0")
+
 
 cancer_B2M_data <- read.csv(glue('/projects/home/tlchan/cancer/cancer_de_by_B2M_2v0_all_results.csv')) %>%
     select(c("gene_symbol", "stat")) %>%
@@ -242,17 +157,17 @@ cancer_B2M_data <- read.csv(glue('/projects/home/tlchan/cancer/cancer_de_by_B2M_
     summarize(stat = mean(stat)) %>%
     deframe()
 
-EMT_fgsea <- cancer_fgsea %>%
-    filter(pathway == "EMT") %>%
-    filter(variable == "B2M_2v0")
-
-EMT_plot <- plot_fgsea(EMT_fgsea, cancer_B2M_data, EMT_gs, "cancer", "B2M (2 vs. 0)", "EMT")
-
-PS_gs <- gene_sets %>%
-    filter(program_name == "proliferation_score") %>%
+EMT_gs <- gene_sets %>%
+    filter(program_name == "EMT") %>%
     pull(genes) %>%
     str_split(",") %>%
     unlist()
+
+EMT_plot <- plot_fgsea(EMT_fgsea, cancer_B2M_data, EMT_gs, "cancer", "B2M (2 vs. 0)", "EMT")
+
+PS_fgsea <- cancer_fgsea %>%
+    filter(pathway == "proliferation_score") %>%
+    filter(variable == "survival_HvL")
 
 cancer_survival_data <- read.csv(glue('/projects/home/tlchan/cancer/cancer_de_by_survival_HvL_all_results.csv')) %>%
     select(c("gene_symbol", "stat")) %>%
@@ -262,28 +177,22 @@ cancer_survival_data <- read.csv(glue('/projects/home/tlchan/cancer/cancer_de_by
     summarize(stat = mean(stat)) %>%
     deframe()
 
-PS_fgsea <- cancer_fgsea %>%
-    filter(pathway == "proliferation_score") %>%
-    filter(variable == "survival_HvL")
+PS_gs <- gene_sets %>%
+    filter(program_name == "proliferation_score") %>%
+    pull(genes) %>%
+    str_split(",") %>%
+    unlist()
 
-PS_plot <- plot_fgsea(PS_fgsea, cancer_B2M_data, PS_gs, "cancer", "survival (H vs. L)", "proliferation_score")
+PS_plot <- plot_fgsea(PS_fgsea, cancer_survival_data, PS_gs, "cancer", "survival (H vs. L)", "proliferation_score")
 
 ggarrange(EMT_plot, PS_plot, ncol = 1)
 ```
 
-![](/tmp/cancer_figure-6.rmd/cancer_figure_files/figure-gfm/fig_1D-1.png)<!-- -->
+![](/tmp/cancer_figure-7.rmd/cancer_figure_files/figure-gfm/fig_1D-1.png)<!-- -->
 
 ## Figure 1E
 
 ``` r
-library(tidyverse)
-library(ggplot2)
-library(glue)
-library(magrittr)
-library(ComplexHeatmap)
-library(circlize)
-library(gtools)
-
 cancer_counts_filepath <- "/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cancer_R3_300mg_20pm_multi_res/1.3/data/pseudobulk/ascites_cancer_R3_300mg_20pm_1_3_pseudobulk_counts.csv"
 cancer_meta_filepath <- "/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cancer_R3_300mg_20pm_multi_res/1.3/data/pseudobulk/ascites_cancer_R3_300mg_20pm_1_3_pseudobulk_meta.csv"
 
@@ -320,14 +229,12 @@ patient_col_fun <- c("#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", "#008941", "#00
                      "#1B4400", "#4FC601", "#3B5DFF", "#4A3B53", "#FF2F80")
 names(patient_col_fun) <- patients
 
-patient_bar <- HeatmapAnnotation(
-    patient_id = patients,
-    B2M = codes,
-    col = list(patient_id = patient_col_fun,
-               B2M = c('0' = '#fff2ac', '1' = '#fed16e', '2' = '#fd9941')),
-    show_legend = TRUE,
-    show_annotation_name = FALSE
-)
+patient_bar <- HeatmapAnnotation(patient_id = patients,
+                                 B2M = codes,
+                                 col = list(patient_id = patient_col_fun,
+                                            B2M = c('0' = '#fff2ac', '1' = '#fed16e', '2' = '#fd9941')),
+                                 show_legend = TRUE,
+                                 show_annotation_name = FALSE)
 
 # Function for coloring the heatmap
 heatmap_col_fun <- colorRamp2(c(min(heatmap_mtx), 0, max(heatmap_mtx)), c("purple", "black", "yellow"))
@@ -340,16 +247,20 @@ col_hc <- as.dendrogram(clustering_cols)
 clustering_rows <- hclust(dist(heatmap_mtx, method = "euclidean"), method = "ward.D2")
 row_hc <- as.dendrogram(clustering_rows)
 
-cancer_hmap <- Heatmap(heatmap_mtx, name = "z-score", col = heatmap_col_fun,
-                       top_annotation = patient_bar, show_column_names = TRUE,
-                       show_row_names = TRUE, row_names_gp = gpar(cex = 0.5),
-                       cluster_columns = FALSE, cluster_rows = row_hc,
-                       show_heatmap_legend = TRUE, column_title = "Patient",
+cancer_hmap <- Heatmap(heatmap_mtx,
+                       name = "z-score",
+                       col = heatmap_col_fun,
+                       top_annotation = patient_bar,
+                       show_column_names = TRUE,
+                       show_row_names = TRUE,
+                       row_names_gp = gpar(cex = 0.5),
+                       cluster_columns = FALSE,
+                       cluster_rows = row_hc,
+                       show_heatmap_legend = TRUE,
+                       column_title = "Patient",
                        row_title = "Genes")
 
-draw(cancer_hmap,
-     column_title = "Cancer B2M",
-     column_title_gp = grid::gpar(fontsize = 16))
+draw(cancer_hmap)
 ```
 
-![](/tmp/cancer_figure-6.rmd/cancer_figure_files/figure-gfm/fig_1E-1.png)<!-- -->
+![](/tmp/cancer_figure-7.rmd/cancer_figure_files/figure-gfm/fig_1E-1.png)<!-- -->

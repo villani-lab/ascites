@@ -1,0 +1,103 @@
+---
+title: "CD4 Figure"
+output: rmarkdown::github_document
+---
+
+## Set up
+
+Load R libraries
+```{r message = F, results = F, warning = F, load_r_libraries}
+library(reticulate)
+use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
+
+setwd('/projects/home/tlchan/github_code/ascites/functions')
+source('plot_abundance.R')
+source('plot_deg.R')
+source('plot_dotplot.R')
+```
+
+Load python libraries
+```{python load_python_packages}
+import pegasus as pg
+
+import sys
+sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
+import python_functions
+```
+
+## Figure 1A
+```{python results = 'hold', fig_1A}
+cd4_cluster_palette = {
+    "1": "#FF0029",
+    "2": "#377EB8",
+    "3": "#66A61E",
+    "4": "#984EA3",
+    "5": "#00D2D5",
+    "6": "#FF7F00",
+    "7": "#AF8D00",
+    "8": "#7F80CD",
+    "9": "#B3E900"
+}
+
+# Load single-cell object
+cd4_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.3/data/pseudobulk/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_1_3_complete_with_pb.zarr.zip')
+
+# Relabel obs for function
+cd4_data.obs['Cluster'] = cd4_data.obs['leiden_pca_cite_concat'].cat.remove_unused_categories().astype(str)
+cd4_data.obsm['X_umap'] = cd4_data.obsm['X_umap_pca_cite_concat']
+
+python_functions.plot_umap(lin_data=cd4_data,
+                           palette=cd4_cluster_palette)
+```
+
+## Figure 1B
+```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, fig_1B}
+cd4_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/cd4_gene_exp.csv')
+cd4_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/cd4_cite_exp.csv')
+
+plot_dotplot(lin_gex = cd4_gex,
+             lin_cite = cd4_cite,
+             lin = "cd4")
+```
+
+## Figure 1C
+```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, fig_1C}
+plot_cluster_abundance("cd4")
+```
+
+## Figure 1D
+```{python results = 'hold', fig_1D}
+cd4_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.3/data/pseudobulk/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_1_3_complete_with_pb.zarr.zip')
+cd4_data.obsm["X_umap"] = cd4_data.obsm["X_umap_pca_cite_concat"]
+
+python_functions.plot_feature_by_tissue_type(lin_data=cd4_data,
+                                             genes=["CXCR3", "CXCR6"])
+```
+
+
+## Figure 1E
+```{r message = F, results = F, warning = F, fig.width = 6, fig.height = 18, fig_1E}
+cd4_res <- read.csv('/projects/home/tlchan/cd4/cd4_ascites_de_by_survival_HvL_all_results.csv')
+cd4_meta <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.3/data/pseudobulk/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_1_3_pseudobulk_meta.csv", row.names = 1)
+
+cd4_meta <- cd4_meta %>%
+    mutate(survival_bin = case_when(survival < 92 ~ "Low", survival > 183 ~ "High")) %>%
+    filter(survival_bin == "Low" | survival_bin == "High") %>%
+    mutate(survival_bin = factor(survival_bin, levels = c("Low", "High"))) %>%
+    mutate(sex = factor(sex, levels = c('M', 'F'))) %>%
+    filter(tissue_type == "ascites")
+
+plotlist <- lapply(c(2, 3, 6), function(clust) {
+    p <- plot_deg(res = cd4_res,
+                  meta = cd4_meta,
+                  lin = "CD4",
+                  clust = clust,
+                  contrast = "survival_bin",
+                  ref_var = "Low",
+                  test_var = "High")
+    return(p)
+})
+ggarrange(plotlist = plotlist, nrow = 3)
+```
