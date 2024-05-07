@@ -69,8 +69,8 @@ python_functions.plot_umap(lin_data=cancer_data,
                            height=6)
 ```
 
-    ## 2024-05-04 20:01:13,420 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cancer_R3_300mg_20pm_multi_res/1.3/data/pseudobulk/ascites_cancer_R3_300mg_20pm_1_3_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-04 20:01:13,420 - pegasusio.readwrite - INFO - Function 'read_input' finished in 2.95s.
+    ## 2024-05-07 17:05:14,884 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cancer_R3_300mg_20pm_multi_res/1.3/data/pseudobulk/ascites_cancer_R3_300mg_20pm_1_3_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-07 17:05:14,884 - pegasusio.readwrite - INFO - Function 'read_input' finished in 2.94s.
     ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
     ##   cax = scatter(
 
@@ -87,8 +87,8 @@ python_functions.plot_feature(lin_data=cancer_data,
                               nrow=2)
 ```
 
-    ## 2024-05-04 20:01:16,877 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/data_cite_objects/cancer.zarr.zip' is loaded.
-    ## 2024-05-04 20:01:16,877 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.92s.
+    ## 2024-05-07 17:05:18,355 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/data_cite_objects/cancer.zarr.zip' is loaded.
+    ## 2024-05-07 17:05:18,355 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.88s.
 
 <img src="cancer_figure_files/figure-gfm/fig_1B-3.png" width="1920" />
 
@@ -136,7 +136,7 @@ fgsea_hmap <- Heatmap(nes_mtx,
 draw(fgsea_hmap)
 ```
 
-![](/tmp/cancer_figure-7.rmd/cancer_figure_files/figure-gfm/fig_1C-5.png)<!-- -->
+![](/tmp/cancer_figure-8.rmd/cancer_figure_files/figure-gfm/fig_1C-5.png)<!-- -->
 
 ## Figure 1D
 
@@ -188,7 +188,7 @@ PS_plot <- plot_fgsea(PS_fgsea, cancer_survival_data, PS_gs, "cancer", "survival
 ggarrange(EMT_plot, PS_plot, ncol = 1)
 ```
 
-![](/tmp/cancer_figure-7.rmd/cancer_figure_files/figure-gfm/fig_1D-1.png)<!-- -->
+![](/tmp/cancer_figure-8.rmd/cancer_figure_files/figure-gfm/fig_1D-1.png)<!-- -->
 
 ## Figure 1E
 
@@ -263,4 +263,4 @@ cancer_hmap <- Heatmap(heatmap_mtx,
 draw(cancer_hmap)
 ```
 
-![](/tmp/cancer_figure-7.rmd/cancer_figure_files/figure-gfm/fig_1E-1.png)<!-- -->
+![](/tmp/cancer_figure-8.rmd/cancer_figure_files/figure-gfm/fig_1E-1.png)<!-- -->

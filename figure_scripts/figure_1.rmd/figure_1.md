@@ -8,15 +8,12 @@ Load R libraries
 ``` r
 library(circlize)
 library(ComplexHeatmap)
-library(ggplot2)
 library(ggpubr)
 library(ggrepel)
-library(glue)
 library(limma)
 library(parameters)
 library(rstatix)
 library(tidyverse)
-library(xlsx)
 
 library(reticulate)
 use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
@@ -25,7 +22,6 @@ use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
 Load python libraries
 
 ``` python
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pegasus as pg
 import scanpy as sc
@@ -34,11 +30,9 @@ import scanpy as sc
 ## Figure 1B
 
 ``` python
-mpl.rcParams['pdf.fonttype'] = 42
-
 lineage_palette = {
     "B/Plasma cells": "#FF0029",
-    "CD4+ T/NK cells": "#377EB8",
+    "CD4+ T cells": "#377EB8",
     "CD8+ T/NK cells": "#66A61E",
     "Dendritic cells": "#984EA3",
     "Monocytes/Macrophages": "#00D2D5",
@@ -50,7 +44,7 @@ global_data = pg.read_input(
     '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip')
 
 lineage_dict = {
-    'cd4': 'CD4+ T/NK cells',
+    'cd4': 'CD4+ T cells',
     'cd8': 'CD8+ T/NK cells',
     'monomac': 'Monocytes/Macrophages',
     'dc': 'Dendritic cells',
@@ -71,15 +65,15 @@ lineage_umap = sc.pl.umap(adata=global_data.to_anndata(),
                           show=False,
                           ax=lineage_ax)
 lineage_fig = plt.gcf()
-lineage_fig.set_size_inches(6, 3.7)
+lineage_fig.set_size_inches(6, 6)
 lineage_fig.tight_layout()
 lineage_ax.set_rasterization_zorder(2)
 plt.show()
-plt.close()
+plt.close(lineage_fig)
 ```
 
-    ## 2024-04-29 21:57:29,049 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-04-29 21:57:29,049 - pegasusio.readwrite - INFO - Function 'read_input' finished in 12.07s.
+    ## 2024-05-07 17:09:57,652 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-07 17:09:57,652 - pegasusio.readwrite - INFO - Function 'read_input' finished in 10.36s.
     ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
     ##   cax = scatter(
 
@@ -92,12 +86,23 @@ tissue_palette <- list("ascites" = "#00BFC4",
                        "blood" = "#F8766D",
                        "other" = "#000000")
 
+paired_samples <- c("ASC_10", "ASC_25", "ASC_41", "ASC_45", "ASC_46", "ASC_48", "ASC_49", "ASC_52", "ASC_57", "ASC_61", "ASC_62", "ASC_65", "ASC_66", "ASC_67")
+
 # Load data
 abundance <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/metadata/ascites_abundance.csv")
 
 # Remove cancer cells
 abundance <- abundance %>%
-    filter(lineage != "cancer")
+    filter(lineage != "cancer") %>%
+    filter(patient_id %in% paired_samples) %>%
+    filter(patient_id != "ASC_48")
+
+# Re-label for plot
+abundance <- abundance %>% mutate(lineage = case_when(lineage == "bplasma" ~ "B/Plasma",
+                                                      lineage == "cd4" ~ "CD4",
+                                                      lineage == "cd8" ~ "CD8",
+                                                      lineage == "dc" ~ "DC",
+                                                      lineage == "monomac" ~ "Mono/Mac"))
 
 # Get lin count
 abundance <- abundance %>%
@@ -113,11 +118,6 @@ abundance <- combos %>%
     left_join(abundance, by = c("patient_id", "tissue_type", "lineage")) %>%
     replace(is.na(.), 0)
 
-# Remove patients with fewer than 250 immune native fraction cells
-abundance <- abundance %>%
-    group_by(patient_id, tissue_type) %>%
-    filter(sum(lin_count) > 250)
-
 # Get statistics
 abundance <- abundance %>%
     group_by(patient_id, tissue_type) %>%
@@ -125,6 +125,12 @@ abundance <- abundance %>%
     mutate(lin_percentage = lin_count / total_count * 100) %>%
     mutate(log_lin_percentage = log1p(lin_percentage)) %>%
     mutate(tissue_type = factor(tissue_type, levels = c("blood", "ascites")))
+
+# Remove patients with fewer than 250 immune native fraction cells
+abundance <- abundance %>%
+    group_by(patient_id) %>%
+    mutate(min_total_count = min(total_count)) %>%
+    filter(min_total_count > 250)
 
 bp <- ggplot(abundance, aes(x = log_lin_percentage, y = factor(lineage), fill = tissue_type)) +
     geom_boxplot(outlier.shape = NA) +
@@ -134,7 +140,8 @@ bp <- ggplot(abundance, aes(x = log_lin_percentage, y = factor(lineage), fill = 
     labs(fill = "Tissue type") +
     xlab("log1p(Percent native immune)") +
     ylab("") +
-    theme_classic(base_size = 16)
+    theme_classic(base_size = 20) +
+    theme(axis.text.y = element_blank(), axis.text = element_text(size = 15))
 
 lm_res <- lapply(unique(abundance$lineage), function(lin) {
     lm_data <- abundance %>% filter(lineage == lin)
@@ -154,14 +161,14 @@ fp <- ggplot(lm_res, aes(x = Coefficient, y = factor(lineage), color = color)) +
     guides(color = "none") +
     xlab("Log2FoldChange") +
     ylab("Lineage") +
-    theme_classic(base_size = 16) +
-    scale_color_manual(values = tissue_palette)
+    theme_classic(base_size = 20) +
+    scale_color_manual(values = tissue_palette) +
+    theme(axis.text = element_text(size = 15))
 
-p <- ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0))
-annotate_figure(p, top = text_grob(glue("Percent native immune by lineage"), size = 16))
+ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0))
 ```
 
-![](/tmp/figure_1-18.rmd/figure_1_files/figure-gfm/fig_1C-3.png)<!-- -->
+![](/tmp/figure_1-28.rmd/figure_1_files/figure-gfm/fig_1C-3.png)<!-- -->
 
 ## Figure 1D
 
@@ -237,8 +244,9 @@ perc_mtx <- global_lineage %>%
 
 perc_mtx <- perc_mtx[colnames(metadata_mtx), names(lineage_cols)]
 
-top_bar <- HeatmapAnnotation("Cell fraction" = anno_barplot(perc_mtx, height = unit(3, "cm"), gp = gpar(fill = lineage_cols)),
-                             "Age" = anno_points(age_mtx, height = unit(1.2, "cm")))
+top_bar <- HeatmapAnnotation("Cell fraction" = anno_barplot(perc_mtx, height = unit(2.8, "cm"), gp = gpar(fill = lineage_cols)),
+                             "Age" = anno_points(age_mtx, height = unit(1.2, "cm")),
+                             gap = unit(2, "mm"))
 
 
 # Make heatmap body
@@ -291,22 +299,23 @@ draw(ht)
 draw(pd, x = unit(0.93, "npc"), y = unit(0.58, "npc"))
 ```
 
-![](/tmp/figure_1-18.rmd/figure_1_files/figure-gfm/fig_1D-1.png)<!-- -->
+![](/tmp/figure_1-28.rmd/figure_1_files/figure-gfm/fig_1D-1.png)<!-- -->
 
 ## Figure 1E
 
 ``` r
-data_dir <- "/projects/home/tlchan/projects/ascites/second_data_freeze/data/secreted_factors"
-fig_dir <- "/projects/home/tlchan/projects/ascites/second_data_freeze/figures/secreted_factors"
-
-# Read in secreted factors
-sf_data <- read.csv(glue("{data_dir}/secreted_factors_updated.csv"), row.names = 1)
-sf_data <- sf_data[sf_data["diluted"] == "No",]
-sf_data <- sf_data[sf_data["type"] != "pleural",]
-sf_data$log_concentration <- log(sf_data$concentration)
-
+sf_names <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/secreted_factors/sf_common_names.csv")
 paired_list <- list('ASC_41', 'ASC_43', 'ASC_45', 'ASC_46', 'ASC_48', 'ASC_52', 'ASC_57', 'ASC_61', 'ASC_62', 'ASC_65', 'ASC_66', 'ASC_67')
-sf_data <- sf_data %>% filter(patient_id %in% paired_list)
+
+# Load and prepare data
+sf_data <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/secreted_factors/secreted_factors_updated.csv", row.names = 1) %>%
+    filter(diluted == "No") %>%
+    filter(type != "pleural") %>%
+    filter(panel == "96-cytokine") %>%
+    filter(patient_id %in% paired_list) %>%
+    mutate(log_concentration = log(concentration)) %>%
+    merge(sf_names, all.x = TRUE) %>%
+    mutate(analyte = ifelse(!is.na(common_name), common_name, analyte))
 
 # Run paired t-test
 t_results <- sf_data %>%
@@ -336,7 +345,7 @@ rownames(sf_mtx) <- sf_data[, 1]
 sf_mtx <- t(sf_mtx)
 
 # Match order of samples for metadata to mtx
-sf_metadata <- sf_metadata %>% mutate(sample_code = factor(sample_code, levels=colnames(sf_mtx)))
+sf_metadata <- sf_metadata %>% mutate(sample_code = factor(sample_code, levels = colnames(sf_mtx)))
 sf_metadata <- sf_metadata[order(sf_metadata$sample_code),]
 
 # Create design matrix for testing
@@ -350,12 +359,8 @@ fit <- eBayes(fit, robust = TRUE)
 fit$genes <- rownames(fit$coefficients)
 
 # Merge results with t-test results
-res <- topTable(fit, coef = glue("typeascites"), number = length(fit$genes))
+res <- topTable(fit, coef = "typeascites", number = length(fit$genes))
 res <- res %>% select(ID, logFC) %>% merge(t_results)
-
-sf_names <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/secreted_factors/sf_common_names.csv")
-res <- merge(res, sf_names, by.x = "ID", by.y = "analyte", all.x = TRUE)
-res$ID <- ifelse(!(is.na(res$common_name)), res$common_name, res$ID)
 
 # Visualize results as volcano plot
 up_label <- res %>%
@@ -374,8 +379,8 @@ ggplot(res, aes(x = logFC, y = -log10(p))) +
     geom_point(data = res[res$p.adj > 0.1,], color = "grey") +
     geom_point(data = res[res$logFC > 0 & res$p.adj < 0.1,], color = "#1F77B4") +
     geom_point(data = res[res$logFC < 0 & res$p.adj < 0.1,], color = "#D62728") +
-    geom_text_repel(data = res[res$ID %in% label_genes,], aes(label = ID), max.overlaps = Inf) +
-    theme_classic(base_size = 15)
+    geom_text_repel(data = res[res$ID %in% label_genes,], aes(label = ID), max.overlaps = Inf, size = 4.5) +
+    theme_classic(base_size = 20)
 ```
 
-![](/tmp/figure_1-18.rmd/figure_1_files/figure-gfm/fig_1E-1.png)<!-- -->
+![](/tmp/figure_1-28.rmd/figure_1_files/figure-gfm/fig_1E-1.png)<!-- -->

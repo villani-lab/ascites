@@ -6,113 +6,65 @@ Supplemental Figure 1
 Load R libraries
 
 ``` r
-library(ggplot2)
-library(ggpubr)
-library(glue)
-library(gtools)
 library(tidyverse)
 
 library(reticulate)
 use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
+
+setwd('/projects/home/tlchan/github_code/ascites/functions')
+source('plot_dotplot.R')
 ```
 
 Load python libraries
 
 ``` python
 import pegasus as pg
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import scanpy as sc
+
+import sys
+sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
+import python_functions
 ```
 
 ## Figure 1C
 
 ``` r
-lineage_genes <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_markers.csv') %>%
-    filter(lineage == 'lineage') %>%
-    pull(genes) %>%
-    strsplit(",") %>%
-    unlist()
+lineage_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/lineage_gene_exp.csv')
+lineage_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/lineage_cite_exp.csv')
 
-lineage_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/lineage_gene_exp.csv') %>%
-    mutate(Gene = factor(Gene, levels = lineage_genes), Cluster = factor(Cluster, levels = mixedsort(unique(Cluster))))
-
-lineage_gp <- ggplot(lineage_gex, aes(x = Gene, y = fct_rev(Cluster), fill = Count, size = Percent_Expressed)) +
-    geom_point(color = "black", shape = 21) +
-    ylab('Cluster') +
-    labs(size = "% Expressed") +
-    scale_fill_gradient(low = "#fff5f0", high = "#67000c") +
-    lims(size = c(0, 100)) +
-    theme_light(base_size = 12) +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-    theme(legend.key.size = unit(.25, "cm"))
-
-lineage_proteins <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_markers.csv') %>%
-    filter(lineage == 'lineage') %>%
-    pull(proteins) %>%
-    strsplit(",") %>%
-    unlist()
-
-lineage_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/lineage_cite_exp.csv') %>%
-    mutate(Protein = factor(Protein, levels = lineage_proteins), Cluster = factor(Cluster, levels = mixedsort(unique(Cluster))))
-
-lineage_pp <- ggplot(lineage_cite, aes(x = Protein, y = fct_rev(Cluster), fill = Count, size = Percent_Expressed)) +
-    geom_point(color = "black", shape = 21) +
-    labs(size = "% Expressed") +
-    scale_fill_gradient(low = "#fff5f0", high = "#08306b") +
-    lims(size = c(0, 100)) +
-    theme_light(base_size = 12) +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-    theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
-    theme(legend.key.size = unit(.25, "cm"))
-
-ggarrange(lineage_gp, lineage_pp, ncol = 2, nrow = 1, widths = c(1.0, 0.5), align = "h")
+plot_dotplot(lin_gex = lineage_gex,
+             lin_cite = lineage_cite,
+             lin = "lineage")
 ```
 
-![](/tmp/supp_figure_1.rmd/supp_figure_1_files/figure-gfm/fig_1C-1.png)<!-- -->
+![](/tmp/supp_figure_1-2.rmd/supp_figure_1_files/figure-gfm/fig_1C-1.png)<!-- -->
 
 ## Figure 1D
 
 ``` python
-mpl.rcParams['pdf.fonttype'] = 42
-
 tissue_palette = {
     "Ascites": "#00BFC4",
     "Blood": "#F8766D"
 }
-
-# Load single-cell object
-global_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip')
 
 tissue_dict = {
     'blood': 'Blood',
     'ascites': 'Ascites'
 }
 
+# Load single-cell object
+global_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip')
+
 # Rename labels for plot
 pg.annotate(global_data, 'Tissue', 'tissue_type', tissue_dict)
 
-tissue_fig, tissue_ax = plt.subplots(1)
-tissue_umap = sc.pl.umap(adata=global_data.to_anndata(),
-                         color="Tissue",
-                         use_raw=True,
-                         palette=tissue_palette,
-                         legend_loc="on data",
-                         legend_fontoutline=5,
-                         title="",
-                         show=False,
-                         ax=tissue_ax)
-tissue_fig = plt.gcf()
-tissue_fig.set_size_inches(6, 3.7)
-tissue_fig.tight_layout()
-tissue_ax.set_rasterization_zorder(2)
-plt.show()
-plt.close()
+python_functions.plot_umap(lin_data=global_data,
+                           color="Tissue",
+                           palette=tissue_palette)
 ```
 
-    ## 2024-04-17 05:51:15,329 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-04-17 05:51:15,329 - pegasusio.readwrite - INFO - Function 'read_input' finished in 9.79s.
+    ## 2024-05-07 17:14:37,703 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-07 17:14:37,703 - pegasusio.readwrite - INFO - Function 'read_input' finished in 9.86s.
     ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
     ##   cax = scatter(
 
@@ -136,4 +88,4 @@ ggplot(global_lineage, aes(x = Patient, y = Count, fill = Lineage)) +
     scale_fill_manual(values = lineage_palette)
 ```
 
-![](/tmp/supp_figure_1.rmd/supp_figure_1_files/figure-gfm/fig_1E-3.png)<!-- -->
+![](/tmp/supp_figure_1-2.rmd/supp_figure_1_files/figure-gfm/fig_1E-3.png)<!-- -->

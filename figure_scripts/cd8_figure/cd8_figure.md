@@ -59,8 +59,8 @@ python_functions.plot_umap(lin_data=cd8_data,
                            palette=cd8_cluster_palette)
 ```
 
-    ## 2024-05-04 19:29:17,945 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cd8_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.9/data/pseudobulk/ascites_cd8_cite_concat_R7_300mg_20pm_harm_channel_1_9_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-04 19:29:17,945 - pegasusio.readwrite - INFO - Function 'read_input' finished in 3.03s.
+    ## 2024-05-07 17:07:28,386 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cd8_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.9/data/pseudobulk/ascites_cd8_cite_concat_R7_300mg_20pm_harm_channel_1_9_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-07 17:07:28,386 - pegasusio.readwrite - INFO - Function 'read_input' finished in 3.48s.
     ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
     ##   cax = scatter(
 
@@ -77,7 +77,7 @@ plot_dotplot(lin_gex = cd8_gex,
              lin = "cd8")
 ```
 
-![](/tmp/cd8_figure-5.rmd/cd8_figure_files/figure-gfm/fig_1B-3.png)<!-- -->
+![](/tmp/cd8_figure-6.rmd/cd8_figure_files/figure-gfm/fig_1B-3.png)<!-- -->
 
 ## Figure 1C
 
@@ -86,7 +86,7 @@ plot_cluster_abundance(lin = "cd8",
                        cluster_order = c('1', '3', '4', '6', '7', '8', '9', '11', '15', '12', '13', '2', '5', '14', '10'))
 ```
 
-![](/tmp/cd8_figure-5.rmd/cd8_figure_files/figure-gfm/fig_1C-1.png)<!-- -->
+![](/tmp/cd8_figure-6.rmd/cd8_figure_files/figure-gfm/fig_1C-1.png)<!-- -->
 
 ## Figure 1D
 
@@ -96,7 +96,7 @@ cd8_res <- read.csv('/projects/home/tlchan/cd8/cd8_de_by_tissue_type_all_results
 plot_upset(cd8_res)
 ```
 
-![](/tmp/cd8_figure-5.rmd/cd8_figure_files/figure-gfm/fig_1D-1.png)<!-- -->
+![](/tmp/cd8_figure-6.rmd/cd8_figure_files/figure-gfm/fig_1D-1.png)<!-- -->
 
 ## Figure 1E
 
@@ -109,8 +109,8 @@ python_functions.plot_feature_by_tissue_type(lin_data=cd8_data,
                                              genes=["CXCR3", "CXCR6"])
 ```
 
-    ## 2024-05-04 19:29:29,939 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cd8_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.9/data/pseudobulk/ascites_cd8_cite_concat_R7_300mg_20pm_harm_channel_1_9_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-04 19:29:29,939 - pegasusio.readwrite - INFO - Function 'read_input' finished in 2.94s.
+    ## 2024-05-07 17:07:40,178 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cd8_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.9/data/pseudobulk/ascites_cd8_cite_concat_R7_300mg_20pm_harm_channel_1_9_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-07 17:07:40,178 - pegasusio.readwrite - INFO - Function 'read_input' finished in 2.78s.
 
 <img src="cd8_figure_files/figure-gfm/fig_1E-1.png" width="960" />
 
@@ -120,4 +120,4 @@ python_functions.plot_feature_by_tissue_type(lin_data=cd8_data,
 plot_sf_boxplot(c("CXCL10", "CXCL9", "CXCL16", "SDF-1", "IL-15", "IL-12p40", "TNFα", "IFNγ"))
 ```
 
-![](/tmp/cd8_figure-5.rmd/cd8_figure_files/figure-gfm/fig_1F-3.png)<!-- -->
+![](/tmp/cd8_figure-6.rmd/cd8_figure_files/figure-gfm/fig_1F-3.png)<!-- -->

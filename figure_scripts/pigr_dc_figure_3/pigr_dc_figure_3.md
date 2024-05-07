@@ -6,32 +6,25 @@ PIGR DC Figure 3
 Load R libraries
 
 ``` r
-library(ggplot2)
 library(tidyverse)
 
 library(reticulate)
 use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
-
-setwd('/projects/home/tlchan/github_code/ascites/functions')
-source('plot_fgsea.R')
 ```
 
 Load python libraries
 
 ``` python
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 import pegasus as pg
-import scanpy as sc
+
+import sys
+sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
+import python_functions
 ```
 
 ## Figure 1B
 
 ``` python
-mpl.rcParams['pdf.fonttype'] = 42
-
 dataset_dict = {
     "cancer_discovery": "Kumar",
     "gastric": "MGH",
@@ -51,121 +44,37 @@ dataset_palette = {
 }
 
 # Load single-cell object
-lineage_data = pg.read_input(
+ext_dc_data = pg.read_input(
     '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip')
 
 # Relabel obs for function
-pg.annotate(lineage_data, 'dataset', 'dataset', dataset_dict)
+pg.annotate(ext_dc_data, 'dataset', 'dataset', dataset_dict)
 
-dataset_fig, dataset_ax = plt.subplots(1)
-dataset_umap = sc.pl.umap(adata=lineage_data.to_anndata(),
-                          color="dataset",
-                          use_raw=True,
-                          palette=dataset_palette,
-                          legend_loc="right margin",
-                          legend_fontoutline=5,
-                          title="",
-                          show=False,
-                          ax=dataset_ax)
-
-dataset_fig = plt.gcf()
-dataset_fig.set_size_inches(8, 6)
-dataset_fig.tight_layout()
-dataset_ax.set_rasterization_zorder(2)
-plt.show()
-plt.close()
+python_functions.plot_umap(lin_data=ext_dc_data,
+                           color="dataset",
+                           palette=dataset_palette)
 ```
 
-    ## 2024-04-29 21:02:08,698 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-04-29 21:02:08,698 - pegasusio.readwrite - INFO - Function 'read_input' finished in 2.62s.
+    ## 2024-05-07 17:12:01,509 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-07 17:12:01,510 - pegasusio.readwrite - INFO - Function 'read_input' finished in 2.25s.
     ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
     ##   cax = scatter(
 
-<img src="pigr_dc_figure_3_files/figure-gfm/fig_1B-1.png" width="768" />
+<img src="pigr_dc_figure_3_files/figure-gfm/fig_1B-1.png" width="576" />
 
 ## Figure 1C
 
 ``` python
-mpl.rcParams['pdf.fonttype'] = 42
+ext_dc_data = pg.read_input("/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip")
 
-ncol = 2
-nrow = 2
-genes = ['PRDM16', 'PIGR', 'RORC', 'SFTPD']
-
-lineage_data = pg.read_input("/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip")
-
-# Get UMAP coordinates for base
-umap_coords = pd.DataFrame(lineage_data.obsm['X_umap'], columns=['x', 'y'])
-x = umap_coords['x']
-y = umap_coords['y']
-
-# Set up figure structure
-fig_size = (5 * ncol, 4 * nrow)
-fig, axes = plt.subplots(nrows=nrow, ncols=ncol, figsize=fig_size,
-                         sharex=True, sharey=True)
-ax = axes.ravel()
-
-# Plot for each gene
-for num, gene in enumerate(genes):
-    # Get counts for each gene
-    norm_counts = lineage_data[:, gene].copy().get_matrix('X').todense().transpose()
-    norm_counts = np.squeeze(np.asarray(norm_counts))
-
-    if norm_counts.size == 0:  # ie. All empty/zero in sparce matrix
-        norm_counts = np.zeros(norm_counts.shape[1])
-
-    # Get n cells and perc cells
-    ncells = (norm_counts != 0).sum()
-    pcells = ncells / norm_counts.shape[0]
-
-    if gene.startswith('cite_'):
-        cmap = 'PuBu'
-    else:
-        cmap = 'YlOrRd'
-
-    # Create heatmap
-    hb = ax[num].hexbin(x=x,
-                        y=y,
-                        C=norm_counts,
-                        cmap=cmap,
-                        gridsize=150,
-                        edgecolors="none")
-
-    # Add percent expression
-    ax[num].annotate(f'{ncells:,} ({pcells:.1%}) cells',
-                     xy=(0.01, 0), xycoords='axes fraction',
-                     fontsize=10,
-                     horizontalalignment='left',
-                     verticalalignment='bottom')
-
-    # Add axes and colorbar information
-    cb = fig.colorbar(hb, ax=ax[num], shrink=.75, aspect=10)
-    cb.ax.set_title('logCPM', loc='left', fontsize=14)
-    ax[num].set_title(gene, fontsize=18)
-    ax[num].tick_params(left=False, labelleft=False,
-                        bottom=False, labelbottom=False)
-    if (num + ncol) % ncol == 0:
-        # Start of row
-        ax[num].set_ylabel('UMAP2', fontsize=18)
-    if nrow == 1:
-        # Only one row
-        ax[num].set_xlabel('UMAP1', fontsize=18)
-    elif num > (len(genes) - ncol - 1):
-        # Last row if more than one row
-        ax[num].set_xlabel('UMAP1', fontsize=18)
-
-    # Rasterize
-    ax[num].set_rasterization_zorder(2)
-
-for i in range(len(ax) - (len(ax) - len(genes)), len(ax)):
-    ax[i].set_axis_off()
-fig.tight_layout()
-plt.show()
-plt.close()
+python_functions.plot_feature(lin_data=ext_dc_data,
+                              genes=['PRDM16', 'PIGR', 'RORC', 'SFTPD'],
+                              ncol=2,
+                              nrow=2)
 ```
 
-    ## 2024-04-29 21:02:12,606 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-04-29 21:02:12,607 - pegasusio.readwrite - INFO - Function 'read_input' finished in 2.60s.
+    ## 2024-05-07 17:12:05,328 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-07 17:12:05,328 - pegasusio.readwrite - INFO - Function 'read_input' finished in 2.56s.
 
 <img src="pigr_dc_figure_3_files/figure-gfm/fig_1C-3.png" width="960" />
 
@@ -222,4 +131,4 @@ ggplot(abundance, aes(y = organ, x = percentage + 0.1, fill = organ_type)) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 ```
 
-![](/tmp/pigr_dc_figure_3-3.rmd/pigr_dc_figure_3_files/figure-gfm/fig_1D-5.png)<!-- -->
+![](/tmp/pigr_dc_figure_3-6.rmd/pigr_dc_figure_3_files/figure-gfm/fig_1D-5.png)<!-- -->

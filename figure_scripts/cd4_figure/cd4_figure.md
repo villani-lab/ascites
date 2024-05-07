@@ -52,8 +52,8 @@ python_functions.plot_umap(lin_data=cd4_data,
                            palette=cd4_cluster_palette)
 ```
 
-    ## 2024-05-04 18:35:11,501 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.3/data/pseudobulk/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_1_3_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-04 18:35:11,501 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.97s.
+    ## 2024-05-07 17:07:09,466 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.3/data/pseudobulk/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_1_3_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-07 17:07:09,466 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.95s.
     ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
     ##   cax = scatter(
 
@@ -70,7 +70,7 @@ plot_dotplot(lin_gex = cd4_gex,
              lin = "cd4")
 ```
 
-![](/tmp/cd4_figure-2.rmd/cd4_figure_files/figure-gfm/fig_1B-3.png)<!-- -->
+![](/tmp/cd4_figure-3.rmd/cd4_figure_files/figure-gfm/fig_1B-3.png)<!-- -->
 
 ## Figure 1C
 
@@ -78,7 +78,7 @@ plot_dotplot(lin_gex = cd4_gex,
 plot_cluster_abundance("cd4")
 ```
 
-![](/tmp/cd4_figure-2.rmd/cd4_figure_files/figure-gfm/fig_1C-1.png)<!-- -->
+![](/tmp/cd4_figure-3.rmd/cd4_figure_files/figure-gfm/fig_1C-1.png)<!-- -->
 
 ## Figure 1D
 
@@ -91,8 +91,8 @@ python_functions.plot_feature_by_tissue_type(lin_data=cd4_data,
                                              genes=["CXCR3", "CXCR6"])
 ```
 
-    ## 2024-05-04 18:35:17,569 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.3/data/pseudobulk/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_1_3_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-04 18:35:17,569 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.96s.
+    ## 2024-05-07 17:07:15,538 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.3/data/pseudobulk/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_1_3_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-07 17:07:15,539 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.01s.
 
 <img src="cd4_figure_files/figure-gfm/fig_1D-1.png" width="960" />
 
@@ -111,15 +111,15 @@ cd4_meta <- cd4_meta %>%
 
 plotlist <- lapply(c(2, 3, 6), function(clust) {
     p <- plot_deg(res = cd4_res,
-              meta = cd4_meta,
-              lin = "CD4",
-              clust = clust,
-              contrast = "survival_bin",
-              ref_var = "Low",
-              test_var = "High")
+                  meta = cd4_meta,
+                  lin = "CD4",
+                  clust = clust,
+                  contrast = "survival_bin",
+                  ref_var = "Low",
+                  test_var = "High")
     return(p)
 })
 ggarrange(plotlist = plotlist, nrow = 3)
 ```
 
-![](/tmp/cd4_figure-2.rmd/cd4_figure_files/figure-gfm/fig_1E-3.png)<!-- -->
+![](/tmp/cd4_figure-3.rmd/cd4_figure_files/figure-gfm/fig_1E-3.png)<!-- -->

@@ -7,12 +7,16 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters) {
                            "blood" = "#F8766D",
                            "other" = "#000000")
 
+    paired_samples <- c("ASC_10", "ASC_25", "ASC_41", "ASC_45", "ASC_46", "ASC_48", "ASC_49", "ASC_52", "ASC_57", "ASC_61", "ASC_62", "ASC_65", "ASC_66", "ASC_67")
+
     # Load data
     abundance <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/metadata/ascites_abundance.csv")
 
     # Remove cancer cells and doublets
     abundance <- abundance %>%
-        filter(lineage != "cancer")
+        filter(lineage != "cancer") %>%
+        filter(patient_id %in% paired_samples) %>%
+        filter(patient_id != "ASC_48")
 
     # Get immune count
     abundance <- abundance %>%
@@ -28,11 +32,6 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters) {
         left_join(abundance, by = c("patient_id", "tissue_type", "lineage", "cluster")) %>%
         replace(is.na(.), 0)
 
-    # Remove patients with fewer than 250 immune native fraction cells
-    abundance <- abundance %>%
-        group_by(patient_id, tissue_type) %>%
-        filter(sum(clust_count) > 250)
-
     # Get statistics
     abundance <- abundance %>%
         group_by(patient_id, tissue_type) %>%
@@ -40,6 +39,12 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters) {
         mutate(clust_percentage = clust_count / total_count * 100) %>%
         mutate(log_clust_percentage = log1p(clust_percentage)) %>%
         mutate(tissue_type = factor(tissue_type, levels = c("blood", "ascites")))
+
+    # Remove patients with fewer than 250 immune native fraction cells
+    abundance <- abundance %>%
+        group_by(patient_id) %>%
+        mutate(min_total_count = min(total_count)) %>%
+        filter(min_total_count > 250)
 
     # Subset abundance
     lin_abundance <- abundance %>% filter(lineage == lin)
