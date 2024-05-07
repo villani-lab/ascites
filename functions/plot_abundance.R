@@ -38,7 +38,7 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters) {
         mutate(total_count = sum(clust_count)) %>%
         mutate(clust_percentage = clust_count / total_count * 100) %>%
         mutate(log_clust_percentage = log1p(clust_percentage)) %>%
-        mutate(tissue_type = factor(tissue_type, levels = c("blood", "ascites")))
+        mutate(tissue_type = factor(tissue_type, levels = c("ascites", "blood")))
 
     # Remove patients with fewer than 250 immune native fraction cells
     abundance <- abundance %>%
@@ -67,29 +67,30 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters) {
         lin_abundance <- lin_abundance %>% filter(!cluster %in% remove_clusters)
     }
 
-    bp <- ggplot(lin_abundance, aes(x = log_clust_percentage, y = cluster, fill = tissue_type)) +
+    bp <- ggplot(lin_abundance, aes(x = clust_percentage + 1, y = cluster, fill = tissue_type)) +
         geom_boxplot(outlier.shape = NA) +
         geom_point(pch = 21, position = position_jitterdodge(), aes(fill = tissue_type), size = 2) +
-        annotation_logticks(side = "b", outside = TRUE) +
+        scale_x_log10() +
         coord_cartesian(clip = "off") +
         scale_y_discrete(limits = rev) +
         labs(fill = "Tissue type") +
-        xlab("log1p(Percent native immune)") +
+        xlab("Percent native immune + 1") +
         ylab("") +
-        theme_classic(base_size = 16)
+        theme_classic(base_size = 20) +
+        theme(axis.text.y = element_blank(), axis.text = element_text(size = 15)) +
+        scale_fill_manual(values = tissue_palette)
 
-    lm_res <- lapply(unique(lin_abundance$cluster), function(clust) {
-        lm_data <- lin_abundance %>% filter(cluster == clust)
-        stats <- parameters(lm(log_clust_percentage ~ tissue_type, lm_data))
+    pt_res <- lapply(unique(lin_abundance$cluster), function(clust) {
+        pt_data <- lin_abundance %>% filter(cluster == clust)
+        stats <- parameters(t.test(log_clust_percentage ~ tissue_type, pt_data, paired = TRUE))
         stats$cluster <- clust
-        stats <- stats %>% filter(Parameter != "(Intercept)")
         return(stats)
     }) %>%
         do.call(rbind, .) %>%
         mutate(padj = p.adjust(p, method = "fdr")) %>%
-        mutate(color = case_when(padj < 0.1 & Coefficient > 0 ~ "ascites", padj < 0.1 & Coefficient < 0 ~ "blood", padj >= 0.1 ~ "other"))
+        mutate(color = case_when(padj < 0.1 & Difference > 0 ~ "ascites", padj < 0.1 & Difference < 0 ~ "blood", padj >= 0.1 ~ "other"))
 
-    fp <- ggplot(lm_res, aes(x = Coefficient, y = factor(cluster), color = color)) +
+    fp <- ggplot(pt_res, aes(x = Difference, y = factor(cluster), color = color)) +
         geom_point(size = 3) +
         geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high, height = 0)) +
         geom_vline(xintercept = 0) +
@@ -97,7 +98,7 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters) {
         guides(color = "none") +
         xlab("Log2FoldChange") +
         ylab("Cluster") +
-        theme_classic(base_size = 16) +
+        theme_classic(base_size = 20) +
         scale_color_manual(values = tissue_palette)
 
     ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0))

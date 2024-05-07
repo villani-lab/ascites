@@ -11,6 +11,7 @@ library(reticulate)
 use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
 
 setwd('/projects/home/tlchan/github_code/ascites/functions')
+source('plot_abundance.R')
 source('plot_dotplot.R')
 ```
 
@@ -57,4 +58,9 @@ b_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot
 plot_dotplot(lin_gex = b_gex,
              lin_cite = b_cite,
              lin = "bplasma")
+```
+
+## Figure 1C
+```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, fig_1C}
+plot_cluster_abundance("bplasma")
 ```

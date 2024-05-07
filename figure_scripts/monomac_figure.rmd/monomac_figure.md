@@ -61,8 +61,8 @@ python_functions.plot_umap(lin_data=monomac_data,
                            palette=monomac_cluster_palette)
 ```
 
-    ## 2024-05-07 17:09:53,921 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-07 17:09:53,922 - pegasusio.readwrite - INFO - Function 'read_input' finished in 3.25s.
+    ## 2024-05-07 17:43:15,502 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-07 17:43:15,502 - pegasusio.readwrite - INFO - Function 'read_input' finished in 3.14s.
     ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
     ##   cax = scatter(
 
@@ -79,7 +79,7 @@ plot_dotplot(lin_gex = monomac_gex,
              lin = "Mono/Mac")
 ```
 
-![](/tmp/monomac_figure-13.rmd/monomac_figure_files/figure-gfm/fig_1B-3.png)<!-- -->
+![](/tmp/monomac_figure-14.rmd/monomac_figure_files/figure-gfm/fig_1B-3.png)<!-- -->
 
 ## Figure 1C
 
@@ -87,7 +87,7 @@ plot_dotplot(lin_gex = monomac_gex,
 plot_cluster_abundance("monomac")
 ```
 
-![](/tmp/monomac_figure-13.rmd/monomac_figure_files/figure-gfm/fig_1C-1.png)<!-- -->
+![](/tmp/monomac_figure-14.rmd/monomac_figure_files/figure-gfm/fig_1C-1.png)<!-- -->
 
 ## Figure 1D
 
@@ -99,8 +99,8 @@ python_functions.plot_feature_by_tissue_type(lin_data=monomac_data,
                                              genes=["CCL2", "IL10", "CXCL8", "CXCL1", "VEGFA"])
 ```
 
-    ## 2024-05-07 17:10:02,652 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-07 17:10:02,652 - pegasusio.readwrite - INFO - Function 'read_input' finished in 3.11s.
+    ## 2024-05-07 17:43:23,824 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-07 17:43:23,824 - pegasusio.readwrite - INFO - Function 'read_input' finished in 3.10s.
 
 <img src="monomac_figure_files/figure-gfm/fig_1D-1.png" width="960" />
 
@@ -110,7 +110,7 @@ python_functions.plot_feature_by_tissue_type(lin_data=monomac_data,
 plot_sf_boxplot(c("CCL2", "IL-10", "IL-8", "GROa", "VEGF-A"))
 ```
 
-![](/tmp/monomac_figure-13.rmd/monomac_figure_files/figure-gfm/fig_1E-3.png)<!-- -->
+![](/tmp/monomac_figure-14.rmd/monomac_figure_files/figure-gfm/fig_1E-3.png)<!-- -->
 
 ## Figure 1F
 
@@ -122,8 +122,8 @@ python_functions.plot_feature_by_tissue_type(lin_data=monomac_data,
                                              genes=["C1QA", "LAIR1"])
 ```
 
-    ## 2024-05-07 17:10:19,042 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-07 17:10:19,043 - pegasusio.readwrite - INFO - Function 'read_input' finished in 3.21s.
+    ## 2024-05-07 17:43:39,843 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-07 17:43:39,843 - pegasusio.readwrite - INFO - Function 'read_input' finished in 3.09s.
 
 <img src="monomac_figure_files/figure-gfm/fig_1F-1.png" width="960" />
 
@@ -166,7 +166,7 @@ bp <- ggplot(plot_data, aes(x = tissue_type, y = median_count, fill = tissue_typ
 ggarrange(hp, bp, nrow = 2)
 ```
 
-![](/tmp/monomac_figure-13.rmd/monomac_figure_files/figure-gfm/fig_1G-3.png)<!-- -->
+![](/tmp/monomac_figure-14.rmd/monomac_figure_files/figure-gfm/fig_1G-3.png)<!-- -->
 
 ## Figure 1H
 
@@ -191,4 +191,4 @@ p <- plot_deg(res = monomac_res,
 print(p)
 ```
 
-![](/tmp/monomac_figure-13.rmd/monomac_figure_files/figure-gfm/fig_1H-1.png)<!-- -->
+![](/tmp/monomac_figure-14.rmd/monomac_figure_files/figure-gfm/fig_1H-1.png)<!-- -->

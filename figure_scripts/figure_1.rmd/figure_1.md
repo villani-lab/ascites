@@ -72,8 +72,8 @@ plt.show()
 plt.close(lineage_fig)
 ```
 
-    ## 2024-05-07 17:09:57,652 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-07 17:09:57,652 - pegasusio.readwrite - INFO - Function 'read_input' finished in 10.36s.
+    ## 2024-05-07 19:06:33,831 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-07 19:06:33,831 - pegasusio.readwrite - INFO - Function 'read_input' finished in 9.99s.
     ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
     ##   cax = scatter(
 
@@ -124,7 +124,7 @@ abundance <- abundance %>%
     mutate(total_count = sum(lin_count)) %>%
     mutate(lin_percentage = lin_count / total_count * 100) %>%
     mutate(log_lin_percentage = log1p(lin_percentage)) %>%
-    mutate(tissue_type = factor(tissue_type, levels = c("blood", "ascites")))
+    mutate(tissue_type = factor(tissue_type, levels = c("ascites", "blood")))
 
 # Remove patients with fewer than 250 immune native fraction cells
 abundance <- abundance %>%
@@ -132,29 +132,29 @@ abundance <- abundance %>%
     mutate(min_total_count = min(total_count)) %>%
     filter(min_total_count > 250)
 
-bp <- ggplot(abundance, aes(x = log_lin_percentage, y = factor(lineage), fill = tissue_type)) +
+bp <- ggplot(abundance, aes(x = lin_percentage + 1, y = factor(lineage), fill = tissue_type)) +
     geom_boxplot(outlier.shape = NA) +
     geom_point(pch = 21, position = position_jitterdodge(), aes(fill = tissue_type), size = 2) +
-    annotation_logticks(side = "b", outside = TRUE) +
+    scale_x_log10() +
     coord_cartesian(clip = "off") +
     labs(fill = "Tissue type") +
-    xlab("log1p(Percent native immune)") +
+    xlab("Percent native immune + 1") +
     ylab("") +
     theme_classic(base_size = 20) +
-    theme(axis.text.y = element_blank(), axis.text = element_text(size = 15))
+    theme(axis.text.y = element_blank(), axis.text = element_text(size = 15)) +
+    scale_fill_manual(values = tissue_palette)
 
-lm_res <- lapply(unique(abundance$lineage), function(lin) {
-    lm_data <- abundance %>% filter(lineage == lin)
-    stats <- parameters(lm(log_lin_percentage ~ tissue_type, lm_data))
+pt_res <- lapply(unique(abundance$lineage), function(lin) {
+    pt_data <- abundance %>% filter(lineage == lin)
+    stats <- parameters(t.test(log_lin_percentage ~ tissue_type, pt_data, paired=TRUE))
     stats$lineage <- lin
-    stats <- stats %>% filter(Parameter != "(Intercept)")
     return(stats)
 }) %>%
     do.call(rbind, .) %>%
     mutate(padj = p.adjust(p, method = "fdr")) %>%
-    mutate(color = case_when(padj < 0.1 & Coefficient > 0 ~ "ascites", padj < 0.1 & Coefficient < 0 ~ "blood", padj >= 0.1 ~ "other"))
+    mutate(color = case_when(padj < 0.1 & Difference > 0 ~ "ascites", padj < 0.1 & Difference < 0 ~ "blood", padj >= 0.1 ~ "other"))
 
-fp <- ggplot(lm_res, aes(x = Coefficient, y = factor(lineage), color = color)) +
+fp <- ggplot(pt_res, aes(x = Difference, y = factor(lineage), color = color)) +
     geom_point(size = 3) +
     geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high, height = 0)) +
     geom_vline(xintercept = 0) +
@@ -162,13 +162,13 @@ fp <- ggplot(lm_res, aes(x = Coefficient, y = factor(lineage), color = color)) +
     xlab("Log2FoldChange") +
     ylab("Lineage") +
     theme_classic(base_size = 20) +
-    scale_color_manual(values = tissue_palette) +
-    theme(axis.text = element_text(size = 15))
+    theme(axis.text = element_text(size = 15)) +
+    scale_color_manual(values = tissue_palette)
 
 ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0))
 ```
 
-![](/tmp/figure_1-28.rmd/figure_1_files/figure-gfm/fig_1C-3.png)<!-- -->
+![](/tmp/figure_1-33.rmd/figure_1_files/figure-gfm/fig_1C-3.png)<!-- -->
 
 ## Figure 1D
 
@@ -299,7 +299,7 @@ draw(ht)
 draw(pd, x = unit(0.93, "npc"), y = unit(0.58, "npc"))
 ```
 
-![](/tmp/figure_1-28.rmd/figure_1_files/figure-gfm/fig_1D-1.png)<!-- -->
+![](/tmp/figure_1-33.rmd/figure_1_files/figure-gfm/fig_1D-1.png)<!-- -->
 
 ## Figure 1E
 
@@ -383,4 +383,4 @@ ggplot(res, aes(x = logFC, y = -log10(p))) +
     theme_classic(base_size = 20)
 ```
 
-![](/tmp/figure_1-28.rmd/figure_1_files/figure-gfm/fig_1E-1.png)<!-- -->
+![](/tmp/figure_1-33.rmd/figure_1_files/figure-gfm/fig_1E-1.png)<!-- -->

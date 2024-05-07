@@ -56,8 +56,8 @@ python_functions.plot_umap(lin_data=dc_data,
                            palette=dc_cluster_palette)
 ```
 
-    ## 2024-05-07 17:07:37,647 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-07 17:07:37,647 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.96s.
+    ## 2024-05-07 17:39:21,978 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-07 17:39:21,978 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.79s.
     ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
     ##   cax = scatter(
 
@@ -74,7 +74,7 @@ plot_dotplot(lin_gex = dc_gex,
              lin = "dc")
 ```
 
-![](/tmp/dc_figure-16.rmd/dc_figure_files/figure-gfm/fig_1B-3.png)<!-- -->
+![](/tmp/dc_figure-17.rmd/dc_figure_files/figure-gfm/fig_1B-3.png)<!-- -->
 
 ## Figure 1C
 
@@ -82,7 +82,7 @@ plot_dotplot(lin_gex = dc_gex,
 plot_cluster_abundance("dc")
 ```
 
-![](/tmp/dc_figure-16.rmd/dc_figure_files/figure-gfm/fig_1C-1.png)<!-- -->
+![](/tmp/dc_figure-17.rmd/dc_figure_files/figure-gfm/fig_1C-1.png)<!-- -->
 
 ## Figure 1D
 
@@ -94,8 +94,8 @@ python_functions.plot_feature_by_tissue_type(lin_data=dc_data,
                                              genes=["CXCR3", "CXCL16", "IL18"])
 ```
 
-    ## 2024-05-07 17:07:43,138 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-07 17:07:43,138 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.79s.
+    ## 2024-05-07 17:39:26,780 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-07 17:39:26,780 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.70s.
 
 <img src="dc_figure_files/figure-gfm/fig_1D-1.png" width="960" />
 
@@ -105,7 +105,7 @@ python_functions.plot_feature_by_tissue_type(lin_data=dc_data,
 plot_sf_boxplot(c("6CKine", "SCF", "IL-6", "FLT-3L"))
 ```
 
-![](/tmp/dc_figure-16.rmd/dc_figure_files/figure-gfm/fig_1E-3.png)<!-- -->
+![](/tmp/dc_figure-17.rmd/dc_figure_files/figure-gfm/fig_1E-3.png)<!-- -->
 
 ## Figure 1F
 
@@ -120,7 +120,7 @@ p <- plot_deg(res = dc_res,
 return(p)
 ```
 
-![](/tmp/dc_figure-16.rmd/dc_figure_files/figure-gfm/fig_1F-1.png)<!-- -->
+![](/tmp/dc_figure-17.rmd/dc_figure_files/figure-gfm/fig_1F-1.png)<!-- -->
 
 ## Figure 1G
 
@@ -171,7 +171,7 @@ ggplot(plot_data, aes(x = factor(B2M), y = IL4I1)) +
     theme_classic(base_size = 12)
 ```
 
-![](/tmp/dc_figure-16.rmd/dc_figure_files/figure-gfm/fig_1G-1.png)<!-- -->
+![](/tmp/dc_figure-17.rmd/dc_figure_files/figure-gfm/fig_1G-1.png)<!-- -->
 
 ## Figure 1H
 
@@ -200,4 +200,4 @@ cDC2_gs <- gene_sets %>%
 plot_fgsea(cDC2_fgsea, dc_mreg_B2M_data, cDC2_gs, "DC mreg", "B2M (2 vs. 0)", "cDC2")
 ```
 
-![](/tmp/dc_figure-16.rmd/dc_figure_files/figure-gfm/fig_1H-1.png)<!-- -->
+![](/tmp/dc_figure-17.rmd/dc_figure_files/figure-gfm/fig_1H-1.png)<!-- -->
