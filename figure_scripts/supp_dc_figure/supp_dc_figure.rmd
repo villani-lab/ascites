@@ -1,0 +1,388 @@
+---
+title: "Supplemental DC Figure"
+output: rmarkdown::github_document
+---
+
+## Set up
+
+Load R libraries
+```{r message = F, results = F, warning = F, load_r_libraries}
+library(tidyverse)
+library(ComplexHeatmap)
+
+library(reticulate)
+use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
+
+setwd('/projects/home/tlchan/github_code/ascites/functions')
+source('plot_deg.R')
+source('plot_fgsea.R')
+source('plot_sf_boxplot.R')
+```
+
+Load python libraries
+```{python load_python_packages}
+import pegasus as pg
+import matplotlib.pyplot as plt
+import os
+import pandas as pd
+import pegasus as pg
+from pyscenic.plotting import plot_rss
+import scanpy as sc
+
+import sys
+sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
+import python_functions
+```
+
+## Figure 1A
+```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, fig_1A}
+patient_palette <- list(
+    "ASC_1" = "#FF0029",
+    "ASC_10" = "#377EB8",
+    "ASC_21" = "#66A61E",
+    "ASC_25" = "#984EA3",
+    "ASC_41" = "#00D2D5",
+    "ASC_43" = "#FF7F00",
+    "ASC_45" = "#AF8D00",
+    "ASC_46" = "#7F80CD",
+    "ASC_48" = "#B3E900",
+    "ASC_49" = "#C42E60",
+    "ASC_5" = "#A65628",
+    "ASC_52" = "#F781BF",
+    "ASC_57" = "#8DD3C7",
+    "ASC_61" = "#BEBADA",
+    "ASC_62" = "#FB8072",
+    "ASC_65" = "#80B1D3",
+    "ASC_66" = "#FDB462",
+    "ASC_67" = "#FCCDE5",
+    "GC-PC_10" = "#BC80BD",
+    "GC-PC_11" = "#FFED6F",
+    "GC-PC_17" = "#C4EAFF",
+    "GC-PC_5" = "#CF8C00",
+    "GC-PC_7" = "#1B9E77"
+)
+
+abundance <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/metadata/ascites_abundance.csv")
+abundance <- abundance %>%
+    filter(lineage == "dc") %>%
+    group_by(patient_id, cluster) %>%
+    summarize(count = n())
+
+ggplot(abundance, aes(x = factor(cluster), y = count, fill = patient_id)) +
+    geom_bar(stat = 'identity', position="fill") +
+    xlab("Cluster") +
+    ylab("Count") +
+    ggtitle("Cluster 10 native abundance by patient") +
+    scale_fill_manual(name = "Patient", values = patient_palette)
+```
+
+## Figure 1B
+```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 10, fig_1B}
+# Load data
+abundance <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/metadata/ascites_abundance.csv")
+
+# Select DC cells
+abundance <- abundance %>%
+    filter(lineage == "dc")
+
+# Get immune count
+abundance <- abundance %>%
+    group_by(patient_id, tissue_type, lineage, cluster) %>%
+    mutate(clust_count = sum(immune == "True")) %>%
+    select(patient_id, tissue_type, lineage, cluster, clust_count) %>%
+    distinct()
+
+# Account for patient/tissue pairs that contributed zero cells to clusters
+combos <- expand.grid(unique(abundance$patient_id), unique(abundance$tissue_type), unique(abundance$lineage), unique(abundance$cluster)) %>% `colnames<-`(c("patient_id", "tissue_type", "lineage", "cluster"))
+
+abundance <- combos %>%
+    left_join(abundance, by = c("patient_id", "tissue_type", "lineage", "cluster")) %>%
+    replace(is.na(.), 0)
+
+# Get statistics
+abundance <- abundance %>%
+    group_by(patient_id, tissue_type) %>%
+    mutate(total_count = sum(clust_count)) %>%
+    mutate(clust_percentage = clust_count / total_count * 100) %>%
+    mutate(log_clust_percentage = log1p(clust_percentage)) %>%
+    mutate(tissue_type = factor(tissue_type, levels = c("blood", "ascites")))
+
+abundance <- abundance %>%
+    filter(cluster == "10") %>%
+    mutate(clust_percentage = replace_na(clust_percentage, 0)) %>%
+    mutate(log_clust_percentage = replace_na(log_clust_percentage, 0))
+
+ggplot(abundance, aes(x = patient_id, y = log_clust_percentage, fill = tissue_type)) +
+    geom_bar(stat = 'identity') +
+    xlab("Patient") +
+    ylab("log1p(percent native cluster abundance)") +
+    labs(fill = "Tissue type") +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
+
+## Figure 1C
+```{python results = 'hold', fig_1C}
+dc_data = pg.read_input("/projects/home/tlchan/projects/ascites/data_cite_objects/dc.zarr.zip")
+
+python_functions.plot_feature(lin_data=dc_data,
+                              genes=['FLT3', 'ID2', 'HLA-DRA', 'ITGAX', 'PIGR', 'RORC', 'PRDM16', 'KIT', 'S100B', 'SFTPD'],
+                              ncol=2,
+                              nrow=5)
+```
+
+## Figure 1D
+```{python results = 'hold', fig_1D}
+dc_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip')
+
+python_functions.plot_feature_by_tissue_type(lin_data=dc_data,
+                                             genes=["CXCR3", "CXCL16", "IL18"])
+```
+
+## Figure 1E
+```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 8, fig_1E}
+tissue_palette <- list("Ascites" = "#00BFC4",
+                       "Blood" = "#F8766D")
+
+plot_data <- read.csv(glue("/projects/home/tlchan/projects/ascites/figure_panels/boxplot_data/dc_protein_exp.csv"), row.names = 1)
+
+ggplot(plot_data %>% filter(protein == "cite_CD196"), aes(x = count, fill = tissue_type)) +
+    geom_histogram(position = "identity", alpha = 0.75) +
+    labs(fill = "Tissue Type") +
+    ylab("Count") +
+    xlab("CLR(CITE count)") +
+    facet_wrap(~leiden_labels, scales = "free_y") +
+    ggtitle(glue("DC CITE_CD196")) +
+    theme_classic(base_size = 12) +
+    scale_fill_manual(values = tissue_palette)
+```
+
+## Figure 1F
+```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 8, fig_1F}
+plot_sf_boxplot(c("6CKine", "SCF", "IL-6", "FLT-3L", "M-CSF", "MIP-3α", "MIP-3β", "IP-10", "CXCL16"))
+```
+
+## Figure 1G
+```{r message = F, results = F, warning = F, fig.width = 6, fig.height = 6, fig_1G}
+dc_res <- read.csv('/projects/home/tlchan/projects/ascites/ascites_deg_results/dc/dc_ascites_de_by_B2M_all_results.csv')
+dc_meta <- read.csv('/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_pseudobulk_meta.csv', row.names = 1)
+
+plot_deg(res = dc_res,
+              meta = dc_meta,
+              lin = "DC",
+              clust = 10)
+```
+
+## Figure 1H
+```{r message = F, results = F, warning = F, fig.width = 6, fig.height = 6, fig_1H}
+B2M_palette <- list("0" = "#FF0029",
+                    "1" = "#377EB8",
+                    "2" = "#66A61E")
+
+counts_filepath <- "/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_pseudobulk_counts.csv"
+meta_filepath <- '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_pseudobulk_meta.csv'
+
+counts <- read_csv(counts_filepath)
+counts <- counts %>%
+    column_to_rownames(var = "featurekey") %>%
+    apply(2, function(c) {
+        n_total <- sum(c)
+        per_100k <- (c * 1000000) / n_total
+        return(per_100k)
+    }) %>%
+    as.data.frame
+counts <- log1p(counts)
+counts <- counts %>% filter(rownames(counts) == 'IL4I1')
+
+meta <- read.csv(meta_filepath, row.names = 1) %>% filter(tissue_type == "ascites")
+
+# Subset counts
+counts <- select(counts, rownames(meta))
+
+# Subset to cluster 10
+meta_cluster <- meta[meta$cluster == 10,]
+meta_cluster <- meta_cluster[meta_cluster$n_cells >= 10,]
+tot_cells <- sum(meta_cluster$n_cells)
+counts_cluster <- counts[, rownames(meta_cluster)]
+n_samp <- rowSums(counts_cluster != 0)
+counts_cluster <- counts_cluster[n_samp > (nrow(meta_cluster) / 2),]
+
+counts_cluster <- as.data.frame(t(counts_cluster))
+counts_cluster$sample <- rownames(counts_cluster)
+meta_cluster$sample <- rownames(meta_cluster)
+plot_data <- merge(counts_cluster, meta_cluster, by = "sample")
+
+ggplot(plot_data, aes(x = factor(B2M), y = IL4I1)) +
+    geom_boxplot(outlier.shape = NA) +
+    geom_point(pch = 21, position = position_jitterdodge(), aes(fill = factor(B2M)), size = 2) +
+    labs(fill = "B2M") +
+    ylab("log(count + 1)") +
+    xlab("B2M") +
+    theme_classic(base_size = 12)
+```
+
+
+## Figure 1I
+```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 4, fig_1I}
+select_results <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/gsea/select_split_msigdb_fgsea_results.csv")
+
+select_sets <- select_results %>% select(pathway) %>%
+    distinct() %>%
+    pull()
+
+select_vars <- select_results %>% select(variable) %>%
+    distinct() %>%
+    pull()
+
+split_fgsea <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/gsea/gsea_scores/msigdb_split_fgsea.csv") %>%
+    filter(pathway %in% select_sets) %>%
+    filter(variable %in% select_vars) %>%
+    filter(lineage == "dc") %>%
+    filter(tissue_type == "ascites") %>%
+    filter(cluster == "10")
+
+dc10_fgsea <- split_fgsea %>%
+    select("pathway", "NES", "padj", "variable")
+nes_mtx <- dc10_fgsea %>%
+    select("pathway", "NES", "variable") %>%
+    pivot_wider(names_from = variable, values_from = NES) %>%
+    column_to_rownames("pathway")
+padj_mtx <- dc10_fgsea %>%
+    select("pathway", "padj", "variable") %>%
+    pivot_wider(names_from = variable, values_from = padj) %>%
+    column_to_rownames("pathway")
+
+stopifnot(identical(rownames(nes_mtx), rownames(padj_mtx)))
+stopifnot(identical(colnames(nes_mtx), colnames(padj_mtx)))
+
+clustering_cols <- hclust(dist(t(nes_mtx), method = "euclidean"), method = "ward.D2")
+col_hc <- as.dendrogram(clustering_cols)
+
+clustering_rows <- hclust(dist(nes_mtx, method = "euclidean"), method = "ward.D2")
+row_hc <- as.dendrogram(clustering_rows)
+
+fgsea_hmap <- Heatmap(nes_mtx,
+                      name = "NES",
+                      show_column_names = TRUE,
+                      column_names_gp = gpar(fontsize = 16),
+                      show_row_names = TRUE,
+                      row_names_gp = gpar(cex = 0.5, fontsize = 16),
+                      cluster_columns = FALSE,
+                      cluster_rows = FALSE,
+                      show_heatmap_legend = TRUE,
+                      column_title = "Variable",
+                      row_title = "Program",
+                      cell_fun = function(j, i, x, y, width, height, fill) {
+                          if (padj_mtx[i, j] < 0.05)
+                              grid.text("•", x, y, gp = gpar(fontsize = 20))
+                      })
+
+draw(fgsea_hmap,
+     column_title = glue("DC 10 FGSEA"),
+     column_title_gp = grid::gpar(fontsize = 16))
+```
+
+## Figure 1J
+```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 4, fig_1J}
+dc_fgsea <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/gsea/select_split_msigdb_fgsea_results.csv") %>% mutate(gene_set = tolower(map(str_split(pathway, "_"), 1)))
+gene_sets <- gmtPathways(glue("/projects/home/tlchan/projects/ascites/second_data_freeze/data/gsea/gene_sets/hallmark_symbols.gmt"))
+
+gly_fgsea <- dc_fgsea %>%
+    filter(pathway == "HALLMARK_GLYCOLYSIS") %>%
+    filter(variable == "survival")
+
+dc_c10_survival_data <- read.csv(glue('/projects/home/tlchan/projects/ascites/ascites_deg_results/dc/dc_ascites_de_by_survival_all_results.csv')) %>%
+    filter(cluster == 10) %>%
+    select(c("gene_symbol", "stat")) %>%
+    na.omit() %>%
+    distinct() %>%
+    group_by(gene_symbol) %>%
+    summarize(stat = mean(stat)) %>%
+    deframe()
+
+plot_fgsea(gly_fgsea, dc_c10_survival_data, gene_sets[["HALLMARK_GLYCOLYSIS"]], "DC cluster 10", "survival", "HALLMARK Glycolysis")
+
+ifng_fgsea <- dc_fgsea %>%
+    filter(pathway == "HALLMARK_INTERFERON_GAMMA_RESPONSE") %>%
+    filter(variable == "survival")
+
+dc_c10_survival_data <- read.csv(glue('/projects/home/tlchan/projects/ascites/ascites_deg_results/dc/dc_ascites_de_by_survival_all_results.csv')) %>%
+    filter(cluster == 10) %>%
+    select(c("gene_symbol", "stat")) %>%
+    na.omit() %>%
+    distinct() %>%
+    group_by(gene_symbol) %>%
+    summarize(stat = mean(stat)) %>%
+    deframe()
+
+plot_fgsea(ifng_fgsea, dc_c10_survival_data, gene_sets[["HALLMARK_INTERFERON_GAMMA_RESPONSE"]], "DC cluster 10", "survival", "HALLMARK Interferon Gamma Response")
+```
+
+## Figure 1K
+```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 4, fig_1K}
+dc_fgsea <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/dc_analysis/mreg/mreg_fgsea_results.csv")
+gene_sets <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/dc_analysis/mreg/gene_sets.csv")
+
+cDC2_fgsea <- dc_fgsea %>%
+    filter(pathway == "cDC2") %>%
+    filter(variable == "B2M_2v0")
+
+dc_mreg_B2M_data <- read.csv(glue('/projects/home/tlchan/projects/ascites/ascites_deg_results/dc_mregs/dc_mregs_de_by_B2M_2v0_all_results.csv')) %>%
+    select(c("gene_symbol", "stat")) %>%
+    na.omit() %>%
+    distinct() %>%
+    group_by(gene_symbol) %>%
+    summarize(stat = mean(stat)) %>%
+    deframe()
+
+cDC2_gs <- gene_sets %>%
+    filter(program_name == "cDC2") %>%
+    pull(genes) %>%
+    str_split(",") %>%
+    unlist()
+
+plot_fgsea(cDC2_fgsea, dc_mreg_B2M_data, cDC2_gs, "DC mreg", "B2M (2 vs. 0)", "cDC2")
+```
+
+## Figure 1L
+```{python results = 'hold', fig_1L}
+dc_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/filter_qc/ascites_dc_R8_300mg_20pm_harm_channel_1_1.zarr.zip')
+
+dc_adata = dc_data.to_anndata()
+
+sc.pp.neighbors(dc_adata)
+
+sc.tl.paga(adata=dc_adata, groups="leiden_labels")
+
+fig, ax = plt.subplots(figsize=(9, 9))
+sc.pl.paga(adata=dc_adata, ax=ax, node_size_scale=2)
+plt.show()
+plt.close(fig)
+```
+
+## Figure 1M
+```{python results = 'hold', fig_1M}
+rss_list = list()
+for i in range(0, 10):
+    DATA_FOLDER = "/projects/home/tlchan/projects/ascites/second_data_freeze/data/dc_analysis/pigr/test_500"
+    RSS_FNAME = os.path.join(DATA_FOLDER, f"lineage_rss_{i}_mtx.csv")
+    rss_data = pd.read_csv(RSS_FNAME, index_col=0)
+    rss_data = rss_data.loc['dc_10'].to_frame(f"iter_{i}")
+    rss_list.append(rss_data)
+
+rss_all = pd.concat(rss_list, axis=1)
+rss_data = rss_all.mean(axis=1, skipna=True).to_frame('dc_10').T
+
+fig = plt.figure(figsize=(6, 8))
+c = "dc_10"
+x = rss_data.T[c]
+ax = fig.add_subplot(1, 1, 1)
+plot_rss(rss_data, c, top_n=5, max_n=None, ax=ax)
+ax.set_ylim(x.min() - (x.max() - x.min()) * 0.05, x.max() + (x.max() - x.min()) * 0.05)
+ax.set_ylabel('Regulon specificity score (RSS)')
+ax.set_xlabel('Regulon')
+plt.tight_layout()
+plt.show()
+plt.close(fig)
+```

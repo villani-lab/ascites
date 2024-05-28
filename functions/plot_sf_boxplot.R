@@ -1,4 +1,5 @@
 library(tidyverse)
+library(ggpubr)
 
 plot_sf_boxplot <- function(analytes) {
     tissue_palette <- list("ascites" = "#00BFC4",
