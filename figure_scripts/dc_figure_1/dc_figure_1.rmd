@@ -72,7 +72,7 @@ dc_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplo
 
 plot_dotplot(lin_gex = dc_gex,
              lin_cite = dc_cite,
-             lin = "dc")
+             lin = "dc_alt")
 ```
 
 ## Figure 1C

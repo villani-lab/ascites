@@ -13,7 +13,10 @@ use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
 Load python libraries
 
 ``` python
+import matplotlib.pyplot as plt
+import pandas as pd
 import pegasus as pg
+import seaborn as sns
 
 import sys
 sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
@@ -45,8 +48,8 @@ python_functions.plot_umap(lin_data=pigr_dc_data,
                            palette=channel_palette)
 ```
 
-    ## 2024-05-28 20:27:10,787 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R1_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R1_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-28 20:27:10,788 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.27s.
+    ## 2024-05-29 18:15:47,345 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R1_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R1_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-29 18:15:47,345 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.25s.
     ## Original channels    27174
     ## cDCs_1029_GEX          833
     ## PIGR_1029_GEX          290
@@ -66,7 +69,29 @@ python_functions.plot_feature(lin_data=pigr_dc_data,
                               nrow=2)
 ```
 
-    ## 2024-05-28 20:27:12,961 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R1_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R1_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-28 20:27:12,961 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.25s.
+    ## 2024-05-29 18:15:49,524 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R1_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R1_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-29 18:15:49,524 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.24s.
 
 <img src="dc_figure_2_files/figure-gfm/fig_1C-3.png" width="1920" />
+
+## Figure 1D
+
+``` python
+corr_mat = pd.read_csv("/projects/home/tlchan/projects/ascites/dc_hunting/data/dc_pca_mean_matrix.csv")
+corr_mat = corr_mat.corr()
+cols = ['sorted_PIGR+CD103+', 'sorted_cDC1', 'sorted_cDC2']
+rows = ['newDC: PRDM16, PIGR', 'mregDCs: LAMP3, CCR7', 'pDC: LILRA4, IL3RA', 'cDC1: CLEC9A, XCR1', 'cDC2: CD1C, CD33high',
+        'cDC2: CD1C, CD33low', 'cDC3: CD1C, VCAN', 'cDC5: SIGLEC6, PPP1R14A', 'cDC: CD1C, FCGR3A', 'cDC: IL1R2, NR4A2']
+corr_mat = corr_mat.loc[rows, cols]
+
+fig, ax = plt.subplots(figsize=(8, 14))
+sns.heatmap(corr_mat,
+            cmap=sns.diverging_palette(220, 10, as_cmap=True),
+            vmin=-0, vmax=1.0,
+            square=True, ax=ax)
+fig.tight_layout()
+plt.show()
+plt.close(fig)
+```
+
+<img src="dc_figure_2_files/figure-gfm/fig_1D-5.png" width="768" />

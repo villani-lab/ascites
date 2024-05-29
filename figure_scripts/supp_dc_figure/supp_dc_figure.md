@@ -77,7 +77,7 @@ ggplot(abundance, aes(x = factor(cluster), y = count, fill = patient_id)) +
     scale_fill_manual(name = "Patient", values = patient_palette)
 ```
 
-![](/tmp/supp_dc_figure-8.rmd/supp_dc_figure_files/figure-gfm/fig_1A-1.png)<!-- -->
+![](/tmp/supp_dc_figure-10.rmd/supp_dc_figure_files/figure-gfm/fig_1A-1.png)<!-- -->
 
 ## Figure 1B
 
@@ -124,7 +124,7 @@ ggplot(abundance, aes(x = patient_id, y = log_clust_percentage, fill = tissue_ty
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 ```
 
-![](/tmp/supp_dc_figure-8.rmd/supp_dc_figure_files/figure-gfm/fig_1B-1.png)<!-- -->
+![](/tmp/supp_dc_figure-10.rmd/supp_dc_figure_files/figure-gfm/fig_1B-1.png)<!-- -->
 
 ## Figure 1C
 
@@ -137,8 +137,8 @@ python_functions.plot_feature(lin_data=dc_data,
                               nrow=5)
 ```
 
-    ## 2024-05-28 20:34:38,666 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/data_cite_objects/dc.zarr.zip' is loaded.
-    ## 2024-05-28 20:34:38,666 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.57s.
+    ## 2024-05-29 18:20:27,150 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/data_cite_objects/dc.zarr.zip' is loaded.
+    ## 2024-05-29 18:20:27,151 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.61s.
 
 <img src="supp_dc_figure_files/figure-gfm/fig_1C-1.png" width="960" />
 
@@ -152,8 +152,8 @@ python_functions.plot_feature_by_tissue_type(lin_data=dc_data,
                                              genes=["CXCR3", "CXCL16", "IL18"])
 ```
 
-    ## 2024-05-28 20:34:43,822 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-28 20:34:43,822 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.76s.
+    ## 2024-05-29 18:20:32,311 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-29 18:20:32,311 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.70s.
 
 <img src="supp_dc_figure_files/figure-gfm/fig_1D-3.png" width="960" />
 
@@ -176,7 +176,7 @@ ggplot(plot_data %>% filter(protein == "cite_CD196"), aes(x = count, fill = tiss
     scale_fill_manual(values = tissue_palette)
 ```
 
-![](/tmp/supp_dc_figure-8.rmd/supp_dc_figure_files/figure-gfm/fig_1E-5.png)<!-- -->
+![](/tmp/supp_dc_figure-10.rmd/supp_dc_figure_files/figure-gfm/fig_1E-5.png)<!-- -->
 
 ## Figure 1F
 
@@ -184,7 +184,7 @@ ggplot(plot_data %>% filter(protein == "cite_CD196"), aes(x = count, fill = tiss
 plot_sf_boxplot(c("6CKine", "SCF", "IL-6", "FLT-3L", "M-CSF", "MIP-3α", "MIP-3β", "IP-10", "CXCL16"))
 ```
 
-![](/tmp/supp_dc_figure-8.rmd/supp_dc_figure_files/figure-gfm/fig_1F-1.png)<!-- -->
+![](/tmp/supp_dc_figure-10.rmd/supp_dc_figure_files/figure-gfm/fig_1F-1.png)<!-- -->
 
 ## Figure 1G
 
@@ -198,7 +198,7 @@ plot_deg(res = dc_res,
               clust = 10)
 ```
 
-![](/tmp/supp_dc_figure-8.rmd/supp_dc_figure_files/figure-gfm/fig_1G-1.png)<!-- -->
+![](/tmp/supp_dc_figure-10.rmd/supp_dc_figure_files/figure-gfm/fig_1G-1.png)<!-- -->
 
 ## Figure 1H
 
@@ -249,7 +249,7 @@ ggplot(plot_data, aes(x = factor(B2M), y = IL4I1)) +
     theme_classic(base_size = 12)
 ```
 
-![](/tmp/supp_dc_figure-8.rmd/supp_dc_figure_files/figure-gfm/fig_1H-1.png)<!-- -->
+![](/tmp/supp_dc_figure-10.rmd/supp_dc_figure_files/figure-gfm/fig_1H-1.png)<!-- -->
 
 ## Figure 1I
 
@@ -312,7 +312,7 @@ draw(fgsea_hmap,
      column_title_gp = grid::gpar(fontsize = 16))
 ```
 
-![](/tmp/supp_dc_figure-8.rmd/supp_dc_figure_files/figure-gfm/fig_1I-1.png)<!-- -->
+![](/tmp/supp_dc_figure-10.rmd/supp_dc_figure_files/figure-gfm/fig_1I-1.png)<!-- -->
 
 ## Figure 1J
 
@@ -336,7 +336,7 @@ dc_c10_survival_data <- read.csv(glue('/projects/home/tlchan/projects/ascites/as
 plot_fgsea(gly_fgsea, dc_c10_survival_data, gene_sets[["HALLMARK_GLYCOLYSIS"]], "DC cluster 10", "survival", "HALLMARK Glycolysis")
 ```
 
-![](/tmp/supp_dc_figure-8.rmd/supp_dc_figure_files/figure-gfm/fig_1J-1.png)<!-- -->
+![](/tmp/supp_dc_figure-10.rmd/supp_dc_figure_files/figure-gfm/fig_1J-1.png)<!-- -->
 
 ``` r
 ifng_fgsea <- dc_fgsea %>%
@@ -355,7 +355,7 @@ dc_c10_survival_data <- read.csv(glue('/projects/home/tlchan/projects/ascites/as
 plot_fgsea(ifng_fgsea, dc_c10_survival_data, gene_sets[["HALLMARK_INTERFERON_GAMMA_RESPONSE"]], "DC cluster 10", "survival", "HALLMARK Interferon Gamma Response")
 ```
 
-![](/tmp/supp_dc_figure-8.rmd/supp_dc_figure_files/figure-gfm/fig_1J-2.png)<!-- -->
+![](/tmp/supp_dc_figure-10.rmd/supp_dc_figure_files/figure-gfm/fig_1J-2.png)<!-- -->
 
 ## Figure 1K
 
@@ -384,7 +384,7 @@ cDC2_gs <- gene_sets %>%
 plot_fgsea(cDC2_fgsea, dc_mreg_B2M_data, cDC2_gs, "DC mreg", "B2M (2 vs. 0)", "cDC2")
 ```
 
-![](/tmp/supp_dc_figure-8.rmd/supp_dc_figure_files/figure-gfm/fig_1K-1.png)<!-- -->
+![](/tmp/supp_dc_figure-10.rmd/supp_dc_figure_files/figure-gfm/fig_1K-1.png)<!-- -->
 
 ## Figure 1L
 
@@ -399,15 +399,15 @@ sc.pp.neighbors(dc_adata)
 sc.tl.paga(adata=dc_adata, groups="leiden_labels")
 
 fig, ax = plt.subplots(figsize=(9, 9))
-sc.pl.paga(adata=dc_adata, ax=ax, node_size_scale=2)
+sc.pl.paga(adata=dc_adata, ax=ax, node_size_scale=2, show=False)
 plt.show()
 plt.close(fig)
 ```
 
-    ## 2024-05-28 20:34:59,662 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/filter_qc/ascites_dc_R8_300mg_20pm_harm_channel_1_1.zarr.zip' is loaded.
-    ## 2024-05-28 20:34:59,662 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.66s.
+    ## 2024-05-29 18:20:48,566 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/filter_qc/ascites_dc_R8_300mg_20pm_harm_channel_1_1.zarr.zip' is loaded.
+    ## 2024-05-29 18:20:48,566 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.67s.
 
-<img src="supp_dc_figure_files/figure-gfm/fig_1L-1.png" width="864" /><img src="supp_dc_figure_files/figure-gfm/fig_1L-2.png" width="672" />
+<img src="supp_dc_figure_files/figure-gfm/fig_1L-1.png" width="864" />
 
 ## Figure 1M
 
@@ -438,4 +438,4 @@ plt.close(fig)
 
     ## (0.16070401435335693, 0.30901425311015535)
 
-<img src="supp_dc_figure_files/figure-gfm/fig_1M-5.png" width="576" />
+<img src="supp_dc_figure_files/figure-gfm/fig_1M-3.png" width="576" />

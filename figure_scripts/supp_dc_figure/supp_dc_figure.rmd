@@ -223,7 +223,7 @@ ggplot(plot_data, aes(x = factor(B2M), y = IL4I1)) +
 
 
 ## Figure 1I
-```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 4, fig_1I}
+```{r message = F, results = F, warning = F, fig.width = 10, fig.height = 10, fig_1I}
 select_results <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/gsea/select_split_msigdb_fgsea_results.csv")
 
 select_sets <- select_results %>% select(pathway) %>%
@@ -356,7 +356,7 @@ sc.pp.neighbors(dc_adata)
 sc.tl.paga(adata=dc_adata, groups="leiden_labels")
 
 fig, ax = plt.subplots(figsize=(9, 9))
-sc.pl.paga(adata=dc_adata, ax=ax, node_size_scale=2)
+sc.pl.paga(adata=dc_adata, ax=ax, node_size_scale=2, show=False)
 plt.show()
 plt.close(fig)
 ```

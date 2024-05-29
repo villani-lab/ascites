@@ -72,7 +72,7 @@ plt.close(lineage_fig)
 ```
 
 ## Figure 1C
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, fig_1C}
+```{r message = F, results = F, warning = F, fig.width = 15, fig.height = 6, fig_1C}
 tissue_palette <- list("ascites" = "#00BFC4",
                        "blood" = "#F8766D",
                        "other" = "#000000")
@@ -131,8 +131,8 @@ bp <- ggplot(abundance, aes(x = lin_percentage + 1, y = factor(lineage), fill = 
     labs(fill = "Tissue type") +
     xlab("Percent native immune + 1") +
     ylab("") +
-    theme_classic(base_size = 25) +
-    theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
+    theme_classic(base_size = 20) +
+    theme(axis.text.y = element_blank(), axis.text = element_text(size = 18)) +
     scale_fill_manual(values = tissue_palette)
 
 pt_res <- lapply(unique(abundance$lineage), function(lin) {
@@ -152,8 +152,8 @@ fp <- ggplot(pt_res, aes(x = Difference, y = factor(lineage), color = color)) +
     guides(color = "none") +
     xlab("Log2FoldChange") +
     ylab("Lineage") +
-    theme_classic(base_size = 25) +
-    theme(axis.text = element_text(size = 20)) +
+    theme_classic(base_size = 20) +
+    theme(axis.text = element_text(size = 18)) +
     scale_color_manual(values = tissue_palette)
 
 ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0))
