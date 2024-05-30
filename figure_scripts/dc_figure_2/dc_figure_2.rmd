@@ -26,9 +26,9 @@ import python_functions
 ## Figure 1B
 ```{python results = 'hold', fig_1B}
 channel_palette = {
-    "Original channels": "#666666",
+    "Original channels": "#D3D3D3",
     "PIGR_1029_GEX": "#E69F00",
-    "cDCs_1029_GEX": "#56B4E9"
+    "cDCs_1029_GEX": "#00008B"
 }
 
 # Load single-cell object
@@ -39,12 +39,14 @@ pigr_dc_data = pg.read_input(
 pigr_dc_data.obs['Channel'] = pigr_dc_data.obs['Channel'].cat.add_categories("Original channels")
 pigr_dc_data.obs.loc[~pigr_dc_data.obs['Channel'].isin(["PIGR_1029_GEX", "cDCs_1029_GEX"]), "Channel"] = "Original channels"
 pigr_dc_data.obs['Channel'] = pigr_dc_data.obs['Channel'].cat.remove_unused_categories().astype(str)
-pigr_dc_data.obs['Channel'].value_counts()
 
+pigr_dc_data.obs.loc[pigr_dc_data.obs["Channel"] == 'Original channels', 'size'] = 1
+pigr_dc_data.obs.loc[pigr_dc_data.obs["Channel"] != 'Original channels', 'size'] = 6
 
 python_functions.plot_umap(lin_data=pigr_dc_data,
                            color="Channel",
-                           palette=channel_palette)
+                           palette=channel_palette,
+                           size=list(pigr_dc_data.obs['size']))
 ```
 
 ## Figure 1C
@@ -63,8 +65,8 @@ python_functions.plot_feature(lin_data=pigr_dc_data,
 corr_mat = pd.read_csv("/projects/home/tlchan/projects/ascites/dc_hunting/data/dc_pca_mean_matrix.csv")
 corr_mat = corr_mat.corr()
 cols = ['sorted_PIGR+CD103+', 'sorted_cDC1', 'sorted_cDC2']
-rows = ['newDC: PRDM16, PIGR', 'mregDCs: LAMP3, CCR7', 'pDC: LILRA4, IL3RA', 'cDC1: CLEC9A, XCR1', 'cDC2: CD1C, CD33high',
-        'cDC2: CD1C, CD33low', 'cDC3: CD1C, VCAN', 'cDC5: SIGLEC6, PPP1R14A', 'cDC: CD1C, FCGR3A', 'cDC: IL1R2, NR4A2']
+rows = ['newDC: PRDM16, PIGR', 'cDC1: CLEC9A, XCR1', 'cDC2: CD1C, CD33high', 'cDC2: CD1C, CD33low', 'cDC3: CD1C, VCAN',
+        'cDC5: SIGLEC6, PPP1R14A', 'cDC: CD1C, FCGR3A', 'cDC: IL1R2, NR4A2', 'mregDCs: LAMP3, CCR7', 'pDC: LILRA4, IL3RA']
 corr_mat = corr_mat.loc[rows, cols]
 
 fig, ax = plt.subplots(figsize=(8, 14))

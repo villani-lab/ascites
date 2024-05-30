@@ -27,9 +27,9 @@ import python_functions
 
 ``` python
 channel_palette = {
-    "Original channels": "#666666",
+    "Original channels": "#D3D3D3",
     "PIGR_1029_GEX": "#E69F00",
-    "cDCs_1029_GEX": "#56B4E9"
+    "cDCs_1029_GEX": "#00008B"
 }
 
 # Load single-cell object
@@ -40,20 +40,18 @@ pigr_dc_data = pg.read_input(
 pigr_dc_data.obs['Channel'] = pigr_dc_data.obs['Channel'].cat.add_categories("Original channels")
 pigr_dc_data.obs.loc[~pigr_dc_data.obs['Channel'].isin(["PIGR_1029_GEX", "cDCs_1029_GEX"]), "Channel"] = "Original channels"
 pigr_dc_data.obs['Channel'] = pigr_dc_data.obs['Channel'].cat.remove_unused_categories().astype(str)
-pigr_dc_data.obs['Channel'].value_counts()
 
+pigr_dc_data.obs.loc[pigr_dc_data.obs["Channel"] == 'Original channels', 'size'] = 1
+pigr_dc_data.obs.loc[pigr_dc_data.obs["Channel"] != 'Original channels', 'size'] = 6
 
 python_functions.plot_umap(lin_data=pigr_dc_data,
                            color="Channel",
-                           palette=channel_palette)
+                           palette=channel_palette,
+                           size=list(pigr_dc_data.obs['size']))
 ```
 
-    ## 2024-05-29 18:15:47,345 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R1_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R1_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-29 18:15:47,345 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.25s.
-    ## Original channels    27174
-    ## cDCs_1029_GEX          833
-    ## PIGR_1029_GEX          290
-    ## Name: Channel, dtype: int64
+    ## 2024-05-30 19:33:55,268 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R1_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R1_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-30 19:33:55,268 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.32s.
 
 <img src="dc_figure_2_files/figure-gfm/fig_1B-1.png" width="576" />
 
@@ -69,8 +67,8 @@ python_functions.plot_feature(lin_data=pigr_dc_data,
                               nrow=2)
 ```
 
-    ## 2024-05-29 18:15:49,524 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R1_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R1_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-29 18:15:49,524 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.24s.
+    ## 2024-05-30 19:33:57,879 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R1_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R1_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-30 19:33:57,880 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.68s.
 
 <img src="dc_figure_2_files/figure-gfm/fig_1C-3.png" width="1920" />
 
@@ -80,8 +78,8 @@ python_functions.plot_feature(lin_data=pigr_dc_data,
 corr_mat = pd.read_csv("/projects/home/tlchan/projects/ascites/dc_hunting/data/dc_pca_mean_matrix.csv")
 corr_mat = corr_mat.corr()
 cols = ['sorted_PIGR+CD103+', 'sorted_cDC1', 'sorted_cDC2']
-rows = ['newDC: PRDM16, PIGR', 'mregDCs: LAMP3, CCR7', 'pDC: LILRA4, IL3RA', 'cDC1: CLEC9A, XCR1', 'cDC2: CD1C, CD33high',
-        'cDC2: CD1C, CD33low', 'cDC3: CD1C, VCAN', 'cDC5: SIGLEC6, PPP1R14A', 'cDC: CD1C, FCGR3A', 'cDC: IL1R2, NR4A2']
+rows = ['newDC: PRDM16, PIGR', 'cDC1: CLEC9A, XCR1', 'cDC2: CD1C, CD33high', 'cDC2: CD1C, CD33low', 'cDC3: CD1C, VCAN',
+        'cDC5: SIGLEC6, PPP1R14A', 'cDC: CD1C, FCGR3A', 'cDC: IL1R2, NR4A2', 'mregDCs: LAMP3, CCR7', 'pDC: LILRA4, IL3RA']
 corr_mat = corr_mat.loc[rows, cols]
 
 fig, ax = plt.subplots(figsize=(8, 14))

@@ -152,17 +152,22 @@ def plot_feature_by_tissue_type(lin_data, genes):
     plt.show()
     plt.close(fig)
 
-def plot_umap(lin_data, palette, color = "Cluster", width = 6, height = 6, legend_loc="on data"):
+
+def plot_umap(lin_data, palette, color="Cluster", width=6, height=6, legend_loc="on data", size = None):
+    if size == None:
+       size = 120000 / lin_data.shape[0]
+
     fig, ax = plt.subplots(1)
     sc.pl.umap(adata=lin_data.to_anndata(),
-                              color=color,
-                              use_raw=True,
-                              palette=palette,
-                              legend_loc=legend_loc,
-                              legend_fontoutline=5,
-                              title="",
-                              show=False,
-                              ax=ax)
+               color=color,
+               use_raw=True,
+               palette=palette,
+               size=size,
+               legend_loc=legend_loc,
+               legend_fontoutline=5,
+               title="",
+               show=False,
+               ax=ax)
 
     fig = plt.gcf()
     fig.set_size_inches(width, height)

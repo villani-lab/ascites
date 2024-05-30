@@ -58,8 +58,8 @@ python_functions.plot_umap(lin_data=dc_data,
                            palette=dc_cluster_palette)
 ```
 
-    ## 2024-05-28 20:25:11,622 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-28 20:25:11,622 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.76s.
+    ## 2024-05-30 18:41:56,606 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-05-30 18:41:56,606 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.96s.
 
 <img src="dc_figure_1_files/figure-gfm/fig_1A-1.png" width="576" />
 
@@ -74,7 +74,7 @@ plot_dotplot(lin_gex = dc_gex,
              lin = "dc")
 ```
 
-![](/tmp/dc_figure_1-5.rmd/dc_figure_1_files/figure-gfm/fig_1B-3.png)<!-- -->
+![](/tmp/dc_figure_1-8.rmd/dc_figure_1_files/figure-gfm/fig_1B-3.png)<!-- -->
 
 ``` r
 dc_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/dc_gene_exp_alt.csv')
@@ -82,10 +82,10 @@ dc_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplo
 
 plot_dotplot(lin_gex = dc_gex,
              lin_cite = dc_cite,
-             lin = "dc")
+             lin = "dc_alt")
 ```
 
-![](/tmp/dc_figure_1-5.rmd/dc_figure_1_files/figure-gfm/fig_1B-4.png)<!-- -->
+![](/tmp/dc_figure_1-8.rmd/dc_figure_1_files/figure-gfm/fig_1B-4.png)<!-- -->
 
 ## Figure 1C
 
@@ -93,7 +93,7 @@ plot_dotplot(lin_gex = dc_gex,
 plot_cluster_abundance("dc")
 ```
 
-![](/tmp/dc_figure_1-5.rmd/dc_figure_1_files/figure-gfm/fig_1C-1.png)<!-- -->
+![](/tmp/dc_figure_1-8.rmd/dc_figure_1_files/figure-gfm/fig_1C-1.png)<!-- -->
 
 ## Figure 1D
 
@@ -243,7 +243,7 @@ heatmap_list <- Heatmap(heatmap_data,
 draw(heatmap_list, heatmap_legend_list = lgd_list)
 ```
 
-![](/tmp/dc_figure_1-5.rmd/dc_figure_1_files/figure-gfm/fig_1D-1.png)<!-- -->
+![](/tmp/dc_figure_1-8.rmd/dc_figure_1_files/figure-gfm/fig_1D-1.png)<!-- -->
 
 ## Figure 1E
 
@@ -256,8 +256,8 @@ python_functions.plot_feature(lin_data=dc_data,
                               nrow=2)
 ```
 
-    ## 2024-05-28 20:25:18,458 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/data_cite_objects/dc.zarr.zip' is loaded.
-    ## 2024-05-28 20:25:18,459 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.53s.
+    ## 2024-05-30 18:42:05,167 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/data_cite_objects/dc.zarr.zip' is loaded.
+    ## 2024-05-30 18:42:05,167 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.56s.
 
 <img src="dc_figure_1_files/figure-gfm/fig_1E-1.png" width="1440" />
 
@@ -331,4 +331,4 @@ hmap <- Heatmap(rss_data,
 draw(hmap)
 ```
 
-![](/tmp/dc_figure_1-5.rmd/dc_figure_1_files/figure-gfm/fig_1F-3.png)<!-- -->
+![](/tmp/dc_figure_1-8.rmd/dc_figure_1_files/figure-gfm/fig_1F-3.png)<!-- -->
