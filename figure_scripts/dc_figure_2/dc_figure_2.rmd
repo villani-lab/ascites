@@ -26,7 +26,7 @@ import python_functions
 ## Figure 1B
 ```{python results = 'hold', fig_1B}
 channel_palette = {
-    "Original channels": "#D3D3D3",
+    "Original channels": "#808080",
     "PIGR_1029_GEX": "#E69F00",
     "cDCs_1029_GEX": "#00008B"
 }

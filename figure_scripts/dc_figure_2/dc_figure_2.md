@@ -27,7 +27,7 @@ import python_functions
 
 ``` python
 channel_palette = {
-    "Original channels": "#D3D3D3",
+    "Original channels": "#808080",
     "PIGR_1029_GEX": "#E69F00",
     "cDCs_1029_GEX": "#00008B"
 }
@@ -50,8 +50,8 @@ python_functions.plot_umap(lin_data=pigr_dc_data,
                            size=list(pigr_dc_data.obs['size']))
 ```
 
-    ## 2024-05-30 19:33:55,268 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R1_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R1_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-30 19:33:55,268 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.32s.
+    ## 2024-06-01 20:19:22,738 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R1_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R1_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-06-01 20:19:22,738 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.26s.
 
 <img src="dc_figure_2_files/figure-gfm/fig_1B-1.png" width="576" />
 
@@ -67,8 +67,8 @@ python_functions.plot_feature(lin_data=pigr_dc_data,
                               nrow=2)
 ```
 
-    ## 2024-05-30 19:33:57,879 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R1_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R1_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-30 19:33:57,880 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.68s.
+    ## 2024-06-01 20:19:24,938 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R1_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R1_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-06-01 20:19:24,938 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.23s.
 
 <img src="dc_figure_2_files/figure-gfm/fig_1C-3.png" width="1920" />
 
