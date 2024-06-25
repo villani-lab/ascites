@@ -67,7 +67,8 @@ monomac_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/d
 
 plot_dotplot(lin_gex = monomac_gex,
              lin_cite = monomac_cite,
-             lin = "Mono/Mac")
+             lin = "monomac",
+             widths = c(1, .1, .2))
 ```
 
 ## Figure 1C
@@ -86,7 +87,8 @@ python_functions.plot_feature_by_tissue_type(lin_data=monomac_data,
 
 ## Figure 1E
 ```{r message = F, results = F, warning = F, fig.width = 4, fig.height = 18, fig_1E}
-plot_sf_boxplot(c("CCL2", "IL-10", "IL-8", "GROa", "VEGF-A"))
+plot_sf_boxplot(analytes = c("CCL2", "IL-10", "IL-8", "GROa", "VEGF-A"),
+                nrow = 5)
 ```
 
 ## Figure 1F
@@ -95,7 +97,7 @@ monomac_data = pg.read_input(
     '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip')
 
 python_functions.plot_feature_by_tissue_type(lin_data=monomac_data,
-                                             genes=["C1QA", "LAIR1"])
+                                             genes=["C1QA", "LAIR1", "cite_CD305"])
 ```
 
 
@@ -115,8 +117,9 @@ hp <- ggplot(plot_data, aes(x = count, fill = tissue_type)) +
     xlab("CLR(CITE count)") +
     facet_wrap(~leiden_labels, scales = "free_y") +
     ggtitle("Monocyte/Macrophage, CITE_CD305") +
-    theme_classic(base_size = 12) +
-    scale_fill_manual(values = tissue_palette)
+    theme_classic(base_size = 20) +
+    scale_fill_manual(values = tissue_palette) +
+    theme(legend.position = "bottom")
 
 plot_data <- plot_data %>%
     group_by(patient_id, tissue_type, leiden_labels) %>%
@@ -131,30 +134,11 @@ bp <- ggplot(plot_data, aes(x = tissue_type, y = median_count, fill = tissue_typ
     xlab("Tissue type") +
     facet_wrap(~leiden_labels, scales = "free_y") +
     ggtitle("Monocyte/Macrophage, CITE_CD305") +
-    theme_classic(base_size = 12) +
-    scale_fill_manual(values = tissue_palette)
+    theme_classic(base_size = 20) +
+    scale_fill_manual(values = tissue_palette) +
+    theme(legend.position = "none") +
+    scale_y_continuous(expand = expansion(mult = c(0.05, 0.15)))
+
 
 ggarrange(hp, bp, nrow = 2)
-```
-
-## Figure 1H
-```{r message = F, results = F, warning = F, fig.width = 6, fig.height = 6, fig_1H}
-monomac_res <- read.csv('/projects/home/tlchan/monomac/monomac_ascites_de_by_survival_HvL_all_results.csv')
-monomac_meta <- read.csv('/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_pseudobulk_meta.csv', row.names = 1)
-
-monomac_meta <- monomac_meta %>%
-    mutate(survival_bin = case_when(survival < 92 ~ "Low", survival > 183 ~ "High")) %>%
-    filter(survival_bin == "Low" | survival_bin == "High") %>%
-    mutate(survival_bin = factor(survival_bin, levels = c("Low", "High"))) %>%
-    mutate(sex = factor(sex, levels = c('M', 'F'))) %>%
-    filter(tissue_type == "ascites")
-
-p <- plot_deg(res = monomac_res,
-                     meta = monomac_meta,
-                     lin = "Mono/Mac",
-                     clust = 3,
-                     contrast = "survival_bin",
-                     ref_var = "Low",
-                     test_var = "High")
-print(p)
 ```

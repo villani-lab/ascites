@@ -32,7 +32,8 @@ lineage_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/d
 
 plot_dotplot(lin_gex = lineage_gex,
              lin_cite = lineage_cite,
-             lin = "lineage")
+             lin = "lineage",
+             widths = c(1, .4, .2))
 ```
 
 ## Figure 1D
@@ -71,7 +72,7 @@ lineage_palette <- list("B/Plasma cells" = "#FF0029",
 global_lineage <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/abundance_data/global_lineage_counts.csv')
 ggplot(global_lineage, aes(x = Patient, y = Count, fill = Lineage)) +
     geom_bar(stat = "identity") +
-    theme_classic(base_size = 12) +
+    theme_classic(base_size = 20) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
     scale_fill_manual(values = lineage_palette)
 ```

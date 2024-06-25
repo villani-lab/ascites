@@ -28,13 +28,13 @@ import python_functions
 cd8_data = pg.read_input("/projects/home/tlchan/projects/ascites/data_cite_objects/cd8.zarr.zip")
 
 python_functions.plot_feature(lin_data=cd8_data,
-                              genes=['cite_CD45RA', 'cite_CLEC12A', 'CLEC12A', 'cite_CD45RO', 'cite_CD11c', 'ITGAX'],
+                              genes=['CLEC12A', 'cite_CLEC12A', 'cite_CD45RA', 'ITGAX', 'cite_CD11c', 'cite_CD45RO'],
                               ncol=3,
                               nrow=2)
 ```
 
-    ## 2024-05-07 17:14:30,009 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/data_cite_objects/cd8.zarr.zip' is loaded.
-    ## 2024-05-07 17:14:30,009 - pegasusio.readwrite - INFO - Function 'read_input' finished in 4.64s.
+    ## 2024-06-20 18:50:08,880 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/data_cite_objects/cd8.zarr.zip' is loaded.
+    ## 2024-06-20 18:50:08,881 - pegasusio.readwrite - INFO - Function 'read_input' finished in 2.39s.
 
 <img src="supp_cd8_figure_files/figure-gfm/fig_1A-1.png" width="1440" />
 
@@ -68,4 +68,4 @@ ggplot(cd8_data, aes(x = Patient, y = Count, fill = Cluster)) +
     scale_fill_manual(values = cd8_cluster_palette)
 ```
 
-![](/tmp/supp_cd8_figure-4.rmd/supp_cd8_figure_files/figure-gfm/fig_1B-3.png)<!-- -->
+![](/tmp/supp_cd8_figure-5.rmd/supp_cd8_figure_files/figure-gfm/fig_1B-3.png)<!-- -->

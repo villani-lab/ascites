@@ -82,16 +82,17 @@ row_hc <- as.dendrogram(clustering_rows)
 hmap <- Heatmap(heatmap_mtx,
                 name = "z-score",
                 col = heatmap_col_fun,
-                top_annotation = patient_bar,
+                # top_annotation = patient_bar,
                 right_annotation = gene_bar,
                 show_column_names = TRUE,
+                column_names_gp = gpar(fontsize = 20),
                 show_row_names = TRUE,
-                row_names_gp = gpar(cex = 0.5),
+                row_names_gp = gpar(cex = 0.5, fontsize = 20),
                 cluster_columns = col_hc,
                 cluster_rows = row_hc,
                 show_heatmap_legend = TRUE,
                 column_title = "Patient",
                 row_title = "Genes")
 
-draw(hmap, column_title = "Cancer: NatureMed Classification", column_title_gp = grid::gpar(fontsize = 16))
+draw(hmap, column_title = "Cancer: NatureMed Classification", column_title_gp = grid::gpar(fontsize = 22))
 ```

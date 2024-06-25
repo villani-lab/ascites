@@ -28,7 +28,7 @@ import python_functions
 ## Figure 1A
 
 ``` python
-cd4_data = pg.read_input("/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip")
+cd4_data = pg.read_input("/projects/home/tlchan/projects/ascites/data_cite_objects/cd4.zarr.zip")
 
 python_functions.plot_feature(lin_data=cd4_data,
                               genes=['GZMB', 'GZMK', 'TBX21', 'cite_CD45RA', 'IFNG', 'CD8A', 'LAIR2', 'cite_CD45RO'],
@@ -36,8 +36,8 @@ python_functions.plot_feature(lin_data=cd4_data,
                               nrow=2)
 ```
 
-    ## 2024-05-07 17:14:32,028 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-07 17:14:32,028 - pegasusio.readwrite - INFO - Function 'read_input' finished in 2.53s.
+    ## 2024-06-20 18:49:32,980 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/data_cite_objects/cd4.zarr.zip' is loaded.
+    ## 2024-06-20 18:49:32,980 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.84s.
 
 <img src="supp_cd4_figure_files/figure-gfm/fig_1A-1.png" width="1920" />
 
@@ -45,14 +45,14 @@ python_functions.plot_feature(lin_data=cd4_data,
 
 ``` r
 cd4_cluster_palette <- list("1" = "#FF0029",
-                        "2" = "#377EB8",
-                        "3" = "#66A61E",
-                        "4" = "#984EA3",
-                        "5" = "#00D2D5",
-                        "6" = "#FF7F00",
-                        "7" = "#AF8D00",
-                        "8" = "#7F80CD",
-                        "9" = "#B3E900"
+                            "2" = "#377EB8",
+                            "3" = "#66A61E",
+                            "4" = "#984EA3",
+                            "5" = "#00D2D5",
+                            "6" = "#FF7F00",
+                            "7" = "#AF8D00",
+                            "8" = "#7F80CD",
+                            "9" = "#B3E900"
 )
 
 cd4_data <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/abundance_data/cd4_patient_counts.csv') %>%
@@ -65,14 +65,15 @@ ggplot(cd4_data, aes(x = Patient, y = Count, fill = Cluster)) +
     scale_fill_manual(values = cd4_cluster_palette)
 ```
 
-![](/tmp/supp_cd4_figure-2.rmd/supp_cd4_figure_files/figure-gfm/fig_1B-3.png)<!-- -->
+![](/tmp/supp_cd4_figure-3.rmd/supp_cd4_figure_files/figure-gfm/fig_1B-3.png)<!-- -->
 
 ## Figure 1C
 
 ``` r
-cd4_res <- read.csv('/projects/home/tlchan/cd4/cd4_de_by_tissue_type_all_results.csv')
+cd4_res <- read.csv('/projects/home/tlchan/projects/ascites/ascites_deg_results/cd4/cd4_de_by_tissue_type_all_results.csv')
 
-plot_upset(cd4_res)
+plot_upset(res = cd4_res,
+           min_degree = 7)
 ```
 
-![](/tmp/supp_cd4_figure-2.rmd/supp_cd4_figure_files/figure-gfm/fig_1C-1.png)<!-- -->
+![](/tmp/supp_cd4_figure-3.rmd/supp_cd4_figure_files/figure-gfm/fig_1C-1.png)<!-- -->

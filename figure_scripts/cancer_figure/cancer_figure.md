@@ -69,10 +69,8 @@ python_functions.plot_umap(lin_data=cancer_data,
                            height=6)
 ```
 
-    ## 2024-05-07 17:05:14,884 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cancer_R3_300mg_20pm_multi_res/1.3/data/pseudobulk/ascites_cancer_R3_300mg_20pm_1_3_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-07 17:05:14,884 - pegasusio.readwrite - INFO - Function 'read_input' finished in 2.94s.
-    ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
-    ##   cax = scatter(
+    ## 2024-06-20 18:26:20,372 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cancer_R3_300mg_20pm_multi_res/1.3/data/pseudobulk/ascites_cancer_R3_300mg_20pm_1_3_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-06-20 18:26:20,372 - pegasusio.readwrite - INFO - Function 'read_input' finished in 3.91s.
 
 <img src="cancer_figure_files/figure-gfm/fig_1A-1.png" width="768" />
 
@@ -87,8 +85,8 @@ python_functions.plot_feature(lin_data=cancer_data,
                               nrow=2)
 ```
 
-    ## 2024-05-07 17:05:18,355 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/data_cite_objects/cancer.zarr.zip' is loaded.
-    ## 2024-05-07 17:05:18,355 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.88s.
+    ## 2024-06-20 18:26:24,051 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/data_cite_objects/cancer.zarr.zip' is loaded.
+    ## 2024-06-20 18:26:24,051 - pegasusio.readwrite - INFO - Function 'read_input' finished in 2.11s.
 
 <img src="cancer_figure_files/figure-gfm/fig_1B-3.png" width="1920" />
 
@@ -122,7 +120,9 @@ fgsea_hmap <- Heatmap(nes_mtx,
                       name = "NES",
                       show_column_names = TRUE,
                       show_row_names = TRUE,
-                      row_names_gp = gpar(cex = 0.5),
+                      row_names_max_width = unit(10, "cm"),
+                      row_names_gp = gpar(cex = 0.5, fontsize = 18),
+                      column_names_max_height = unit(10, "cm"),
                       cluster_columns = FALSE,
                       cluster_rows = FALSE,
                       show_heatmap_legend = TRUE,
@@ -136,7 +136,7 @@ fgsea_hmap <- Heatmap(nes_mtx,
 draw(fgsea_hmap)
 ```
 
-![](/tmp/cancer_figure-8.rmd/cancer_figure_files/figure-gfm/fig_1C-5.png)<!-- -->
+![](/tmp/cancer_figure-9.rmd/cancer_figure_files/figure-gfm/fig_1C-5.png)<!-- -->
 
 ## Figure 1D
 
@@ -149,7 +149,7 @@ EMT_fgsea <- cancer_fgsea %>%
     filter(variable == "B2M_2v0")
 
 
-cancer_B2M_data <- read.csv(glue('/projects/home/tlchan/cancer/cancer_de_by_B2M_2v0_all_results.csv')) %>%
+cancer_B2M_data <- read.csv(glue('/projects/home/tlchan/projects/ascites/ascites_deg_results/cancer/cancer_de_by_B2M_2v0_all_results.csv')) %>%
     select(c("gene_symbol", "stat")) %>%
     na.omit() %>%
     distinct() %>%
@@ -169,7 +169,7 @@ PS_fgsea <- cancer_fgsea %>%
     filter(pathway == "proliferation_score") %>%
     filter(variable == "survival_HvL")
 
-cancer_survival_data <- read.csv(glue('/projects/home/tlchan/cancer/cancer_de_by_survival_HvL_all_results.csv')) %>%
+cancer_survival_data <- read.csv(glue('/projects/home/tlchan/projects/ascites/ascites_deg_results/cancer/cancer_de_by_survival_HvL_all_results.csv')) %>%
     select(c("gene_symbol", "stat")) %>%
     na.omit() %>%
     distinct() %>%
@@ -188,7 +188,7 @@ PS_plot <- plot_fgsea(PS_fgsea, cancer_survival_data, PS_gs, "cancer", "survival
 ggarrange(EMT_plot, PS_plot, ncol = 1)
 ```
 
-![](/tmp/cancer_figure-8.rmd/cancer_figure_files/figure-gfm/fig_1D-1.png)<!-- -->
+![](/tmp/cancer_figure-9.rmd/cancer_figure_files/figure-gfm/fig_1D-1.png)<!-- -->
 
 ## Figure 1E
 
@@ -205,7 +205,7 @@ norm_counts <- apply(counts, 2, function(c) {
 })
 norm_counts <- log1p(norm_counts)
 
-sig_genes_filepath <- "/projects/home/tlchan/cancer/cancer_de_by_B2M_all_results.csv"
+sig_genes_filepath <- "/projects/home/tlchan/projects/ascites/ascites_deg_results/cancer/cancer_de_by_B2M_all_results.csv"
 sig_genes <- read.csv(sig_genes_filepath) %>%
     filter(padj < 0.05) %>%
     arrange(padj) %>%
@@ -229,10 +229,8 @@ patient_col_fun <- c("#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", "#008941", "#00
                      "#1B4400", "#4FC601", "#3B5DFF", "#4A3B53", "#FF2F80")
 names(patient_col_fun) <- patients
 
-patient_bar <- HeatmapAnnotation(patient_id = patients,
-                                 B2M = codes,
-                                 col = list(patient_id = patient_col_fun,
-                                            B2M = c('0' = '#fff2ac', '1' = '#fed16e', '2' = '#fd9941')),
+patient_bar <- HeatmapAnnotation(B2M = codes,
+                                 col = list(B2M = c('0' = '#fff2ac', '1' = '#fed16e', '2' = '#fd9941')),
                                  show_legend = TRUE,
                                  show_annotation_name = FALSE)
 
@@ -253,7 +251,8 @@ cancer_hmap <- Heatmap(heatmap_mtx,
                        top_annotation = patient_bar,
                        show_column_names = TRUE,
                        show_row_names = TRUE,
-                       row_names_gp = gpar(cex = 0.5),
+                       column_names_gp = gpar(fontsize = 12),
+                       row_names_gp = gpar(cex = 0.5, fontsize = 10),
                        cluster_columns = FALSE,
                        cluster_rows = row_hc,
                        show_heatmap_legend = TRUE,
@@ -263,4 +262,4 @@ cancer_hmap <- Heatmap(heatmap_mtx,
 draw(cancer_hmap)
 ```
 
-![](/tmp/cancer_figure-8.rmd/cancer_figure_files/figure-gfm/fig_1E-1.png)<!-- -->
+![](/tmp/cancer_figure-9.rmd/cancer_figure_files/figure-gfm/fig_1E-1.png)<!-- -->

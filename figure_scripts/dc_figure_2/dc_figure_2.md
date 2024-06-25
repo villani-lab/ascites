@@ -6,6 +6,8 @@ DC Figure 2
 Load R libraries
 
 ``` r
+library(ggplot2)
+
 library(reticulate)
 use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
 ```
@@ -26,6 +28,32 @@ import python_functions
 ## Figure 1B
 
 ``` python
+dc_cluster_palette = {
+    "cDC2": "#FF0029",
+    "pDC": "#377EB8",
+    "cDC1": "#66A61E",
+    "PIGR+DC": "#984EA3",
+    "mREGDC": "#00D2D5",
+    "ASDC": "#FF7F00",
+}
+
+# Load single-cell object
+pigr_dc_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R2_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R2_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip')
+
+python_functions.plot_umap(lin_data=pigr_dc_data,
+                           color="annots",
+                           palette=dc_cluster_palette)
+```
+
+    ## 2024-06-21 20:22:26,371 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R2_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R2_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-06-21 20:22:26,371 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.99s.
+
+<img src="dc_figure_2_files/figure-gfm/fig_1B-1.png" width="576" />
+
+## Figure 1C
+
+``` python
 channel_palette = {
     "Original channels": "#808080",
     "PIGR_1029_GEX": "#E69F00",
@@ -34,7 +62,7 @@ channel_palette = {
 
 # Load single-cell object
 pigr_dc_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R1_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R1_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip')
+    '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R2_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R2_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip')
 
 # Relabel obs for function
 pigr_dc_data.obs['Channel'] = pigr_dc_data.obs['Channel'].cat.add_categories("Original channels")
@@ -50,12 +78,12 @@ python_functions.plot_umap(lin_data=pigr_dc_data,
                            size=list(pigr_dc_data.obs['size']))
 ```
 
-    ## 2024-06-01 20:19:22,738 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R1_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R1_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-06-01 20:19:22,738 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.26s.
+    ## 2024-06-21 20:22:28,346 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R2_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R2_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-06-21 20:22:28,346 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.81s.
 
-<img src="dc_figure_2_files/figure-gfm/fig_1B-1.png" width="576" />
+<img src="dc_figure_2_files/figure-gfm/fig_1C-3.png" width="576" />
 
-## Figure 1C
+## Figure 1D
 
 ``` python
 pigr_dc_data = pg.read_input(
@@ -67,12 +95,28 @@ python_functions.plot_feature(lin_data=pigr_dc_data,
                               nrow=2)
 ```
 
-    ## 2024-06-01 20:19:24,938 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R1_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R1_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-06-01 20:19:24,938 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.23s.
+    ## 2024-06-21 20:22:30,781 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R1_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R1_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-06-21 20:22:30,781 - pegasusio.readwrite - INFO - Function 'read_input' finished in 1.57s.
 
-<img src="dc_figure_2_files/figure-gfm/fig_1C-3.png" width="1920" />
+<img src="dc_figure_2_files/figure-gfm/fig_1D-5.png" width="1920" />
 
-## Figure 1D
+## Figure 1E
+
+``` python
+dc_data = pg.read_input("/projects/home/tlchan/projects/ascites/data_cite_objects/dc.zarr.zip")
+
+python_functions.plot_feature(lin_data=dc_data,
+                              genes=['cite_CD11c', 'cite_CD1c', 'cite_CD273', 'cite_CD123', 'cite_CD141', 'cite_CD103'],
+                              ncol=3,
+                              nrow=2)
+```
+
+    ## 2024-06-21 20:22:37,347 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/data_cite_objects/dc.zarr.zip' is loaded.
+    ## 2024-06-21 20:22:37,347 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.56s.
+
+<img src="dc_figure_2_files/figure-gfm/fig_1E-7.png" width="1440" />
+
+## Figure 1F
 
 ``` python
 corr_mat = pd.read_csv("/projects/home/tlchan/projects/ascites/dc_hunting/data/dc_pca_mean_matrix.csv")
@@ -92,4 +136,20 @@ plt.show()
 plt.close(fig)
 ```
 
-<img src="dc_figure_2_files/figure-gfm/fig_1D-5.png" width="768" />
+<img src="dc_figure_2_files/figure-gfm/fig_1F-9.png" width="768" />
+
+## Figure 1G
+
+``` r
+pigr_dc_counts <- read.csv("/projects/home/tlchan/pigr_dc_counts.csv")
+ggplot(pigr_dc_counts, aes(x = annot, y = count, fill = annot)) +
+    geom_bar(stat = 'identity') +
+    labs(fill = "Cluster") +
+    xlab("Cluster") +
+    ylab("Count") +
+    ggtitle("PIGR+ DC channel by clusters") +
+    theme_classic(base_size = 15) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
+
+![](/tmp/dc_figure_2-10.rmd/dc_figure_2_files/figure-gfm/fig_1G-11.png)<!-- -->

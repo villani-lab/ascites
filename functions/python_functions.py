@@ -12,7 +12,11 @@ def plot_feature(lin_data, genes, ncol, nrow):
     fig_size = (5 * ncol, 4 * nrow)
     fig, axes = plt.subplots(nrows=nrow, ncols=ncol, figsize=fig_size,
                              sharex=True, sharey=True)
-    ax = axes.ravel()
+
+    try:
+        ax = axes.ravel()
+    except:
+        ax = [axes]
 
     # Plot for each gene
     for num, gene in enumerate(genes):
@@ -115,12 +119,18 @@ def plot_feature_by_tissue_type(lin_data, genes):
         norm_counts = [blood_cts, ascites_cts]
         cb_max = max(max(blood_cts), max(ascites_cts))  # Makes sure colorbars are the same
 
+
+        if gene.startswith('cite_'):
+            cmap = 'PuBu'
+        else:
+            cmap = 'YlOrRd'
+
         # Create heatmap
         for i in range(2):
             hb = ax[num * 2 + i].hexbin(x=x[i],
                                         y=y[i],
                                         C=norm_counts[i],
-                                        cmap='YlOrRd',
+                                        cmap=cmap,
                                         gridsize=150,
                                         vmin=0,
                                         vmax=cb_max,
@@ -148,6 +158,8 @@ def plot_feature_by_tissue_type(lin_data, genes):
             ax[num * 2 + i].set_title(f'{title[i]}: {gene}', fontsize=18)
             ax[num * 2 + i].tick_params(left=False, labelleft=False,
                                         bottom=False, labelbottom=False)
+            ax[num * 2 + i].set_rasterization_zorder(2)
+
     fig.tight_layout()
     plt.show()
     plt.close(fig)

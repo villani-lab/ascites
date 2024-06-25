@@ -55,8 +55,8 @@ python_functions.plot_umap(lin_data=ext_dc_data,
                            palette=dataset_palette)
 ```
 
-    ## 2024-05-28 20:30:14,123 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-28 20:30:14,123 - pegasusio.readwrite - INFO - Function 'read_input' finished in 2.62s.
+    ## 2024-06-20 18:44:19,284 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-06-20 18:44:19,284 - pegasusio.readwrite - INFO - Function 'read_input' finished in 3.48s.
 
 <img src="dc_figure_3_files/figure-gfm/fig_1B-1.png" width="576" />
 
@@ -71,8 +71,8 @@ python_functions.plot_feature(lin_data=ext_dc_data,
                               nrow=2)
 ```
 
-    ## 2024-05-28 20:30:17,915 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-28 20:30:17,915 - pegasusio.readwrite - INFO - Function 'read_input' finished in 2.63s.
+    ## 2024-06-20 18:44:23,148 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-06-20 18:44:23,148 - pegasusio.readwrite - INFO - Function 'read_input' finished in 2.64s.
 
 <img src="dc_figure_3_files/figure-gfm/fig_1C-3.png" width="1920" />
 
@@ -129,4 +129,4 @@ ggplot(abundance, aes(y = organ, x = percentage + 0.1, fill = organ_type)) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 ```
 
-![](/tmp/dc_figure_3-2.rmd/dc_figure_3_files/figure-gfm/fig_1D-5.png)<!-- -->
+![](/tmp/dc_figure_3-3.rmd/dc_figure_3_files/figure-gfm/fig_1D-5.png)<!-- -->

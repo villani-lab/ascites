@@ -132,7 +132,7 @@ bp <- ggplot(abundance, aes(x = lin_percentage + 1, y = factor(lineage), fill = 
     xlab("Percent native immune + 1") +
     ylab("") +
     theme_classic(base_size = 20) +
-    theme(axis.text.y = element_blank(), axis.text = element_text(size = 18)) +
+    theme(axis.text.y = element_blank(), axis.text = element_text(size = 14)) +
     scale_fill_manual(values = tissue_palette)
 
 pt_res <- lapply(unique(abundance$lineage), function(lin) {
@@ -153,10 +153,10 @@ fp <- ggplot(pt_res, aes(x = Difference, y = factor(lineage), color = color)) +
     xlab("Log2FoldChange") +
     ylab("Lineage") +
     theme_classic(base_size = 20) +
-    theme(axis.text = element_text(size = 18)) +
+    theme(axis.text = element_text(size = 14)) +
     scale_color_manual(values = tissue_palette)
 
-ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0))
+ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0), common.legend = TRUE, legend = "bottom")
 ```
 
 ## Figure 1D

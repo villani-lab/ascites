@@ -27,7 +27,7 @@ import python_functions
 cd8_data = pg.read_input("/projects/home/tlchan/projects/ascites/data_cite_objects/cd8.zarr.zip")
 
 python_functions.plot_feature(lin_data=cd8_data,
-                              genes=['cite_CD45RA', 'cite_CLEC12A', 'CLEC12A', 'cite_CD45RO', 'cite_CD11c', 'ITGAX'],
+                              genes=['CLEC12A', 'cite_CLEC12A', 'cite_CD45RA', 'ITGAX', 'cite_CD11c', 'cite_CD45RO'],
                               ncol=3,
                               nrow=2)
 ```

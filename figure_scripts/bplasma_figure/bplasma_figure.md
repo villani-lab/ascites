@@ -51,10 +51,8 @@ python_functions.plot_umap(lin_data=b_data,
                            palette=b_cluster_palette)
 ```
 
-    ## 2024-05-07 17:46:47,502 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_bplasma_R5_300mg_20pm_harm_channel_multi_res/1.5/data/pseudobulk/ascites_bplasma_R5_300mg_20pm_harm_channel_1_5_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-07 17:46:47,503 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.41s.
-    ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
-    ##   cax = scatter(
+    ## 2024-06-20 18:24:18,866 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_bplasma_R5_300mg_20pm_harm_channel_multi_res/1.5/data/pseudobulk/ascites_bplasma_R5_300mg_20pm_harm_channel_1_5_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-06-20 18:24:18,866 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.64s.
 
 <img src="bplasma_figure_files/figure-gfm/fig_1A-1.png" width="576" />
 
@@ -66,10 +64,11 @@ b_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot
 
 plot_dotplot(lin_gex = b_gex,
              lin_cite = b_cite,
-             lin = "bplasma")
+             lin = "bplasma",
+            widths=c(1, .15, .2))
 ```
 
-![](/tmp/bplasma_figure-21.rmd/bplasma_figure_files/figure-gfm/fig_1B-3.png)<!-- -->
+![](/tmp/bplasma_figure-22.rmd/bplasma_figure_files/figure-gfm/fig_1B-3.png)<!-- -->
 
 ## Figure 1C
 
@@ -77,4 +76,4 @@ plot_dotplot(lin_gex = b_gex,
 plot_cluster_abundance("bplasma")
 ```
 
-![](/tmp/bplasma_figure-21.rmd/bplasma_figure_files/figure-gfm/fig_1C-1.png)<!-- -->
+![](/tmp/bplasma_figure-22.rmd/bplasma_figure_files/figure-gfm/fig_1C-1.png)<!-- -->

@@ -72,8 +72,8 @@ plt.show()
 plt.close(lineage_fig)
 ```
 
-    ## 2024-05-25 10:45:32,073 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-25 10:45:32,073 - pegasusio.readwrite - INFO - Function 'read_input' finished in 12.66s.
+    ## 2024-06-20 18:46:18,184 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-06-20 18:46:18,184 - pegasusio.readwrite - INFO - Function 'read_input' finished in 11.86s.
 
 <img src="figure_1_files/figure-gfm/fig_1B-1.png" width="576" />
 
@@ -138,8 +138,8 @@ bp <- ggplot(abundance, aes(x = lin_percentage + 1, y = factor(lineage), fill = 
     labs(fill = "Tissue type") +
     xlab("Percent native immune + 1") +
     ylab("") +
-    theme_classic(base_size = 25) +
-    theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
+    theme_classic(base_size = 20) +
+    theme(axis.text.y = element_blank(), axis.text = element_text(size = 14)) +
     scale_fill_manual(values = tissue_palette)
 
 pt_res <- lapply(unique(abundance$lineage), function(lin) {
@@ -159,14 +159,14 @@ fp <- ggplot(pt_res, aes(x = Difference, y = factor(lineage), color = color)) +
     guides(color = "none") +
     xlab("Log2FoldChange") +
     ylab("Lineage") +
-    theme_classic(base_size = 25) +
-    theme(axis.text = element_text(size = 20)) +
+    theme_classic(base_size = 20) +
+    theme(axis.text = element_text(size = 14)) +
     scale_color_manual(values = tissue_palette)
 
-ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0))
+ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0), common.legend = TRUE, legend = "bottom")
 ```
 
-![](/tmp/figure_1-83.rmd/figure_1_files/figure-gfm/fig_1C-3.png)<!-- -->
+![](/tmp/figure_1-84.rmd/figure_1_files/figure-gfm/fig_1C-3.png)<!-- -->
 
 ## Figure 1D
 
@@ -298,7 +298,7 @@ draw(ht)
 draw(pd, x = unit(0.93, "npc"), y = unit(0.58, "npc"))
 ```
 
-![](/tmp/figure_1-83.rmd/figure_1_files/figure-gfm/fig_1D-1.png)<!-- -->
+![](/tmp/figure_1-84.rmd/figure_1_files/figure-gfm/fig_1D-1.png)<!-- -->
 
 ## Figure 1E
 
@@ -382,4 +382,4 @@ ggplot(res, aes(x = logFC, y = -log10(p))) +
     theme_classic(base_size = 20)
 ```
 
-![](/tmp/figure_1-83.rmd/figure_1_files/figure-gfm/fig_1E-1.png)<!-- -->
+![](/tmp/figure_1-84.rmd/figure_1_files/figure-gfm/fig_1E-1.png)<!-- -->

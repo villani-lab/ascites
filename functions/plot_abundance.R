@@ -77,7 +77,7 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters) {
         xlab("Percent native immune + 1") +
         ylab("") +
         theme_classic(base_size = 20) +
-        theme(axis.text.y = element_blank(), axis.text = element_text(size = 15)) +
+        theme(axis.text.y = element_blank(), axis.text = element_text(size = 14)) +
         scale_fill_manual(values = tissue_palette)
 
     pt_res <- lapply(unique(lin_abundance$cluster), function(clust) {
@@ -99,7 +99,8 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters) {
         xlab("Log2FoldChange") +
         ylab("Cluster") +
         theme_classic(base_size = 20) +
+        theme(axis.text = element_text(size = 14)) +
         scale_color_manual(values = tissue_palette)
 
-    ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0))
+    ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0), common.legend = TRUE, legend = "bottom")
 }

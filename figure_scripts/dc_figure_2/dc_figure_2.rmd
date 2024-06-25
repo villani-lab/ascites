@@ -7,6 +7,8 @@ output: rmarkdown::github_document
 
 Load R libraries
 ```{r message = F, results = F, warning = F, load_r_libraries}
+library(ggplot2)
+
 library(reticulate)
 use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
 ```
@@ -25,6 +27,26 @@ import python_functions
 
 ## Figure 1B
 ```{python results = 'hold', fig_1B}
+dc_cluster_palette = {
+    "cDC2": "#FF0029",
+    "pDC": "#377EB8",
+    "cDC1": "#66A61E",
+    "PIGR+DC": "#984EA3",
+    "mREGDC": "#00D2D5",
+    "ASDC": "#FF7F00",
+}
+
+# Load single-cell object
+pigr_dc_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R2_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R2_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip')
+
+python_functions.plot_umap(lin_data=pigr_dc_data,
+                           color="annots",
+                           palette=dc_cluster_palette)
+```
+
+## Figure 1C
+```{python results = 'hold', fig_1C}
 channel_palette = {
     "Original channels": "#808080",
     "PIGR_1029_GEX": "#E69F00",
@@ -33,7 +55,7 @@ channel_palette = {
 
 # Load single-cell object
 pigr_dc_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R1_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R1_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip')
+    '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R2_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R2_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip')
 
 # Relabel obs for function
 pigr_dc_data.obs['Channel'] = pigr_dc_data.obs['Channel'].cat.add_categories("Original channels")
@@ -49,19 +71,19 @@ python_functions.plot_umap(lin_data=pigr_dc_data,
                            size=list(pigr_dc_data.obs['size']))
 ```
 
-## Figure 1C
-```{python results = 'hold', fig_1C}
+## Figure 1D
+```{python results = 'hold', fig_1D}
 pigr_dc_data = pg.read_input(
     '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/pigr_dc_project_R1_300mg_20pm_scVI_multi_res/1.3/data/pseudobulk/pigr_dc_project_R1_300mg_20pm_scVI_1_3_complete_with_pb.zarr.zip')
 
 python_functions.plot_feature(lin_data=pigr_dc_data,
                               genes=['CD1C', 'CLEC9A', 'PRDM16', 'PIGR', 'ACY3', 'SFTPD', 'RORC', 'GTF2IRD1'],
-                              ncol=4,
-                              nrow=2)
+                              ncol=2,
+                              nrow=4)
 ```
 
-## Figure 1D
-```{python results = 'hold', fig_1D}
+## Figure 1E
+```{python results = 'hold', fig_1E}
 corr_mat = pd.read_csv("/projects/home/tlchan/projects/ascites/dc_hunting/data/dc_pca_mean_matrix.csv")
 corr_mat = corr_mat.corr()
 cols = ['sorted_PIGR+CD103+', 'sorted_cDC1', 'sorted_cDC2']
@@ -77,4 +99,18 @@ sns.heatmap(corr_mat,
 fig.tight_layout()
 plt.show()
 plt.close(fig)
+```
+
+
+## Figure 1F
+```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_1F}
+pigr_dc_counts <- read.csv("/projects/home/tlchan/pigr_dc_counts.csv")
+ggplot(pigr_dc_counts, aes(x = annot, y = count, fill = annot)) +
+    geom_bar(stat = 'identity') +
+    labs(fill = "Cluster") +
+    xlab("Cluster") +
+    ylab("Count") +
+    ggtitle("PIGR+ DC channel by clusters") +
+    theme_classic(base_size = 15) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 ```

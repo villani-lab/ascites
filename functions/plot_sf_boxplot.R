@@ -1,7 +1,7 @@
 library(tidyverse)
 library(ggpubr)
 
-plot_sf_boxplot <- function(analytes) {
+plot_sf_boxplot <- function(analytes, nrow) {
     tissue_palette <- list("ascites" = "#00BFC4",
                            "plasma" = "#F8766D")
 
@@ -24,14 +24,17 @@ plot_sf_boxplot <- function(analytes) {
         mutate(analyte = factor(analyte, levels = analytes))
 
     ggplot(sf_data, aes(x = type, y = log_concentration, fill = type)) +
+        labs(fill = "Tissue type") +
         geom_boxplot(outlier.shape = NA, alpha = 0.75) +
         geom_line(aes(group = patient_id)) +
         geom_point(pch = 20, size = 2) +
         stat_compare_means(paired = TRUE, label.x.npc = "center", aes(label = paste0("p = ", after_stat(p.format)))) +
         xlab("Type") +
         ylab("log(Concentration)") +
-        facet_wrap(~analyte, scales = "free_y", nrow = 2) +
+        facet_wrap(~analyte, scales = "free_y", nrow = nrow) +
+        theme_classic(base_size = 20) +
         theme(axis.text.x = element_blank(),
               axis.ticks.x = element_blank()) +
-        scale_fill_manual(values = tissue_palette)
+        scale_fill_manual(values = tissue_palette) +
+        scale_y_continuous(expand = expansion(mult = c(0.05, 0.15)))
 }

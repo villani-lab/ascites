@@ -57,7 +57,8 @@ b_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot
 
 plot_dotplot(lin_gex = b_gex,
              lin_cite = b_cite,
-             lin = "bplasma")
+             lin = "bplasma",
+            widths=c(1, .15, .2))
 ```
 
 ## Figure 1C

@@ -33,10 +33,11 @@ lineage_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/d
 
 plot_dotplot(lin_gex = lineage_gex,
              lin_cite = lineage_cite,
-             lin = "lineage")
+             lin = "lineage",
+             widths = c(1, .4, .2))
 ```
 
-![](/tmp/supp_figure_1-2.rmd/supp_figure_1_files/figure-gfm/fig_1C-1.png)<!-- -->
+![](/tmp/supp_figure_1-3.rmd/supp_figure_1_files/figure-gfm/fig_1C-1.png)<!-- -->
 
 ## Figure 1D
 
@@ -63,10 +64,8 @@ python_functions.plot_umap(lin_data=global_data,
                            palette=tissue_palette)
 ```
 
-    ## 2024-05-07 17:14:37,703 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-07 17:14:37,703 - pegasusio.readwrite - INFO - Function 'read_input' finished in 9.86s.
-    ## /projects/home/tlchan/.conda/envs/myenv/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:392: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
-    ##   cax = scatter(
+    ## 2024-06-20 18:55:42,572 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-06-20 18:55:42,572 - pegasusio.readwrite - INFO - Function 'read_input' finished in 10.18s.
 
 <img src="supp_figure_1_files/figure-gfm/fig_1B-1.png" width="576" />
 
@@ -83,9 +82,9 @@ lineage_palette <- list("B/Plasma cells" = "#FF0029",
 global_lineage <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/abundance_data/global_lineage_counts.csv')
 ggplot(global_lineage, aes(x = Patient, y = Count, fill = Lineage)) +
     geom_bar(stat = "identity") +
-    theme_classic(base_size = 12) +
+    theme_classic(base_size = 20) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
     scale_fill_manual(values = lineage_palette)
 ```
 
-![](/tmp/supp_figure_1-2.rmd/supp_figure_1_files/figure-gfm/fig_1E-3.png)<!-- -->
+![](/tmp/supp_figure_1-3.rmd/supp_figure_1_files/figure-gfm/fig_1E-3.png)<!-- -->

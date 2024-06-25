@@ -65,7 +65,8 @@ cd8_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotpl
 
 plot_dotplot(lin_gex = cd8_gex,
              lin_cite = cd8_cite,
-             lin = "cd8")
+             lin = "cd8",
+             widths = c(1.0, 0.3, 0.2))
 ```
 
 ## Figure 1C
@@ -76,9 +77,14 @@ plot_cluster_abundance(lin = "cd8",
 
 ## Figure 1D
 ```{r message = F, results = F, warning = F, fig.width = 16, fig.height = 10, fig_1D}
-cd8_res <- read.csv('/projects/home/tlchan/cd8/cd8_de_by_tissue_type_all_results.csv')
+cd8_res <- read.csv('/projects/home/tlchan/projects/ascites/ascites_deg_results/cd8/cd8_de_by_tissue_type_all_results.csv')
 
-plot_upset(cd8_res)
+cd8_clusters <- c('1', '3', '4', '6', '7', '8', '9', '11', '12', '13', '15')
+
+cd8_res <- cd8_res %>% filter(cluster %in% cd8_clusters)
+
+plot_upset(res = cd8_res,
+           min_degree = 9)
 ```
 
 ## Figure 1E
@@ -93,5 +99,6 @@ python_functions.plot_feature_by_tissue_type(lin_data=cd8_data,
 
 ## Figure 1F
 ```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 8, fig_1F}
-plot_sf_boxplot(c("CXCL10", "CXCL9", "CXCL16", "SDF-1", "IL-15", "IL-12p40", "TNFα", "IFNγ"))
+plot_sf_boxplot(analytes = c("CXCL10", "CXCL9", "CXCL16", "SDF-1", "IL-15", "IL-12p40", "TNFα", "IFNγ"),
+                nrow = 2)
 ```

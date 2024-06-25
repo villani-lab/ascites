@@ -58,8 +58,8 @@ python_functions.plot_umap(lin_data=dc_data,
                            palette=dc_cluster_palette)
 ```
 
-    ## 2024-05-30 18:41:56,606 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
-    ## 2024-05-30 18:41:56,606 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.96s.
+    ## 2024-06-20 18:36:55,182 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip' is loaded.
+    ## 2024-06-20 18:36:55,183 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.80s.
 
 <img src="dc_figure_1_files/figure-gfm/fig_1A-1.png" width="576" />
 
@@ -71,10 +71,11 @@ dc_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplo
 
 plot_dotplot(lin_gex = dc_gex,
              lin_cite = dc_cite,
-             lin = "dc")
+             lin = "dc",
+             widths = c(1, .2, .2))
 ```
 
-![](/tmp/dc_figure_1-8.rmd/dc_figure_1_files/figure-gfm/fig_1B-3.png)<!-- -->
+![](/tmp/dc_figure_1-11.rmd/dc_figure_1_files/figure-gfm/fig_1B-3.png)<!-- -->
 
 ``` r
 dc_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/dc_gene_exp_alt.csv')
@@ -82,10 +83,11 @@ dc_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplo
 
 plot_dotplot(lin_gex = dc_gex,
              lin_cite = dc_cite,
-             lin = "dc_alt")
+             lin = "dc_alt",
+             widths = c(1, .4, .2))
 ```
 
-![](/tmp/dc_figure_1-8.rmd/dc_figure_1_files/figure-gfm/fig_1B-4.png)<!-- -->
+![](/tmp/dc_figure_1-11.rmd/dc_figure_1_files/figure-gfm/fig_1B-4.png)<!-- -->
 
 ## Figure 1C
 
@@ -93,7 +95,7 @@ plot_dotplot(lin_gex = dc_gex,
 plot_cluster_abundance("dc")
 ```
 
-![](/tmp/dc_figure_1-8.rmd/dc_figure_1_files/figure-gfm/fig_1C-1.png)<!-- -->
+![](/tmp/dc_figure_1-11.rmd/dc_figure_1_files/figure-gfm/fig_1C-1.png)<!-- -->
 
 ## Figure 1D
 
@@ -202,29 +204,33 @@ for (gene in rownames(heatmap_data)) {
 }
 split <- factor(split, levels = as.character(unique(split)))
 
-# Get the cluster colors
-col_label_colors <- c()
-for (clust in colnames(heatmap_data)) {
+# Make block annotation
+row_cols <- c()
+for (clust in order) {
     color <- col_info %>%
         select(cluster, col) %>%
         distinct() %>%
         filter(cluster == clust)
-    col_label_colors <- c(col_label_colors, as.character(color$col))
+    row_cols <- c(row_cols, as.character(color$col))
 }
 
-# Make block annotation
+left_annotation <- HeatmapAnnotation(blk = anno_block(gp = gpar(fill = row_cols, col = row_cols)),
+                                     which = "row",
+                                     width = unit(1.5, "mm"))
+
 clust_cols <- c()
-for (clust in order) {
+for (clust in colnames(heatmap_data)) {
     color <- col_info %>%
         select(cluster, col) %>%
         distinct() %>%
         filter(cluster == clust)
     clust_cols <- c(clust_cols, as.character(color$col))
 }
+names(clust_cols) <- colnames(heatmap_data)
+bottom_annotation <- HeatmapAnnotation(clust = names(clust_cols), col = list(clust = clust_cols), show_legend = FALSE)
 
-left_annotation <- HeatmapAnnotation(blk = anno_block(gp = gpar(fill = clust_cols, col = clust_cols)),
-                                     which = "row",
-                                     width = unit(1.5, "mm"))
+colnames(heatmap_data) <- sub("Cluster ", "", colnames(heatmap_data))
+
 heatmap_list <- Heatmap(heatmap_data,
                         name = "z-score",
                         col = heatmap_col_fun,
@@ -233,35 +239,23 @@ heatmap_list <- Heatmap(heatmap_data,
                         clustering_method_columns = "ward.D2",
                         clustering_distance_columns = "euclidean",
                         column_dend_reorder = FALSE,
+                        column_names_rot = 0,
+                        column_names_gp = gpar(fontsize = 12),
+                        row_names_gp = gpar(fontsize = 12),
                         top_annotation = gene_bar,
+                        bottom_annotation = bottom_annotation,
                         show_heatmap_legend = FALSE,
-                        column_names_gp = gpar(col = col_label_colors, fontface = "bold"),
-                        split = split,
+                        row_split = split,
                         left_annotation = left_annotation,
                         show_column_names = TRUE) +
-    rowAnnotation(link = anno_mark(at = match(annotation_genes, rownames(heatmap_data)), labels = annotation_genes, labels_gp = gpar(col = gene_cols, fontsize = 8, fontface = "bold")))
+    rowAnnotation(link = anno_mark(at = match(annotation_genes, rownames(heatmap_data)), labels = annotation_genes, labels_gp = gpar(col = gene_cols, fontsize = 10, fontface = "bold")))
+
 draw(heatmap_list, heatmap_legend_list = lgd_list)
 ```
 
-![](/tmp/dc_figure_1-8.rmd/dc_figure_1_files/figure-gfm/fig_1D-1.png)<!-- -->
+![](/tmp/dc_figure_1-11.rmd/dc_figure_1_files/figure-gfm/fig_1D-1.png)<!-- -->
 
 ## Figure 1E
-
-``` python
-dc_data = pg.read_input("/projects/home/tlchan/projects/ascites/data_cite_objects/dc.zarr.zip")
-
-python_functions.plot_feature(lin_data=dc_data,
-                              genes=['cite_CD11c', 'cite_CD1c', 'cite_CD273', 'cite_CD123', 'cite_CD141', 'cite_CD103'],
-                              ncol=3,
-                              nrow=2)
-```
-
-    ## 2024-05-30 18:42:05,167 - pegasusio.readwrite - INFO - zarr file '/projects/home/tlchan/projects/ascites/data_cite_objects/dc.zarr.zip' is loaded.
-    ## 2024-05-30 18:42:05,167 - pegasusio.readwrite - INFO - Function 'read_input' finished in 0.56s.
-
-<img src="dc_figure_1_files/figure-gfm/fig_1E-1.png" width="1440" />
-
-## Figure 1F
 
 ``` r
 select_regulons <- c("ID2(+)", "IRF4(+)", "IRF7(+)", "IRF8(+)", "KLF5(+)", "TCF4(+)", "SPIB(+)", "NFIL3(+)", "BATF3(+)", "KLF4(+)")
@@ -331,4 +325,4 @@ hmap <- Heatmap(rss_data,
 draw(hmap)
 ```
 
-![](/tmp/dc_figure_1-8.rmd/dc_figure_1_files/figure-gfm/fig_1F-3.png)<!-- -->
+![](/tmp/dc_figure_1-11.rmd/dc_figure_1_files/figure-gfm/fig_1E-1.png)<!-- -->
