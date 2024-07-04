@@ -175,6 +175,7 @@ def plot_umap(lin_data, palette, color="Cluster", width=6, height=6, legend_loc=
                use_raw=True,
                palette=palette,
                size=size,
+               frameon=False,
                legend_loc=legend_loc,
                legend_fontoutline=5,
                title="",

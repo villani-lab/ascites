@@ -76,3 +76,17 @@ ggplot(global_lineage, aes(x = Patient, y = Count, fill = Lineage)) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
     scale_fill_manual(values = lineage_palette)
 ```
+
+
+## Figure 1F
+```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, fig_1F}
+
+metadata <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/metadata/final_ascites_deg_metadata.csv")
+ggplot(metadata, aes(x = log(survival), y = log1p(immune_percentage))) +
+    geom_point(pch = 21, size = 2) +
+    geom_smooth(method = "lm", formula = y ~ x) +
+    stat_cor() +
+    xlab("log(Days survival)") +
+    ylab("log1p(immune percentage)") +
+    theme_classic(base_size = 20)
+```

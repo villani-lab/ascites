@@ -82,13 +82,13 @@ monomac_data = pg.read_input(
     '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip')
 
 python_functions.plot_feature_by_tissue_type(lin_data=monomac_data,
-                                             genes=["CCL2", "IL10", "CXCL8", "CXCL1", "VEGFA"])
+                                             genes=["CCL2", "IL10", "CXCL8", "CXCL1", "VEGFA", "CCL20"])
 ```
 
 ## Figure 1E
 ```{r message = F, results = F, warning = F, fig.width = 4, fig.height = 18, fig_1E}
-plot_sf_boxplot(analytes = c("CCL2", "IL-10", "IL-8", "GROa", "VEGF-A"),
-                nrow = 5)
+plot_sf_boxplot(analytes = c("CCL2", "IL-10", "IL-8", "GROa", "VEGF-A", "MIP-3α"),
+                nrow = 6)
 ```
 
 ## Figure 1F

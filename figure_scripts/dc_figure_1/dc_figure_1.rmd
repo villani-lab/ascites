@@ -57,35 +57,8 @@ python_functions.plot_umap(lin_data=dc_data,
                            palette=dc_cluster_palette)
 ```
 
-
 ## Figure 1B
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, fig_1B}
-dc_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/dc_gene_exp.csv')
-dc_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/dc_cite_exp.csv')
-
-plot_dotplot(lin_gex = dc_gex,
-             lin_cite = dc_cite,
-             lin = "dc",
-             widths = c(1, .2, .2))
-
-
-dc_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/dc_gene_exp_alt.csv')
-dc_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/dc_cite_exp_alt.csv')
-
-plot_dotplot(lin_gex = dc_gex,
-             lin_cite = dc_cite,
-             lin = "dc_alt",
-             widths = c(1, .4, .2))
-
-```
-
-## Figure 1C
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_1C}
-plot_cluster_abundance("dc")
-```
-
-## Figure 1D
-```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, fig_1D}
+```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, fig_1B}
 count_mtx <- read.csv("/projects/home/tlchan/ascites_dc_R8_300mg_20pm_harm_channel_1_1_cluster_pseudobulk_counts.csv",
                       row.names = 1)
 meta_data <- read.csv("/projects/home/tlchan/ascites_dc_R8_300mg_20pm_harm_channel_1_1_cluster_pseudobulk_meta.csv",
@@ -239,8 +212,13 @@ heatmap_list <- Heatmap(heatmap_data,
 draw(heatmap_list, heatmap_legend_list = lgd_list)
 ```
 
-## Figure 1E
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 8, fig_1E}
+## Figure 1C
+```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_1C}
+plot_cluster_abundance("dc")
+```
+
+## Figure 1D
+```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 8, fig_1D}
 select_regulons <- c("ID2(+)", "IRF4(+)", "IRF7(+)", "IRF8(+)", "KLF5(+)", "TCF4(+)", "SPIB(+)", "NFIL3(+)", "BATF3(+)", "KLF4(+)")
 
 dc10_regulons <- read.xlsx("/projects/home/tlchan/projects/ascites/second_data_freeze/data/dc_analysis/pigr/test_500_top_regulons.xlsx", sheetName = "dc_10") %>%
@@ -306,4 +284,14 @@ hmap <- Heatmap(rss_data,
                 column_title = "Cluster",
                 row_title = "Regulons")
 draw(hmap)
+```
+
+## Figure 1E
+```{python results = 'hold', fig_1E}
+dc_data = pg.read_input("/projects/home/tlchan/projects/ascites/data_cite_objects/dc.zarr.zip")
+
+python_functions.plot_feature(lin_data=dc_data,
+                              genes=['cite_CD11c', 'cite_CD1c', 'cite_CD273', 'cite_CD123', 'cite_CD141', 'cite_CD103'],
+                              ncol=3,
+                              nrow=2)
 ```
