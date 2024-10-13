@@ -1,7 +1,33 @@
+import math
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scanpy as sc
+
+
+def plot_umap(lin_data, palette, color="Cluster", width=6, height=6, legend_loc="on data", size=None):
+    if size == None:
+        size = 120000 / lin_data.shape[0]
+
+    fig, ax = plt.subplots(1)
+    sc.pl.umap(adata=lin_data.to_anndata(),
+               color=color,
+               use_raw=True,
+               palette=palette,
+               size=size,
+               frameon=False,
+               legend_loc=legend_loc,
+               legend_fontoutline=5,
+               title="",
+               show=False,
+               ax=ax)
+
+    fig = plt.gcf()
+    fig.set_size_inches(width, height)
+    fig.tight_layout()
+    ax.set_rasterization_zorder(2)
+
+    return fig
 
 def plot_feature(lin_data, genes, ncol, nrow):
     umap_coords = pd.DataFrame(lin_data.obsm['X_umap'], columns=['x', 'y'])
@@ -73,8 +99,9 @@ def plot_feature(lin_data, genes, ncol, nrow):
     for i in range(len(ax) - (len(ax) - len(genes)), len(ax)):
         ax[i].set_axis_off()
     fig.tight_layout()
-    plt.show()
-    plt.close(fig)
+
+    return fig
+
 
 def plot_feature_by_tissue_type(lin_data, genes):
     # Get UMAP coordinates for base
@@ -119,7 +146,6 @@ def plot_feature_by_tissue_type(lin_data, genes):
         norm_counts = [blood_cts, ascites_cts]
         cb_max = max(max(blood_cts), max(ascites_cts))  # Makes sure colorbars are the same
 
-
         if gene.startswith('cite_'):
             cmap = 'PuBu'
         else:
@@ -161,30 +187,38 @@ def plot_feature_by_tissue_type(lin_data, genes):
             ax[num * 2 + i].set_rasterization_zorder(2)
 
     fig.tight_layout()
-    plt.show()
-    plt.close(fig)
+
+    return fig
 
 
-def plot_umap(lin_data, palette, color="Cluster", width=6, height=6, legend_loc="on data", size = None):
-    if size == None:
-       size = 120000 / lin_data.shape[0]
+def plot_rss(rss, cell_type, top_n=5, max_n=None, ax=None):
+    if ax is None:
+        _, ax = plt.subplots(1, 1, figsize=(4, 4))
+    if max_n is None:
+        max_n = rss.shape[1]
+    data = rss.T[cell_type].sort_values(ascending=False)[0:max_n]
+    ax.plot(np.arange(len(data)), data, ".")
+    ax.set_ylim([math.floor(data.min() * 100.0) / 100.0, math.ceil(data.max() * 100.0) / 100.0])
+    ax.set_ylabel("RSS")
+    ax.set_xlabel("Regulon")
+    ax.set_title(cell_type)
+    ax.set_xticklabels([])
 
-    fig, ax = plt.subplots(1)
-    sc.pl.umap(adata=lin_data.to_anndata(),
-               color=color,
-               use_raw=True,
-               palette=palette,
-               size=size,
-               frameon=False,
-               legend_loc=legend_loc,
-               legend_fontoutline=5,
-               title="",
-               show=False,
-               ax=ax)
+    font = {
+        "color": "red",
+        "weight": "normal",
+        "size": 14,
+    }
 
-    fig = plt.gcf()
-    fig.set_size_inches(width, height)
-    fig.tight_layout()
-    ax.set_rasterization_zorder(2)
-    plt.show()
-    plt.close(fig)
+    for idx, (regulon_name, rss_val) in enumerate(
+            zip(data[0:top_n].index, data[0:top_n].values)
+    ):
+        ax.plot([idx, idx], [rss_val, rss_val], "r.")
+        ax.text(
+            idx + (max_n / 25),
+            rss_val,
+            regulon_name,
+            fontdict=font,
+            horizontalalignment="left",
+            verticalalignment="center",
+        )

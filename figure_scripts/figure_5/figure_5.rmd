@@ -1,0 +1,289 @@
+---
+title: "Figure 5"
+output: rmarkdown::github_document
+---
+
+## Set up
+
+Load R libraries
+```{r message = F, results = F, warning = F, load_r_libraries}
+library(colorRamp2)
+library(ComplexHeatmap)
+library(cowplot)
+library(ggpubr)
+library(glue)
+library(rstatix)
+library(tidyverse)
+library(VennDiagram)
+
+setwd('/projects/home/tlchan/github_code/ascites/functions')
+source('plot_deg.R')
+source('plot_fgsea.R')
+```
+
+## Figure 5B
+```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_5B}
+DC_palette <- c("DC1" = '#4B3F72', "DC2" = '#00916E', "DC: PIGR, RORC" = '#FFC857', "CD14" = "#36565C")
+
+CFSE_data <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/metadata/combined_CFSE_stats.csv") %>%
+    mutate(cell_category = gsub("newDC", "DC: PIGR, RORC", cell_category)) %>%
+    mutate(cell_category = factor(cell_category, levels = c("CD14", "DC: PIGR, RORC", "DC1", "DC2")))
+
+stats <- CFSE_data %>%
+    filter(cell_category %in% c('DC: PIGR, RORC', 'CD14')) %>%
+    t_test(log_CFSE_neg_perc ~ cell_category, paired = TRUE) %>%
+    add_significance() %>%
+    add_xy_position(x = "cell_category")
+
+ggplot(CFSE_data, aes(x = factor(cell_category), y = log_CFSE_neg_perc)) +
+    geom_boxplot(outlier.shape = NA, aes(fill = cell_category)) +
+    geom_point(pch = 20, size = 2) +
+    xlab("Cell category") +
+    ylab("log(CFSE- percentage)") +
+    scale_fill_manual(values = DC_palette) +
+    stat_pvalue_manual(stats, label = "p = {p}", size = 5) +
+    theme_classic(base_size = 20) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none")
+ggsave("/projects/home/tlchan/fig_panels/fig_5b.pdf", width = 4, height = 8)
+```
+
+## Figure 5C
+```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_5C}
+cfse_neg_res <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/mlr_degs/lineage_level/combo_mlr_newDCvDC2_paired/combo_mlr_newDCvDC2_paired_CFSE_neg_de_by_newDCvDC2_paired_all_results.csv")
+cfse_pos_res <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/mlr_degs/lineage_level/combo_mlr_newDCvDC2_paired/combo_mlr_newDCvDC2_paired_CFSE_pos_de_by_newDCvDC2_paired_all_results.csv")
+
+mlr_meta <- read.csv('/projects/home/tlchan/projects/ascites/second_data_freeze/data/mlr_degs/pb_objects/combo_mlr_lineage_pseudobulk_meta.csv', row.names = 1) %>% mutate(DC_type = gsub("newDC", "DC: PIGR, RORC", DC_type))
+
+cfse_neg_meta <- mlr_meta %>%
+    filter(CFSE == "CFSE_neg") %>%
+    filter(DC_type == "DC: PIGR, RORC" | DC_type == "DC2")
+cfse_pos_meta <- mlr_meta %>%
+    filter(CFSE == "CFSE_pos") %>%
+    filter(DC_type == "DC: PIGR, RORC" | DC_type == "DC2")
+
+pdf("/projects/home/tlchan/fig_panels/fig_5c.pdf", width = 8, height = 8)
+plot_lineage_deg(res = cfse_neg_res,
+                 meta = cfse_neg_meta,
+                 lin = "All CFSE- cells",
+                 contrast = "DC_type",
+                 ref_var = "DC2",
+                 test_var = "DC: PIGR, RORC",
+                 ref_color = "#00916E",
+                 test_color = "#FFC857")
+plot_lineage_deg(res = cfse_pos_res,
+                 meta = cfse_pos_meta,
+                 lin = "All CFSE+ cells",
+                 contrast = "DC_type",
+                 ref_var = "DC2",
+                 test_var = "DC: PIGR, RORC",
+                 ref_color = "#00916E",
+                 test_color = "#FFC857")
+dev.off()
+```
+
+## Figure 5D
+```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_5D}
+venn_genes <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/mlr_venn_genes.csv")
+
+up_genes <- venn_genes %>%
+    filter(var %in% c("newDC_up", "DC1_up")) %>%
+    mutate(var = gsub("newDC_up", "DC: PIGR, RORC", var)) %>%
+    mutate(var = gsub("DC1_up", "DC1", var)) %>%
+    group_by(var) %>%
+    summarise(values = list(gene), .groups = 'drop') %>%
+    deframe()
+
+down_genes <- venn_genes %>%
+    filter(var %in% c("newDC_down", "DC1_down")) %>%
+    mutate(var = gsub("newDC_down", "DC: PIGR, RORC", var)) %>%
+    mutate(var = gsub("DC1_down", "DC1", var)) %>%
+    group_by(var) %>%
+    summarise(values = list(gene), .groups = 'drop') %>%
+    deframe()
+
+up_vd <- venn.diagram(x = up_genes,
+                      fill = c("#4B3F72", "#FFC857"),
+                      alpha = 0.80,
+                      lty = c(1, 2),
+                      ext.text = FALSE,
+                      cex = 2,
+                      fontfamily = "sans",
+                      cat.fontfamily = "sans",
+                      cat.cex = 2,
+                      filename = NULL,
+                      disable.logging = TRUE)
+down_vd <- venn.diagram(x = down_genes,
+                        fill = c("#4B3F72", "#FFC857"),
+                        alpha = 0.80,
+                        lty = c(1, 2),
+                        ext.text = FALSE,
+                        cex = 2,
+                        fontfamily = "sans",
+                        cat.fontfamily = "sans",
+                        cat.cex = 2,
+                        filename = NULL,
+                        disable.logging = TRUE)
+
+pdf("/projects/home/tlchan/fig_panels/fig_5d.pdf", width = 10, height = 10)
+plot_grid(up_vd)
+plot_grid(down_vd)
+dev.off()
+```
+
+## Figure 5E
+```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_5E}
+setwd('/projects/home/tlchan/projects/ascites/second_data_freeze/data/mlr_degs/lineage_level')
+
+lineage_list <- list(
+    "combo_mlr" = "ALL",
+    "combo_mlr_cd4" = "CD4",
+    "combo_mlr_cd8" = "CD8"
+)
+
+# PREPARE DATA
+all_res <- data.frame(baseMean = numeric(), log2FoldChange = numeric(), lfcSE = numeric(), stat = numeric(), pvalue = numeric(), padj = numeric(), gene_symbol = character(), lineage = character(), CFSE = character())
+
+for (lin in names(lineage_list)) {
+    for (cfse in c("CFSE_neg", "CFSE_pos")) {
+        res <- read.csv(glue('{lin}_newDCvDC2_paired/{lin}_newDCvDC2_paired_{cfse}_de_by_newDCvDC2_paired_all_results.csv'))
+        res$lineage <- lineage_list[lin]
+        res$CFSE <- cfse
+
+        all_res <- rbind(all_res, res)
+    }
+}
+
+gene_markers <- read.csv('/projects/home/tlchan/projects/ascites/second_data_freeze/data/mlr_degs/mlr_plot_gene_markers.csv')
+heatmap_genes <- gene_markers$heatmap_genes
+
+# MAKE HEATMAP
+lfc_mtx <- all_res %>%
+    mutate(group = paste(lineage, CFSE, sep = "_")) %>%
+    filter(gene_symbol %in% heatmap_genes) %>%
+    select(log2FoldChange, gene_symbol, group) %>%
+    pivot_wider(names_from = group, values_from = log2FoldChange) %>%
+    column_to_rownames("gene_symbol") %>%
+    mutate(across(everything(), ~replace_na(., 0))) %>%
+    as.matrix()
+
+# Cluster rows
+row_clustering <- hclust(dist(lfc_mtx, method = "euclidean"), method = "ward.D2")
+row_hc <- as.dendrogram(row_clustering)
+
+# Heatmap color
+heatmap_col_fun <- colorRamp2(c(min(lfc_mtx), 0, max(lfc_mtx)), c("green", "black", "yellow"))
+
+# Label genes
+highlight_genes <- gene_markers %>%
+    filter(highlight == TRUE) %>%
+    pull(heatmap_genes)
+
+# Survival genes
+bold_lineage_genes <- read.csv("/projects/home/tlchan/external_lineage_deg_gsea.csv", row.names = 1) %>%
+    filter(lineage == "cd4") %>%
+    filter(tissue_type == "ascites") %>%
+    filter(var == "survival") %>%
+    filter(pathway == "up_newDC_vs_DC2") %>%
+    pull(leadingEdge) %>%
+    strsplit(split = ",") %>%
+    unlist()
+
+bold_cluster_genes <- read.csv("/projects/home/tlchan/external_cluster_deg_gsea.csv", row.names = 1) %>%
+    filter(lineage == "cd4") %>%
+    filter(tissue_type == "ascites") %>%
+    filter(var == "survival") %>%
+    filter(pathway == "up_newDC_vs_DC2") %>%
+    filter(padj < 0.1) %>%
+    pull(leadingEdge) %>%
+    strsplit(split = ",") %>%
+    unlist()
+
+# Get the gene colors
+gene_weights <- c()
+for (gene in highlight_genes) {
+    weight <- ifelse(gene %in% c(bold_lineage_genes, bold_cluster_genes), "bold", "plain")
+    gene_weights <- c(gene_weights, weight)
+}
+
+gene_annot <- rowAnnotation(link = anno_mark(at = match(highlight_genes, rownames(lfc_mtx)),
+                                             labels = highlight_genes,
+                                             labels_gp = gpar(fontsize = 8, fontface = gene_weights)))
+
+# Split CFSE
+lfc_mtx <- lfc_mtx[, c("ALL_CFSE_pos", "CD8_CFSE_pos", "CD4_CFSE_pos", "ALL_CFSE_neg", "CD8_CFSE_neg", "CD4_CFSE_neg")]
+sample_splits <- c(rep(c("CFSE+"), 3), rep(c("CFSE-"), 3))
+colnames(lfc_mtx) <- rep(c("ALL", "CD8", "CD4"), 2)
+
+# Split genes
+gene_splits <- cutree(row_clustering, 2) %>%
+    as.data.frame() %>%
+    `colnames<-`(c("Direction"))
+gene_splits <- gene_splits %>% mutate(Direction = ifelse(Direction == 1, "Up in DC2", "Up in DC: PIGR, RORC"))
+gene_splits$Direction <- factor(gene_splits$Direction)
+
+
+# Plot heatmap
+hmap <- Heatmap(lfc_mtx,
+                name = "log2FC",
+                col = heatmap_col_fun,
+                show_column_names = TRUE,
+                show_row_names = FALSE,
+                cluster_rows = row_hc,
+                clustering_method_rows = "ward.D2",
+                clustering_distance_rows = "euclidean",
+                cluster_columns = FALSE,
+                show_heatmap_legend = TRUE,
+                column_split = sample_splits,
+                column_title_gp = gpar(fontsize = 14),
+                column_names_side = "bottom",
+                column_names_rot = 90,
+                column_names_centered = TRUE,
+                right_annotation = gene_annot)
+pdf("/projects/home/tlchan/fig_panels/fig_5e.pdf", width = 3.5, height = 12)
+print(hmap)
+dev.off()
+```
+
+## Figure 5F
+```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_5F}
+gene_markers <- read.csv('/projects/home/tlchan/projects/ascites/second_data_freeze/data/mlr_degs/mlr_plot_gene_markers.csv')
+up_newDC_vs_DC2_genes <- Filter(nzchar, gene_markers$up_dcnew_v_dc2)
+
+# CD4 lineage, ascites, survival
+cd4_lineage_fgsea_res <- read.csv("/projects/home/tlchan/external_lineage_deg_gsea.csv", row.names = 1) %>%
+    filter(lineage == "cd4") %>%
+    filter(tissue_type == "ascites") %>%
+    filter(var == "survival") %>%
+    filter(pathway == "up_newDC_vs_DC2")
+
+cd4_lineage_stats <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/degs/lineage_level/survival/cd4_ascites_de_by_survival_all_results.csv") %>%
+    arrange(desc(log2FoldChange)) %>%
+    select(gene_symbol, log2FoldChange)
+cd4_lineage_ranks <- setNames(cd4_lineage_stats$log2FoldChange, cd4_lineage_stats$gene_symbol)
+
+cd4_lineage_p <- plot_fgsea(cd4_lineage_fgsea_res, cd4_lineage_ranks, up_newDC_vs_DC2_genes, "CD4 lineage, ascites", "survival", "up in DC: PIGR, RORC vs DC2")
+
+# CD4 clusters 1 and 9, ascites, survival
+plot_cd4_cluster <- function(clust) {
+    cd4_cluster_fgsea_res <- read.csv("/projects/home/tlchan/external_cluster_deg_gsea.csv", row.names = 1) %>%
+        filter(lineage == "cd4") %>%
+        filter(tissue_type == "ascites") %>%
+        filter(cluster == clust) %>%
+        filter(var == "survival") %>%
+        filter(pathway == "up_newDC_vs_DC2")
+
+    cd4_cluster_stats <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/degs/cluster_level/cd4_survival/cd4_ascites_de_by_survival_all_results.csv") %>%
+        filter(cluster == clust) %>%
+        arrange(desc(log2FoldChange)) %>%
+        select(gene_symbol, log2FoldChange)
+    cd4_cluster_ranks <- setNames(cd4_cluster_stats$log2FoldChange, cd4_cluster_stats$gene_symbol)
+
+    cd4_cluster_p <- plot_fgsea(cd4_cluster_fgsea_res, cd4_cluster_ranks, up_newDC_vs_DC2_genes, glue("CD4 C{clust}, ascites"), "survival", "up in DC: PIGR, RORC vs DC2")
+}
+
+
+pdf("/projects/home/tlchan/fig_panels/fig_5f.pdf", width = 10, height = 8)
+print(cd4_lineage_p)
+lapply(c(1, 9), plot_cd4_cluster)
+dev.off()
+```

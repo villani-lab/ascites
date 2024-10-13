@@ -2,9 +2,9 @@ library(ggpubr)
 library(parameters)
 library(tidyverse)
 
-plot_cluster_abundance <- function(lin, cluster_order, remove_clusters) {
-    tissue_palette <- list("ascites" = "#00BFC4",
-                           "blood" = "#F8766D",
+plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks = 5) {
+    tissue_palette <- list("ascites" = "#2278B5",
+                           "blood" = "#D62A28",
                            "other" = "#000000")
 
     paired_samples <- c("ASC_10", "ASC_25", "ASC_41", "ASC_45", "ASC_46", "ASC_48", "ASC_49", "ASC_52", "ASC_57", "ASC_61", "ASC_62", "ASC_65", "ASC_66", "ASC_67")
@@ -76,8 +76,8 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters) {
         labs(fill = "Tissue type") +
         xlab("Percent native immune + 1") +
         ylab("") +
-        theme_classic(base_size = 20) +
-        theme(axis.text.y = element_blank(), axis.text = element_text(size = 14)) +
+        theme_classic(base_size = 27) +
+        theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
         scale_fill_manual(values = tissue_palette)
 
     pt_res <- lapply(unique(lin_abundance$cluster), function(clust) {
@@ -96,10 +96,11 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters) {
         geom_vline(xintercept = 0) +
         scale_y_discrete(limits = rev) +
         guides(color = "none") +
-        xlab("Log2FoldChange") +
-        ylab("Cluster") +
-        theme_classic(base_size = 20) +
-        theme(axis.text = element_text(size = 14)) +
+        xlab("Log2FC") +
+        ylab("") +
+        scale_x_continuous(n.breaks = n_breaks) +
+        theme_classic(base_size = 27) +
+        theme(axis.text = element_text(size = 20)) +
         scale_color_manual(values = tissue_palette)
 
     ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0), common.legend = TRUE, legend = "bottom")

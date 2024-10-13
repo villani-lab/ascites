@@ -3,7 +3,7 @@ library(glue)
 
 plot_fgsea <- function(fgsea_res, ranks, genes, lin, var, gs) {
     nes <- round(fgsea_res$NES[fgsea_res$pathway == gs], 3)
-    pval <- round(fgsea_res$pval[fgsea_res$pathway == gs], 3)
+    padj <- round(fgsea_res$padj[fgsea_res$pathway == gs], 3)
     n_genes <- fgsea_res$size[fgsea_res$pathway == gs]
 
     rnk <- rank(-ranks)
@@ -29,7 +29,7 @@ plot_fgsea <- function(fgsea_res, ranks, genes, lin, var, gs) {
 
     diff <- (max(tops) - min(bottoms)) / 8
 
-    fgsea_plot <- ggplot(toPlot, aes(x = x, y = y)) +
+    ggplot(toPlot, aes(x = x, y = y)) +
         geom_line(color = "blue") +
         geom_hline(yintercept = 0, colour = "black") +
         geom_segment(data = data.frame(x = pathway),
@@ -40,11 +40,9 @@ plot_fgsea <- function(fgsea_res, ranks, genes, lin, var, gs) {
         xlab("Rank") +
         ylab("Enrichment score") +
         geom_text(aes(label = "")) +
-        annotate("text", label = glue("NES : {nes}"), x = length(ranks) - 1000, y = 0.9) +
-        annotate("text", label = glue("p-value : {pval}"), x = length(ranks) - 1000, y = 0.8) +
-        annotate("text", label = glue("# genes : {n_genes}"), x = length(ranks) - 1000, y = 0.7) +
+        annotate("text", label = glue("NES : {nes}"), x = length(ranks), y = 0.9) +
+        annotate("text", label = glue("p-adj : {padj}"), x = length(ranks), y = 0.8) +
+        annotate("text", label = glue("# genes : {n_genes}"), x = length(ranks), y = 0.7) +
         ggtitle(glue("{lin}, {var}, {gsub('_', ' ', gs)} signature")) +
-        theme_classic(base_size = 12)
-
-    return(fgsea_plot)
+        theme_classic(base_size = 20)
 }

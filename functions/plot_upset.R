@@ -26,13 +26,16 @@ plot_upset <- function(res, min_degree) {
           base_annotations = list(
               'Intersection size' = intersection_size(counts = FALSE) +
                   ylab("# overlapping genes") +
-                  theme(text = element_text(size = 22))
+                  theme(axis.ticks.y=element_line(),
+                        panel.grid.major = element_blank(),
+                        panel.grid.minor = element_blank())
           ),
           set_sizes = (
               upset_set_size() +
                   ylab("# genes") +
                   scale_y_reverse(n.breaks = 3) +
-                  theme(text = element_text(size = 22))
+                  theme(panel.grid.major = element_blank(),
+                        panel.grid.minor = element_blank())
           ),
           themes = upset_default_themes(text = element_text(size = 22)),
           width_ratio = 0.25,

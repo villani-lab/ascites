@@ -1,0 +1,343 @@
+---
+title: "ARCHIVE"
+---
+
+### DC
+```{r message = F, results = F, warning = F}
+dc_res <- read.csv('/projects/home/tlchan/projects/ascites/second_data_freeze/data/degs/lineage_level/tissue_type/dc_cite_de_by_tissue_type_all_results.csv')
+dc_meta <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/degs/pb_objects/dc_cite_lineage_pseudobulk_meta.csv", row.names = 1)
+
+dc_meta <- dc_meta %>% filter(tissue_type == "blood" | tissue_type == "ascites") %>%
+        mutate(tissue_type = factor(tissue_type, levels = c("blood", "ascites"))) %>%
+        mutate(sex = factor(sex, levels = c('M', 'F')))
+
+plot_lineage_cite_deg(res = dc_res,
+                  meta = dc_meta,
+                  lin = "DC",
+                  contrast = "tissue_type",
+                  ref_var = "blood",
+                  test_var = "ascites")
+```
+```{python results = 'hold'}
+dc_data = pg.read_input("/projects/home/tlchan/projects/ascites/data_cite_objects/dc.zarr.zip")
+
+python_functions.plot_feature_by_tissue_type(lin_data=dc_data,
+                                             genes=["cite_CD196"])
+```
+```{r message = F, results = F, warning = F}
+tissue_palette <- list("ascites" = "#2278B5",
+                       "blood" = "#D62A28")
+
+meta <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/degs/pb_objects/dc_cite_cluster_pseudobulk_meta.csv", row.names = 1)
+counts <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/degs/pb_objects/dc_cite_cluster_pseudobulk_counts.csv", row.names = 1, check.names = FALSE)
+counts <- counts %>% filter(row.names(counts) == "CD196") %>% t()
+plot_data <- merge(meta, counts, by="row.names")
+
+stats <- plot_data %>%
+    group_by(cluster) %>%
+    t_test(CD196 ~ tissue_type) %>%
+    adjust_pvalue(method = "bonferroni") %>%
+    add_significance() %>%
+    add_xy_position(x = "tissue_type")
+
+ggplot(plot_data, aes(x = tissue_type, y = CD196)) +
+    geom_boxplot(outlier.shape = NA, aes(fill = tissue_type)) +
+    geom_point(pch = 21, position = position_jitterdodge(), size = 2, aes(fill = tissue_type)) +
+    labs(fill = "Tissue Type") +
+    ylab("CLR(Pseudobulk CITE count)") +
+    xlab("Tissue type") +
+    facet_wrap(~cluster, scales = "free_y") +
+    ggtitle(glue("DC CITE_CD196")) +
+    theme_classic(base_size = 12) +
+    scale_fill_manual(values = tissue_palette) +
+    stat_pvalue_manual(stats, label = "p = {p.adj}", remove.bracket = TRUE)
+```
+```{r message = F, results = F, warning = F}
+dc_res <- read.csv('/projects/home/tlchan/projects/ascites/ascites_deg_results/dc/dc_ascites_de_by_B2M_all_results.csv')
+dc_meta <- read.csv('/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_pseudobulk_meta.csv', row.names = 1)
+
+plot_deg(res = dc_res,
+         meta = dc_meta,
+         lin = "DC",
+         clust = 10)
+```
+```{r message = F, results = F, warning = F}
+B2M_palette <- list("0" = "#FF0029",
+                    "1" = "#377EB8",
+                    "2" = "#66A61E")
+
+counts_filepath <- "/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_pseudobulk_counts.csv"
+meta_filepath <- '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_pseudobulk_meta.csv'
+
+counts <- read_csv(counts_filepath)
+counts <- counts %>%
+    column_to_rownames(var = "featurekey") %>%
+    apply(2, function(c) {
+        n_total <- sum(c)
+        per_100k <- (c * 1000000) / n_total
+        return(per_100k)
+    }) %>%
+    as.data.frame
+counts <- log1p(counts)
+counts <- counts %>% filter(rownames(counts) == 'IL4I1')
+
+meta <- read.csv(meta_filepath, row.names = 1) %>% filter(tissue_type == "ascites")
+
+# Subset counts
+counts <- select(counts, rownames(meta))
+
+# Subset to cluster 10
+meta_cluster <- meta[meta$cluster == 10,]
+meta_cluster <- meta_cluster[meta_cluster$n_cells >= 10,]
+tot_cells <- sum(meta_cluster$n_cells)
+counts_cluster <- counts[, rownames(meta_cluster)]
+n_samp <- rowSums(counts_cluster != 0)
+counts_cluster <- counts_cluster[n_samp > (nrow(meta_cluster) / 2),]
+
+counts_cluster <- as.data.frame(t(counts_cluster))
+counts_cluster$sample <- rownames(counts_cluster)
+meta_cluster$sample <- rownames(meta_cluster)
+plot_data <- merge(counts_cluster, meta_cluster, by = "sample")
+
+ggplot(plot_data, aes(x = factor(B2M), y = IL4I1)) +
+    geom_boxplot(outlier.shape = NA) +
+    geom_point(pch = 21, position = position_jitterdodge(), aes(fill = factor(B2M)), size = 2) +
+    labs(fill = "B2M") +
+    ylab("log(count + 1)") +
+    xlab("B2M") +
+    theme_classic(base_size = 12)
+```
+```{r message = F, results = F, warning = F}
+# Load data
+abundance <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/metadata/ascites_abundance.csv")
+
+# Select DC cells
+abundance <- abundance %>%
+    filter(lineage == "dc")
+
+# Get immune count
+abundance <- abundance %>%
+    group_by(patient_id, tissue_type, lineage, cluster) %>%
+    mutate(clust_count = sum(immune == "True")) %>%
+    select(patient_id, tissue_type, lineage, cluster, clust_count) %>%
+    distinct()
+
+# Account for patient/tissue pairs that contributed zero cells to clusters
+combos <- expand.grid(unique(abundance$patient_id), unique(abundance$tissue_type), unique(abundance$lineage), unique(abundance$cluster)) %>% `colnames<-`(c("patient_id", "tissue_type", "lineage", "cluster"))
+
+abundance <- combos %>%
+    left_join(abundance, by = c("patient_id", "tissue_type", "lineage", "cluster")) %>%
+    replace(is.na(.), 0)
+
+# Get statistics
+abundance <- abundance %>%
+    group_by(patient_id, tissue_type) %>%
+    mutate(total_count = sum(clust_count)) %>%
+    mutate(clust_percentage = clust_count / total_count * 100) %>%
+    mutate(log_clust_percentage = log1p(clust_percentage)) %>%
+    mutate(tissue_type = factor(tissue_type, levels = c("blood", "ascites")))
+
+abundance <- abundance %>%
+    filter(cluster == "10") %>%
+    mutate(clust_percentage = replace_na(clust_percentage, 0)) %>%
+    mutate(log_clust_percentage = replace_na(log_clust_percentage, 0))
+
+ggplot(abundance, aes(x = patient_id, y = log_clust_percentage, fill = tissue_type)) +
+    geom_bar(stat = 'identity') +
+    xlab("Patient") +
+    ylab("log1p(percent native cluster abundance)") +
+    labs(fill = "Tissue type") +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
+
+### MONOMAC
+```{python results = 'hold'}
+monomac_data = pg.read_input("/projects/home/tlchan/projects/ascites/data_cite_objects/monomac.zarr.zip")
+
+python_functions.plot_feature(lin_data=monomac_data,
+                              genes=['CD14', 'cite_CD14', 'FCGR3A', 'cite_CD16'],
+                              ncol=2,
+                              nrow=2)
+```
+```{r message = F, results = F, warning = F}
+cluster_palette <- list("1" = "#FF0029",
+                        "2" = "#377EB8",
+                        "3" = "#66A61E",
+                        "4" = "#984EA3",
+                        "5" = "#00D2D5",
+                        "6" = "#FF7F00",
+                        "7" = "#AF8D00",
+                        "8" = "#7F80CD",
+                        "9" = "#B3E900",
+                        "10" = "#C42E60",
+                        "11" = "#A65628",
+                        "12" = "#F781BF",
+                        "13" = "#8DD3C7"
+)
+
+monomac_data <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/abundance_data/monomac_patient_counts.csv') %>%
+    mutate(Cluster = factor(Cluster))
+
+ggplot(monomac_data, aes(x = Patient, y = Count, fill = Cluster)) +
+    geom_bar(stat = "identity", position = "fill") +
+    theme_classic(base_size = 12) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    scale_fill_manual(values = cluster_palette)
+```
+```{python results = 'hold'}
+monomac_data = pg.read_input("/projects/home/tlchan/projects/ascites/data_cite_objects/monomac.zarr.zip")
+
+python_functions.plot_feature(lin_data=monomac_data,
+                              genes=['PDK4'],
+                              ncol=1,
+                              nrow=1)
+```
+```{python results = 'hold'}
+monomac_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip')
+
+python_functions.plot_feature_by_tissue_type(lin_data=monomac_data,
+                                             genes=["C1QA", "LAIR1", "cite_CD305"])
+```
+```{r message = F, results = F, warning = F}
+tissue_palette <- list("Ascites" = "#00BFC4",
+                       "Blood" = "#F8766D")
+
+plot_data <- read.csv("/projects/home/tlchan/projects/ascites/figure_panels/boxplot_data/monomac_protein_exp.csv", row.names = 1) %>%
+    filter(protein == "cite_CD305") %>%
+    filter(leiden_labels %in% c(2, 5, 9))
+
+hp <- ggplot(plot_data, aes(x = count, fill = tissue_type)) +
+    geom_histogram(position = "identity", alpha = 0.75) +
+    labs(fill = "Tissue Type") +
+    ylab("Count") +
+    xlab("CLR(CITE count)") +
+    facet_wrap(~leiden_labels, scales = "free_y") +
+    ggtitle("Monocyte/Macrophage, CITE_CD305") +
+    theme_classic(base_size = 20) +
+    scale_fill_manual(values = tissue_palette) +
+    theme(legend.position = "bottom")
+
+plot_data <- plot_data %>%
+    group_by(patient_id, tissue_type, leiden_labels) %>%
+    summarize(median_count = median(count), n_cells = n())
+
+bp <- ggplot(plot_data, aes(x = tissue_type, y = median_count, fill = tissue_type)) +
+    geom_boxplot(outlier.shape = NA) +
+    geom_point(pch = 21, position = position_jitterdodge(), size = 2) +
+    stat_compare_means(method = "t.test", label.x.npc = "center", aes(label = paste0("p = ", after_stat(p.format)))) +
+    labs(fill = "Tissue Type") +
+    ylab("Median CLR(CITE count)") +
+    xlab("Tissue type") +
+    facet_wrap(~leiden_labels, scales = "free_y") +
+    ggtitle("Monocyte/Macrophage, CITE_CD305") +
+    theme_classic(base_size = 20) +
+    scale_fill_manual(values = tissue_palette) +
+    theme(legend.position = "none") +
+    scale_y_continuous(expand = expansion(mult = c(0.05, 0.15)))
+
+ggarrange(hp, bp, nrow = 2)
+```
+
+### CD4
+```{r message = F, results = F, warning = F}
+cd4_res <- read.csv('/projects/home/tlchan/projects/ascites/ascites_deg_results/cd4/cd4_ascites_de_by_survival_HvL_all_results.csv')
+cd4_meta <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.3/data/pseudobulk/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_1_3_pseudobulk_meta.csv", row.names = 1)
+
+cd4_meta <- cd4_meta %>%
+    mutate(survival_bin = case_when(survival < 92 ~ "Low", survival > 183 ~ "High")) %>%
+    filter(survival_bin == "Low" | survival_bin == "High") %>%
+    mutate(survival_bin = factor(survival_bin, levels = c("Low", "High"))) %>%
+    mutate(sex = factor(sex, levels = c('M', 'F'))) %>%
+    filter(tissue_type == "ascites")
+
+plotlist <- lapply(c(2, 3, 6), function(clust) {
+    p <- plot_deg(res = cd4_res,
+                  meta = cd4_meta,
+                  lin = "CD4",
+                  clust = clust,
+                  contrast = "survival_bin",
+                  ref_var = "Low",
+                  test_var = "High")
+    return(p)
+})
+ggarrange(plotlist = plotlist, nrow = 3)
+```
+```{python results = 'hold'}
+cd4_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.3/data/pseudobulk/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_1_3_complete_with_pb.zarr.zip')
+cd4_data.obsm["X_umap"] = cd4_data.obsm["X_umap_pca_cite_concat"]
+
+python_functions.plot_feature(lin_data=cd4_data,
+                              genes=["LAIR2"],
+                              ncol=1,
+                              nrow=1)
+```
+```{python results = 'hold'}
+cd4_data = pg.read_input("/projects/home/tlchan/projects/ascites/data_cite_objects/cd4.zarr.zip")
+
+python_functions.plot_feature(lin_data=cd4_data,
+                              genes=['GZMB', 'GZMK', 'TBX21', 'cite_CD45RA', 'IFNG', 'CD8A', 'LAIR2', 'cite_CD45RO'],
+                              ncol=4,
+                              nrow=2)
+```
+```{r message = F, results = F, warning = F}
+cd4_cluster_palette <- list("1" = "#FF0029",
+                            "2" = "#377EB8",
+                            "3" = "#66A61E",
+                            "4" = "#984EA3",
+                            "5" = "#00D2D5",
+                            "6" = "#FF7F00",
+                            "7" = "#AF8D00",
+                            "8" = "#7F80CD",
+                            "9" = "#B3E900"
+)
+
+cd4_data <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/abundance_data/cd4_patient_counts.csv') %>%
+    mutate(Cluster = factor(Cluster))
+
+ggplot(cd4_data, aes(x = Patient, y = Count, fill = Cluster)) +
+    geom_bar(stat = "identity", position = "fill") +
+    theme_classic(base_size = 12) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    scale_fill_manual(values = cd4_cluster_palette)
+```
+
+### CD8
+```{r message = F, results = F, warning = F}
+cd8_cluster_palette <- list("1" = "#FF0029",
+                            "2" = "#377EB8",
+                            "3" = "#66A61E",
+                            "4" = "#984EA3",
+                            "5" = "#00D2D5",
+                            "6" = "#FF7F00",
+                            "7" = "#AF8D00",
+                            "8" = "#7F80CD",
+                            "9" = "#B3E900",
+                            "10" = "#C42E60",
+                            "11" = "#A65628",
+                            "12" = "#F781BF",
+                            "13" = "#8DD3C7",
+                            "14" = "#BEBADA",
+                            "15" = "#FB8072"
+)
+
+cd8_data <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/abundance_data/cd8_patient_counts.csv') %>%
+    mutate(Cluster = factor(Cluster))
+
+ggplot(cd8_data, aes(x = Patient, y = Count, fill = Cluster)) +
+    geom_bar(stat = "identity", position = "fill") +
+    theme_classic(base_size = 12) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    scale_fill_manual(values = cd8_cluster_palette)
+```
+
+### CANCER
+```{python results = 'hold'}
+cancer_data = pg.read_input("/projects/home/tlchan/projects/ascites/data_cite_objects/cancer.zarr.zip")
+
+python_functions.plot_feature(lin_data=cancer_data,
+                              genes=['EPCAM', 'DCN', 'MKI67', 'HLA-DRA', 'ERBB2', 'CLDN18', 'EGFR', 'cite_EGFR'],
+                              ncol=4,
+                              nrow=2)
+```

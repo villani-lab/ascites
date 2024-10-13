@@ -1,0 +1,157 @@
+---
+title: "Supplementary Figure 2"
+output: rmarkdown::github_document
+---
+
+## Set up
+
+Load R libraries
+```{r message = F, results = F, warning = F, load_r_libraries}
+library(reticulate)
+use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
+
+setwd('/projects/home/tlchan/github_code/ascites/functions')
+source('plot_abundance.R')
+source('plot_dotplot.R')
+source('plot_upset.R')
+```
+
+Load python libraries
+```{python load_python_packages}
+import matplotlib.pyplot as plt
+import pegasus as pg
+
+import sys
+sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
+import python_functions
+```
+
+## Supplementary Figure 2A
+```{python results = 'hold', supp_2A}
+cd8_wo_cite_data = pg.read_input("/projects/home/tlchan/projects/ascites/data_cite_objects/cd8_wo_cite.zarr.zip")
+
+fig = python_functions.plot_feature(lin_data=cd8_wo_cite_data,
+                                    ncol=2,
+                                    nrow=1,
+                                    genes=["CD14", "cite_CD14"])
+# plt.show()
+plt.savefig("/projects/home/tlchan/fig_panels/supp_2a.pdf")
+plt.close(fig)
+```
+
+## Supplementary Figure 2B
+```{python results = 'hold', supp_2B}
+cd8_w_cite_data = pg.read_input("/projects/home/tlchan/projects/ascites/data_cite_objects/cd8.zarr.zip")
+
+fig = python_functions.plot_feature(lin_data=cd8_w_cite_data,
+                                    ncol=2,
+                                    nrow=1,
+                                    genes=["CD14", "cite_CD14"])
+# plt.show()
+plt.savefig("/projects/home/tlchan/fig_panels/supp_2b.pdf")
+plt.close(fig)
+```
+
+## Supplementary Figure 2C
+```{python results = 'hold', supp_2C}
+cd8_w_cite_data = pg.read_input("/projects/home/tlchan/projects/ascites/data_cite_objects/cd8.zarr.zip")
+
+python_functions.plot_feature(lin_data=cd8_w_cite_data,
+                              ncol=2,
+                              nrow=1,
+                              genes=["cite_CD45RO", "cite_CD45RA"])
+# plt.show()
+plt.savefig("/projects/home/tlchan/fig_panels/supp_2c.pdf")
+plt.close(fig)
+```
+
+## Supplementary Figure 2D
+```{python results = 'hold', supp_2D}
+cd8_cluster_palette = {
+    "1": "#FF0029",
+    "2": "#377EB8",
+    "3": "#66A61E",
+    "4": "#984EA3",
+    "5": "#00D2D5",
+    "6": "#FF7F00",
+    "7": "#AF8D00",
+    "8": "#7F80CD",
+    "9": "#B3E900",
+    "10": "#C42E60",
+    "11": "#A65628",
+    "12": "#F781BF",
+    "13": "#8DD3C7",
+    "14": "#BEBADA",
+    "15": "#FB8072"
+}
+
+# Load single-cell object
+cd8_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cd8_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.9/data/pseudobulk/ascites_cd8_cite_concat_R7_300mg_20pm_harm_channel_1_9_complete_with_pb.zarr.zip')
+
+pg.umap(cd8_data, rep='pca_cite_concat', min_dist=0.01, spread=2, out_basis='umap_pca_cite_concat')
+
+# Relabel obs for function
+cd8_data.obs['Cluster'] = cd8_data.obs['leiden_pca_cite_concat'].cat.remove_unused_categories().astype(str)
+cd8_data.obsm['X_umap'] = cd8_data.obsm['X_umap_pca_cite_concat']
+
+fig = python_functions.plot_umap(lin_data=cd8_data,
+                                 palette=cd8_cluster_palette,
+                                 legend_loc=None,
+                                 size=2.5)
+# plt.show()
+plt.savefig("/projects/home/tlchan/fig_panels/supp_2d.pdf")
+plt.close(fig)
+```
+
+## Supplementary Figure 2E
+```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_2E}
+cd8_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/cd8_gene_exp.csv')
+cd8_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/cd8_cite_exp.csv')
+
+plot_dotplot(lin_gex = cd8_gex,
+             lin_cite = cd8_cite,
+             lin = "cd8",
+             widths = c(1.0, 0.25, 0.2),
+             cluster_order = c("1. CD8 T: GZMK, cite_CD8", "3. CD8 T: ZNF683, GZMB", "4. CD8 T: PDCD1, CXCL13",
+                               "6. CD8 T: SYNE1, IKZF1", "7. CD8 T: IL7R, cite_CD45RO", "8. CD8 T: high mito",
+                               "9. CD8 T: KIR2DL3, IKZF2", "11. CD8 T: CD14-neg, cite_CD14",
+                               "15. CD8: CCR7, cite_CD62L", "12. CD8 T/NK: cycling", "13. CD8 T/NK: high cite",
+                               "10. Vγ9Vδ2 T cells: cite_TCR-Vdelta2", "2. NK: CX3CR1, cite_CD16",
+                               "5. NK: XCL1, cite_CD56", "14. NK: NR4A2, TNF"))
+ggsave("/projects/home/tlchan/fig_panels/supp_2e.pdf", width = 16, height = 8, device = cairo_pdf)
+```
+
+## Supplementary Figure 2F
+```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, supp_2F}
+plot_cluster_abundance(lin = "cd8",
+                       cluster_order = c('1', '3', '4', '6', '7', '8', '9', '11', '15', '12', '13', '10', '2', '5', '14'))
+ggsave("/projects/home/tlchan/fig_panels/supp_2f.pdf", width = 7, height = 8)
+```
+
+## Supplementary Figure 2G
+```{r message = F, results = F, warning = F, fig.width = 16, fig.height = 10, supp_2G}
+cd8_res <- read.csv('/projects/home/tlchan/projects/ascites/ascites_deg_results/cd8/cd8_de_by_tissue_type_all_results.csv')
+
+cd8_clusters <- c('1', '3', '4', '6', '7', '8', '9', '11', '12', '13', '15')
+
+cd8_res <- cd8_res %>% filter(cluster %in% cd8_clusters)
+
+plot_upset(res = cd8_res,
+           min_degree = 9)
+ggsave("/projects/home/tlchan/fig_panels/supp_2g.pdf", width = 10, height = 8, dpi = 300)
+```
+
+## Supplementary Figure 2H
+```{python results = 'hold', supp_2H}
+cd8_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cd8_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.9/data/pseudobulk/ascites_cd8_cite_concat_R7_300mg_20pm_harm_channel_1_9_complete_with_pb.zarr.zip')
+cd8_data.obsm["X_umap"] = cd8_data.obsm["X_umap_pca_cite_concat"]
+
+fig = python_functions.plot_feature_by_tissue_type(lin_data=cd8_data,
+                                                   genes=["CXCR3", "CXCR6"])
+# plt.show()
+plt.savefig("/projects/home/tlchan/fig_panels/supp_2h.pdf")
+plt.close(fig)
+```
+
