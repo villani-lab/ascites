@@ -1,17 +1,27 @@
-## Script to determine biological sex of cells. Inspired by https://github.com/phipsonlab/cellXY ##
+---
+title: "DC Differentiation sex classification"
+output: rmarkdown::github_document
+---
 
+```{r message=FALSE}
+## Inspired by cellXY : https://github.com/phipsonlab/cellXY
 library(tidyverse)
 library(speckle)
 library(Seurat)
 library(SeuratDisk)
 library(glue)
 library(ggplot2)
-library(ComplexHeatmap)
-library(circlize)
 library(MASS)
 library(pROC)
 library(ggpubr)
 
+```
+
+To determine biological sex of the cells from gene expression, we wanted to use the most relevant cellular input for
+a model. We decided that using DCs from ascites was the best data to create a model with. We used our ascites DCs and
+used 5X cross-validation to see how accurate of a model we could create.
+
+```{r test_model, warning = FALSE, message = FALSE}
 
 assess.prediction=function(truth,predicted) {
   # check for missing values (we are going to # compute metrics on non-missing values only)
@@ -113,7 +123,6 @@ regression_df$cv_group <- sample(1:nrow(regression_df) %% 5)
 
 eval_df <- data.frame()
 for (i in unique(regression_df$cv_group)){
-  print(i)
   train_dat <- regression_df %>%
     dplyr::filter(cv_group != i) %>%
     dplyr::select(-cv_group)
@@ -141,6 +150,13 @@ for (i in unique(regression_df$cv_group)){
 }
 plot_list <- plot_auc_stats(eval_df)
 ggarrange(plotlist = plot_list)
+
+```
+
+So our Logistic regression model was 90% accurate. We decided to go forward with this model and predict the sex of the
+cells from our DC differentiation experiment using all ascites DCs as our training set
+
+```{r create_predictions, message = FALSE, warning = FALSE}
 
 ### Okay we have ~90% accuracy, lets train on all DCs, apply to differentiation experiment ###
 data_path <- "/projects/home/nealpsmith/projects/ascites/dc_diff_3/sex_classification/data/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb"
@@ -187,6 +203,8 @@ preds <- predict(logreg_model, newdata = test_df, type = "response") %>%
     as.data.frame() %>%
     `colnames<-`(c("predicted_sex"))
 preds$predicted_sex <- ifelse(preds$predicted_sex == 1, "M", "F")
+#
+# write.csv(preds, "/projects/home/nealpsmith/projects/ascites/dc_diff_3/sex_classification/data/dc_diff_predicted_sex_for_cells_train_ascites_only.csv")
 
-write.csv(preds, "/projects/home/nealpsmith/projects/ascites/dc_diff_3/sex_classification/data/dc_diff_predicted_sex_for_cells_train_ascites_only.csv")
 
+```

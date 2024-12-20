@@ -1,0 +1,207 @@
+DC Differentiation sex classification
+================
+
+``` r
+## Inspired by cellXY : https://github.com/phipsonlab/cellXY
+library(tidyverse)
+library(speckle)
+library(Seurat)
+library(SeuratDisk)
+library(glue)
+library(ggplot2)
+library(MASS)
+library(pROC)
+library(ggpubr)
+```
+
+To determine biological sex of the cells from gene expression, we wanted
+to use the most relevant cellular input for a model. We decided that
+using DCs from ascites was the best data to create a model with. We used
+our ascites DCs and used 5X cross-validation to see how accurate of a
+model we could create.
+
+``` r
+assess.prediction=function(truth,predicted) {
+  # check for missing values (we are going to # compute metrics on non-missing values only)
+  predicted = predicted[ ! is.na(truth) ]
+  truth = truth[ ! is.na(truth) ]
+  truth = truth[ ! is.na(predicted) ]
+  predicted = predicted[ ! is.na(predicted) ]
+  # cat("Total cases that are not NA: ", length(truth),"\n",sep="")
+  # overall accuracy of the test: how many cases # (both positive and # negative) we got right:
+  # cat("Correct predictions (accuracy): ", sum(truth==predicted), "(",signif(sum(truth==predicted)*100/ length(truth),3),"%)\n",sep="")
+  # how predictions align against known # training/testing outcomes: # TP/FP= true/false positives, # TN/FN=true/false negatives
+  TP = sum(truth==1 & predicted==1)
+  TN = sum(truth==0 & predicted==0)
+  FP = sum(truth==0 & predicted==1)
+  FN = sum(truth==1 & predicted==0)
+  P = TP+FN  # total number of # positives in the truth data
+  N = FP+TN  # total number of # negatives
+  # cat("TPR (sensitivity)=TP/P: ", signif(100*TP/P,3),"%\n",sep="")
+  # cat("TNR (specificity)=TN/N: ", signif(100*TN/N,3),"%\n",sep="")
+  # cat("PPV (precision)=TP/(TP+FP): ", signif(100*TP/(TP+FP),3),"%\n",sep="")
+  # cat("FDR (false discovery)=1-PPV: ", signif(100*FP/(TP+FP),3),"%\n",sep="")
+  # cat("FPR =FP/N=1-TNR: ", signif(100*FP/N,3),"%\n",sep="")
+  roc_object <- roc(truth, predicted)
+  auroc <- auc(roc_object)
+
+  # Add accuracy
+  acc <- sum(truth == predicted) / length(truth) * 100
+
+  return(c("sensitivity" = signif(100*TP/P,3),
+           "specificity" = signif(100*TN/N,3),
+           "auc" = auroc,
+           "accuracy" = acc))
+}
+plot_auc_stats <- function(stat_df){
+  plot_list <- list()
+  for (v in c("sensitivity", "specificity", "accuracy")){
+    median_val <- round(median(stat_df[[v]]), 2)
+    p <- ggplot(stat_df, aes_string(y = v)) +
+      geom_boxplot() +
+      ggtitle(glue("{v}\n median={median_val}")) +
+      theme_classic(base_size = 20) +
+      theme(axis.text.x = element_blank(),
+            axis.ticks.x = element_blank())
+    plot_list <- c(plot_list, list(p))
+  }
+  return(plot_list)
+}
+
+# X chromosome genes that avoid inactivation
+x_genes <- c("ARHGAP4","STS","ARSD", "ARSL", "AVPR2", "BRS3", "S100G", "CHM",
+             "CLCN4", "DDX3X","EIF1AX","EIF2S3", "GPM6B", "GRPR", "HCFC1",
+             "L1CAM", "MAOA", "MYCLP1", "NAP1L3", "GPR143", "CDK16", "PLXNB3",
+             "PRKX", "RBBP7", "RENBP", "RPS4X", "TRAPPC2", "SH3BGRL", "TBL1X",
+             "UBA1", "KDM6A", "XG", "XIST", "ZFX", "PUDP", "PNPLA4", "USP9X",
+             "KDM5C", "SMC1A", "NAA10", "OFD1", "IKBKG", "PIR", "INE2", "INE1",
+             "AP1S2", "GYG2", "MED14", "RAB9A", "ITM2A", "MORF4L2", "CA5B",
+             "SRPX2", "GEMIN8", "CTPS2", "CLTRN", "NLGN4X", "DUSP21", "ALG13",
+             "SYAP1", "SYTL4", "FUNDC1", "GAB3", "RIBC1", "FAM9C","CA5BP1")
+y_genes <-  c("AMELY", "DAZ1", "PRKY", "RBMY1A1", "RBMY1HP", "RPS4Y1", "SRY",
+            "TSPY1", "UTY", "ZFY","KDM5D", "USP9Y", "DDX3Y", "PRY", "XKRY",
+            "BPY2", "VCY", "CDY1", "EIF1AY", "TMSB4Y","CDY2A", "NLGN4Y",
+            "PCDH11Y", "HSFY1", "TGIF2LY", "TBL1Y", "RPS4Y2", "HSFY2",
+            "CDY2B", "TXLNGY","CDY1B", "DAZ3", "DAZ2", "DAZ4")
+all_genes <- c(x_genes, y_genes) %>% unique()
+
+### Build model with ascites DCs ###
+# Get the ascites DC data
+data_path <- "/projects/home/nealpsmith/projects/ascites/dc_diff_3/sex_classification/data/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb"
+# Convert(paste(data_path, ".h5ad", sep = ""), des = "h5seurat", )
+all_data <- LoadH5Seurat(paste(data_path, ".h5seurat", sep = ""), meta.data = FALSE, misc = FALSE)
+
+# Read in obs
+obs <- read.csv("/projects/home/nealpsmith/projects/ascites/dc_diff_3/sex_classification/data/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb_obs.csv", row.names = 1)
+
+norm_res <- all_data@assays$RNA@data
+keep_genes <- all_genes[all_genes %in% rownames(norm_res)]
+
+# Make a dataframe for logistic regression
+regression_df <- norm_res[keep_genes,] %>%
+  as.matrix() %>%
+  t() %>%
+  as.data.frame() %>%
+  rownames_to_column("cell_id") %>%
+  dplyr::left_join(obs %>% dplyr::select("sex", "tissue_type") %>% rownames_to_column("cell_id"), by = "cell_id") %>%
+  dplyr::filter(tissue_type == "ascites") %>%
+  column_to_rownames("cell_id") %>% dplyr::filter(!is.na(sex)) %>%
+  dplyr::select(-tissue_type)
+
+# Remve things not well detected
+keep_col <- colSums(regression_df[,-ncol(regression_df)]) > 1000
+keep_col <- names(keep_col[keep_col == TRUE])
+regression_df <- regression_df %>% dplyr::select(c(keep_col, "sex"))
+
+
+regression_df$sex <- ifelse(regression_df$sex == "M", 1, 0)
+
+# 5X CV for looking at accuracy
+regression_df$cv_group <- sample(1:nrow(regression_df) %% 5)
+
+eval_df <- data.frame()
+for (i in unique(regression_df$cv_group)){
+  train_dat <- regression_df %>%
+    dplyr::filter(cv_group != i) %>%
+    dplyr::select(-cv_group)
+  test_dat <- regression_df %>%
+    dplyr::filter(cv_group == i) %>%
+    dplyr::select(-sex) %>%
+    dplyr::select(-cv_group)
+  # test_dat <- scale(test_dat) %>% as.data.frame()
+  # train_dat[,-c(ncol(train_dat))] <- scale(train_dat[,-c(ncol(train_dat))]) %>% as.data.frame()
+  logreg_model <- glm(sex~. , family = "binomial", data = train_dat)
+
+  preds <- predict(logreg_model, newdata = test_dat, type = "response") %>%
+    round() %>%
+    as.data.frame() %>%
+    `colnames<-`(c("predicted_sex")) %>%
+    rownames_to_column("cell_id") %>%
+    dplyr::left_join(obs %>% dplyr::select("sex") %>% rownames_to_column("cell_id"), by = "cell_id")
+  preds$sex <- ifelse(preds$sex == "M", 1, 0)
+  eval <- assess.prediction(preds$sex, preds$predicted_sex)
+  df <- as.data.frame(eval) %>% t() %>%
+        as.data.frame() %>%
+        mutate(iter = i)
+  eval_df <- rbind(eval_df, df)
+
+}
+plot_list <- plot_auc_stats(eval_df)
+ggarrange(plotlist = plot_list)
+```
+
+![](sex_classification_files/figure-gfm/test_model-1.png)<!-- -->
+
+So our Logistic regression model was 90% accurate. We decided to go
+forward with this model and predict the sex of the cells from our DC
+differentiation experiment using all ascites DCs as our training set
+
+``` r
+### Okay we have ~90% accuracy, lets train on all DCs, apply to differentiation experiment ###
+data_path <- "/projects/home/nealpsmith/projects/ascites/dc_diff_3/sex_classification/data/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb"
+# Convert(paste(data_path, ".h5ad", sep = ""), des = "h5seurat", )
+ascites_dc_data <- LoadH5Seurat(paste(data_path, ".h5seurat", sep = ""), meta.data = FALSE, misc = FALSE)
+
+# Read in obs
+ascites_obs <- read.csv("/projects/home/nealpsmith/projects/ascites/dc_diff_3/sex_classification/data/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb_obs.csv", row.names = 1)
+
+ascites_norm_res <- ascites_dc_data@assays$RNA@data
+
+# Now load the differentiation data
+dc_diff_path <- "/projects/home/nealpsmith/projects/ascites/dc_diff_3/sex_classification/data/dc_differentiation_processed_data"
+# Convert(paste(dc_diff_path, ".h5ad", sep = ""), des = "h5seurat")
+dc_diff_data <- LoadH5Seurat(paste(dc_diff_path, ".h5seurat", sep = ""), meta.data = FALSE, misc = FALSE)
+
+diff_norm_res <- dc_diff_data@assays$RNA@data
+
+common_genes <- intersect(rownames(diff_norm_res), rownames(ascites_norm_res))
+
+keep_genes <- all_genes[all_genes %in% common_genes]
+
+train_df <- ascites_norm_res[keep_genes,] %>%
+  as.matrix() %>%
+  t() %>%
+  as.data.frame() %>%
+  rownames_to_column("cell_id") %>%
+  dplyr::left_join(ascites_obs %>% dplyr::select("sex", "tissue_type") %>% rownames_to_column("cell_id"), by = "cell_id") %>%
+  dplyr::filter(tissue_type == "ascites") %>%
+  column_to_rownames("cell_id") %>% dplyr::filter(!is.na(sex)) %>%
+  dplyr::select(-tissue_type)
+
+train_df$sex <- ifelse(train_df$sex == "M", 1, 0)
+
+test_df <- diff_norm_res[keep_genes,] %>%
+  as.matrix() %>%
+  t() %>%
+  as.data.frame()
+
+logreg_model <- glm(sex~. , family = "binomial", data = train_df)
+
+preds <- predict(logreg_model, newdata = test_df, type = "response") %>%
+    round() %>%
+    as.data.frame() %>%
+    `colnames<-`(c("predicted_sex"))
+preds$predicted_sex <- ifelse(preds$predicted_sex == 1, "M", "F")
+#
+# write.csv(preds, "/projects/home/nealpsmith/projects/ascites/dc_diff_3/sex_classification/data/dc_diff_predicted_sex_for_cells_train_ascites_only.csv")
+```

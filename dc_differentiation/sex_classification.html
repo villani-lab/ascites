@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style type="text/css">
+@font-face {
+font-family: octicons-link;
+src: url(data:font/woff;charset=utf-8;base64,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) format('woff');
+}
+body {
+-webkit-text-size-adjust: 100%;
+text-size-adjust: 100%;
+color: #333;
+font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+font-size: 16px;
+line-height: 1.6;
+word-wrap: break-word;
+}
+a {
+background-color: transparent;
+}
+a:active,
+a:hover {
+outline: 0;
+}
+strong {
+font-weight: bold;
+}
+h1 {
+font-size: 2em;
+margin: 0.67em 0;
+}
+img {
+border: 0;
+}
+hr {
+box-sizing: content-box;
+height: 0;
+}
+pre {
+overflow: auto;
+}
+code,
+kbd,
+pre {
+font-family: monospace, monospace;
+font-size: 1em;
+}
+input {
+color: inherit;
+font: inherit;
+margin: 0;
+}
+html input[disabled] {
+cursor: default;
+}
+input {
+line-height: normal;
+}
+input[type="checkbox"] {
+box-sizing: border-box;
+padding: 0;
+}
+table {
+border-collapse: collapse;
+border-spacing: 0;
+}
+td,
+th {
+padding: 0;
+}
+* {
+box-sizing: border-box;
+}
+input {
+font: 13px / 1.4 Helvetica, arial, nimbussansl, liberationsans, freesans, clean, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+a {
+color: #4078c0;
+text-decoration: none;
+}
+a:hover,
+a:active {
+text-decoration: underline;
+}
+hr {
+height: 0;
+margin: 15px 0;
+overflow: hidden;
+background: transparent;
+border: 0;
+border-bottom: 1px solid #ddd;
+}
+hr:before {
+display: table;
+content: "";
+}
+hr:after {
+display: table;
+clear: both;
+content: "";
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+margin-top: 15px;
+margin-bottom: 15px;
+line-height: 1.1;
+}
+h1 {
+font-size: 30px;
+}
+h2 {
+font-size: 21px;
+}
+h3 {
+font-size: 16px;
+}
+h4 {
+font-size: 14px;
+}
+h5 {
+font-size: 12px;
+}
+h6 {
+font-size: 11px;
+}
+blockquote {
+margin: 0;
+}
+ul,
+ol {
+padding: 0;
+margin-top: 0;
+margin-bottom: 0;
+}
+ol ol,
+ul ol {
+list-style-type: lower-roman;
+}
+ul ul ol,
+ul ol ol,
+ol ul ol,
+ol ol ol {
+list-style-type: lower-alpha;
+}
+dd {
+margin-left: 0;
+}
+code {
+font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+font-size: 12px;
+}
+pre {
+margin-top: 0;
+margin-bottom: 0;
+font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+.select::-ms-expand {
+opacity: 0;
+}
+.octicon {
+font: normal normal normal 16px/1 octicons-link;
+display: inline-block;
+text-decoration: none;
+text-rendering: auto;
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+}
+.octicon-link:before {
+content: '\f05c';
+}
+.markdown-body:before {
+display: table;
+content: "";
+}
+.markdown-body:after {
+display: table;
+clear: both;
+content: "";
+}
+.markdown-body>*:first-child {
+margin-top: 0 !important;
+}
+.markdown-body>*:last-child {
+margin-bottom: 0 !important;
+}
+a:not([href]) {
+color: inherit;
+text-decoration: none;
+}
+.anchor {
+display: inline-block;
+padding-right: 2px;
+margin-left: -18px;
+}
+.anchor:focus {
+outline: none;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+margin-top: 1em;
+margin-bottom: 16px;
+font-weight: bold;
+line-height: 1.4;
+}
+h1 .octicon-link,
+h2 .octicon-link,
+h3 .octicon-link,
+h4 .octicon-link,
+h5 .octicon-link,
+h6 .octicon-link {
+color: #000;
+vertical-align: middle;
+visibility: hidden;
+}
+h1:hover .anchor,
+h2:hover .anchor,
+h3:hover .anchor,
+h4:hover .anchor,
+h5:hover .anchor,
+h6:hover .anchor {
+text-decoration: none;
+}
+h1:hover .anchor .octicon-link,
+h2:hover .anchor .octicon-link,
+h3:hover .anchor .octicon-link,
+h4:hover .anchor .octicon-link,
+h5:hover .anchor .octicon-link,
+h6:hover .anchor .octicon-link {
+visibility: visible;
+}
+h1 {
+padding-bottom: 0.3em;
+font-size: 2.25em;
+line-height: 1.2;
+border-bottom: 1px solid #eee;
+}
+h1 .anchor {
+line-height: 1;
+}
+h2 {
+padding-bottom: 0.3em;
+font-size: 1.75em;
+line-height: 1.225;
+border-bottom: 1px solid #eee;
+}
+h2 .anchor {
+line-height: 1;
+}
+h3 {
+font-size: 1.5em;
+line-height: 1.43;
+}
+h3 .anchor {
+line-height: 1.2;
+}
+h4 {
+font-size: 1.25em;
+}
+h4 .anchor {
+line-height: 1.2;
+}
+h5 {
+font-size: 1em;
+}
+h5 .anchor {
+line-height: 1.1;
+}
+h6 {
+font-size: 1em;
+color: #777;
+}
+h6 .anchor {
+line-height: 1.1;
+}
+p,
+blockquote,
+ul,
+ol,
+dl,
+table,
+pre {
+margin-top: 0;
+margin-bottom: 16px;
+}
+hr {
+height: 4px;
+padding: 0;
+margin: 16px 0;
+background-color: #e7e7e7;
+border: 0 none;
+}
+ul,
+ol {
+padding-left: 2em;
+}
+ul ul,
+ul ol,
+ol ol,
+ol ul {
+margin-top: 0;
+margin-bottom: 0;
+}
+li>p {
+margin-top: 16px;
+}
+dl {
+padding: 0;
+}
+dl dt {
+padding: 0;
+margin-top: 16px;
+font-size: 1em;
+font-style: italic;
+font-weight: bold;
+}
+dl dd {
+padding: 0 16px;
+margin-bottom: 16px;
+}
+blockquote {
+padding: 0 15px;
+color: #777;
+border-left: 4px solid #ddd;
+}
+blockquote>:first-child {
+margin-top: 0;
+}
+blockquote>:last-child {
+margin-bottom: 0;
+}
+table {
+display: block;
+width: 100%;
+overflow: auto;
+word-break: normal;
+word-break: keep-all;
+}
+table th {
+font-weight: bold;
+}
+table th,
+table td {
+padding: 6px 13px;
+border: 1px solid #ddd;
+}
+table tr {
+background-color: #fff;
+border-top: 1px solid #ccc;
+}
+table tr:nth-child(2n) {
+background-color: #f8f8f8;
+}
+img {
+max-width: 100%;
+box-sizing: content-box;
+background-color: #fff;
+}
+code {
+padding: 0;
+padding-top: 0.2em;
+padding-bottom: 0.2em;
+margin: 0;
+font-size: 85%;
+background-color: rgba(0,0,0,0.04);
+border-radius: 3px;
+}
+code:before,
+code:after {
+letter-spacing: -0.2em;
+content: "\00a0";
+}
+pre>code {
+padding: 0;
+margin: 0;
+font-size: 100%;
+word-break: normal;
+white-space: pre;
+background: transparent;
+border: 0;
+}
+.highlight {
+margin-bottom: 16px;
+}
+.highlight pre,
+pre {
+padding: 16px;
+overflow: auto;
+font-size: 85%;
+line-height: 1.45;
+background-color: #f7f7f7;
+border-radius: 3px;
+}
+.highlight pre {
+margin-bottom: 0;
+word-break: normal;
+}
+pre {
+word-wrap: normal;
+}
+pre code {
+display: inline;
+max-width: initial;
+padding: 0;
+margin: 0;
+overflow: initial;
+line-height: inherit;
+word-wrap: normal;
+background-color: transparent;
+border: 0;
+}
+pre code:before,
+pre code:after {
+content: normal;
+}
+kbd {
+display: inline-block;
+padding: 3px 5px;
+font-size: 11px;
+line-height: 10px;
+color: #555;
+vertical-align: middle;
+background-color: #fcfcfc;
+border: solid 1px #ccc;
+border-bottom-color: #bbb;
+border-radius: 3px;
+box-shadow: inset 0 -1px 0 #bbb;
+}
+.pl-c {
+color: #969896;
+}
+.pl-c1,
+.pl-s .pl-v {
+color: #0086b3;
+}
+.pl-e,
+.pl-en {
+color: #795da3;
+}
+.pl-s .pl-s1,
+.pl-smi {
+color: #333;
+}
+.pl-ent {
+color: #63a35c;
+}
+.pl-k {
+color: #a71d5d;
+}
+.pl-pds,
+.pl-s,
+.pl-s .pl-pse .pl-s1,
+.pl-sr,
+.pl-sr .pl-cce,
+.pl-sr .pl-sra,
+.pl-sr .pl-sre {
+color: #183691;
+}
+.pl-v {
+color: #ed6a43;
+}
+.pl-id {
+color: #b52a1d;
+}
+.pl-ii {
+background-color: #b52a1d;
+color: #f8f8f8;
+}
+.pl-sr .pl-cce {
+color: #63a35c;
+font-weight: bold;
+}
+.pl-ml {
+color: #693a17;
+}
+.pl-mh,
+.pl-mh .pl-en,
+.pl-ms {
+color: #1d3e81;
+font-weight: bold;
+}
+.pl-mq {
+color: #008080;
+}
+.pl-mi {
+color: #333;
+font-style: italic;
+}
+.pl-mb {
+color: #333;
+font-weight: bold;
+}
+.pl-md {
+background-color: #ffecec;
+color: #bd2c00;
+}
+.pl-mi1 {
+background-color: #eaffea;
+color: #55a532;
+}
+.pl-mdr {
+color: #795da3;
+font-weight: bold;
+}
+.pl-mo {
+color: #1d3e81;
+}
+kbd {
+display: inline-block;
+padding: 3px 5px;
+font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+line-height: 10px;
+color: #555;
+vertical-align: middle;
+background-color: #fcfcfc;
+border: solid 1px #ccc;
+border-bottom-color: #bbb;
+border-radius: 3px;
+box-shadow: inset 0 -1px 0 #bbb;
+}
+.task-list-item {
+list-style-type: none;
+}
+.task-list-item+.task-list-item {
+margin-top: 3px;
+}
+.task-list-item input {
+margin: 0 0.35em 0.25em -1.6em;
+vertical-align: middle;
+}
+:checked+.radio-label {
+z-index: 1;
+position: relative;
+border-color: #4078c0;
+}
+.sourceLine {
+display: inline-block;
+}
+code .kw { color: #000000; }
+code .dt { color: #ed6a43; }
+code .dv { color: #009999; }
+code .bn { color: #009999; }
+code .fl { color: #009999; }
+code .ch { color: #009999; }
+code .st { color: #183691; }
+code .co { color: #969896; }
+code .ot { color: #0086b3; }
+code .al { color: #a61717; }
+code .fu { color: #63a35c; }
+code .er { color: #a61717; background-color: #e3d2d2; }
+code .wa { color: #000000; }
+code .cn { color: #008080; }
+code .sc { color: #008080; }
+code .vs { color: #183691; }
+code .ss { color: #183691; }
+code .im { color: #000000; }
+code .va {color: #008080; }
+code .cf { color: #000000; }
+code .op { color: #000000; }
+code .bu { color: #000000; }
+code .ex { color: #000000; }
+code .pp { color: #999999; }
+code .at { color: #008080; }
+code .do { color: #969896; }
+code .an { color: #008080; }
+code .cv { color: #008080; }
+code .in { color: #008080; }
+</style>
+<style>
+body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+  padding-top: 0px;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<h1 id="dc-differentiation-sex-classification">DC Differentiation sex classification</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="co">## Inspired by cellXY : https://github.com/phipsonlab/cellXY</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="kw">library</span>(tidyverse)</a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="kw">library</span>(speckle)</a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="kw">library</span>(Seurat)</a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="kw">library</span>(SeuratDisk)</a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="kw">library</span>(glue)</a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="kw">library</span>(MASS)</a>
+<a class="sourceLine" id="cb1-9" title="9"><span class="kw">library</span>(pROC)</a>
+<a class="sourceLine" id="cb1-10" title="10"><span class="kw">library</span>(ggpubr)</a></code></pre></div>
+<p>To determine biological sex of the cells from gene expression, we wanted to use the most relevant cellular input for a model. We decided that using DCs from ascites was the best data to create a model with. We used our ascites DCs and used 5X cross-validation to see how accurate of a model we could create.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">assess.prediction=<span class="cf">function</span>(truth,predicted) {</a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="co"># check for missing values (we are going to # compute metrics on non-missing values only)</span></a>
+<a class="sourceLine" id="cb2-3" title="3">  predicted =<span class="st"> </span>predicted[ <span class="op">!</span><span class="st"> </span><span class="kw">is.na</span>(truth) ]</a>
+<a class="sourceLine" id="cb2-4" title="4">  truth =<span class="st"> </span>truth[ <span class="op">!</span><span class="st"> </span><span class="kw">is.na</span>(truth) ]</a>
+<a class="sourceLine" id="cb2-5" title="5">  truth =<span class="st"> </span>truth[ <span class="op">!</span><span class="st"> </span><span class="kw">is.na</span>(predicted) ]</a>
+<a class="sourceLine" id="cb2-6" title="6">  predicted =<span class="st"> </span>predicted[ <span class="op">!</span><span class="st"> </span><span class="kw">is.na</span>(predicted) ]</a>
+<a class="sourceLine" id="cb2-7" title="7">  <span class="co"># cat(&quot;Total cases that are not NA: &quot;, length(truth),&quot;\n&quot;,sep=&quot;&quot;)</span></a>
+<a class="sourceLine" id="cb2-8" title="8">  <span class="co"># overall accuracy of the test: how many cases # (both positive and # negative) we got right:</span></a>
+<a class="sourceLine" id="cb2-9" title="9">  <span class="co"># cat(&quot;Correct predictions (accuracy): &quot;, sum(truth==predicted), &quot;(&quot;,signif(sum(truth==predicted)*100/ length(truth),3),&quot;%)\n&quot;,sep=&quot;&quot;)</span></a>
+<a class="sourceLine" id="cb2-10" title="10">  <span class="co"># how predictions align against known # training/testing outcomes: # TP/FP= true/false positives, # TN/FN=true/false negatives</span></a>
+<a class="sourceLine" id="cb2-11" title="11">  TP =<span class="st"> </span><span class="kw">sum</span>(truth<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>predicted<span class="op">==</span><span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb2-12" title="12">  TN =<span class="st"> </span><span class="kw">sum</span>(truth<span class="op">==</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>predicted<span class="op">==</span><span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb2-13" title="13">  FP =<span class="st"> </span><span class="kw">sum</span>(truth<span class="op">==</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>predicted<span class="op">==</span><span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb2-14" title="14">  FN =<span class="st"> </span><span class="kw">sum</span>(truth<span class="op">==</span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>predicted<span class="op">==</span><span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb2-15" title="15">  P =<span class="st"> </span>TP<span class="op">+</span>FN  <span class="co"># total number of # positives in the truth data</span></a>
+<a class="sourceLine" id="cb2-16" title="16">  N =<span class="st"> </span>FP<span class="op">+</span>TN  <span class="co"># total number of # negatives</span></a>
+<a class="sourceLine" id="cb2-17" title="17">  <span class="co"># cat(&quot;TPR (sensitivity)=TP/P: &quot;, signif(100*TP/P,3),&quot;%\n&quot;,sep=&quot;&quot;)</span></a>
+<a class="sourceLine" id="cb2-18" title="18">  <span class="co"># cat(&quot;TNR (specificity)=TN/N: &quot;, signif(100*TN/N,3),&quot;%\n&quot;,sep=&quot;&quot;)</span></a>
+<a class="sourceLine" id="cb2-19" title="19">  <span class="co"># cat(&quot;PPV (precision)=TP/(TP+FP): &quot;, signif(100*TP/(TP+FP),3),&quot;%\n&quot;,sep=&quot;&quot;)</span></a>
+<a class="sourceLine" id="cb2-20" title="20">  <span class="co"># cat(&quot;FDR (false discovery)=1-PPV: &quot;, signif(100*FP/(TP+FP),3),&quot;%\n&quot;,sep=&quot;&quot;)</span></a>
+<a class="sourceLine" id="cb2-21" title="21">  <span class="co"># cat(&quot;FPR =FP/N=1-TNR: &quot;, signif(100*FP/N,3),&quot;%\n&quot;,sep=&quot;&quot;)</span></a>
+<a class="sourceLine" id="cb2-22" title="22">  roc_object &lt;-<span class="st"> </span><span class="kw">roc</span>(truth, predicted)</a>
+<a class="sourceLine" id="cb2-23" title="23">  auroc &lt;-<span class="st"> </span><span class="kw">auc</span>(roc_object)</a>
+<a class="sourceLine" id="cb2-24" title="24"></a>
+<a class="sourceLine" id="cb2-25" title="25">  <span class="co"># Add accuracy</span></a>
+<a class="sourceLine" id="cb2-26" title="26">  acc &lt;-<span class="st"> </span><span class="kw">sum</span>(truth <span class="op">==</span><span class="st"> </span>predicted) <span class="op">/</span><span class="st"> </span><span class="kw">length</span>(truth) <span class="op">*</span><span class="st"> </span><span class="dv">100</span></a>
+<a class="sourceLine" id="cb2-27" title="27"></a>
+<a class="sourceLine" id="cb2-28" title="28">  <span class="kw">return</span>(<span class="kw">c</span>(<span class="st">&quot;sensitivity&quot;</span> =<span class="st"> </span><span class="kw">signif</span>(<span class="dv">100</span><span class="op">*</span>TP<span class="op">/</span>P,<span class="dv">3</span>),</a>
+<a class="sourceLine" id="cb2-29" title="29">           <span class="st">&quot;specificity&quot;</span> =<span class="st"> </span><span class="kw">signif</span>(<span class="dv">100</span><span class="op">*</span>TN<span class="op">/</span>N,<span class="dv">3</span>),</a>
+<a class="sourceLine" id="cb2-30" title="30">           <span class="st">&quot;auc&quot;</span> =<span class="st"> </span>auroc,</a>
+<a class="sourceLine" id="cb2-31" title="31">           <span class="st">&quot;accuracy&quot;</span> =<span class="st"> </span>acc))</a>
+<a class="sourceLine" id="cb2-32" title="32">}</a>
+<a class="sourceLine" id="cb2-33" title="33">plot_auc_stats &lt;-<span class="st"> </span><span class="cf">function</span>(stat_df){</a>
+<a class="sourceLine" id="cb2-34" title="34">  plot_list &lt;-<span class="st"> </span><span class="kw">list</span>()</a>
+<a class="sourceLine" id="cb2-35" title="35">  <span class="cf">for</span> (v <span class="cf">in</span> <span class="kw">c</span>(<span class="st">&quot;sensitivity&quot;</span>, <span class="st">&quot;specificity&quot;</span>, <span class="st">&quot;accuracy&quot;</span>)){</a>
+<a class="sourceLine" id="cb2-36" title="36">    median_val &lt;-<span class="st"> </span><span class="kw">round</span>(<span class="kw">median</span>(stat_df[[v]]), <span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb2-37" title="37">    p &lt;-<span class="st"> </span><span class="kw">ggplot</span>(stat_df, <span class="kw">aes_string</span>(<span class="dt">y =</span> v)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb2-38" title="38"><span class="st">      </span><span class="kw">geom_boxplot</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb2-39" title="39"><span class="st">      </span><span class="kw">ggtitle</span>(<span class="kw">glue</span>(<span class="st">&quot;{v}</span><span class="ch">\n</span><span class="st"> median={median_val}&quot;</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb2-40" title="40"><span class="st">      </span><span class="kw">theme_classic</span>(<span class="dt">base_size =</span> <span class="dv">20</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb2-41" title="41"><span class="st">      </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_blank</span>(),</a>
+<a class="sourceLine" id="cb2-42" title="42">            <span class="dt">axis.ticks.x =</span> <span class="kw">element_blank</span>())</a>
+<a class="sourceLine" id="cb2-43" title="43">    plot_list &lt;-<span class="st"> </span><span class="kw">c</span>(plot_list, <span class="kw">list</span>(p))</a>
+<a class="sourceLine" id="cb2-44" title="44">  }</a>
+<a class="sourceLine" id="cb2-45" title="45">  <span class="kw">return</span>(plot_list)</a>
+<a class="sourceLine" id="cb2-46" title="46">}</a>
+<a class="sourceLine" id="cb2-47" title="47"></a>
+<a class="sourceLine" id="cb2-48" title="48"><span class="co"># X chromosome genes that avoid inactivation</span></a>
+<a class="sourceLine" id="cb2-49" title="49">x_genes &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;ARHGAP4&quot;</span>,<span class="st">&quot;STS&quot;</span>,<span class="st">&quot;ARSD&quot;</span>, <span class="st">&quot;ARSL&quot;</span>, <span class="st">&quot;AVPR2&quot;</span>, <span class="st">&quot;BRS3&quot;</span>, <span class="st">&quot;S100G&quot;</span>, <span class="st">&quot;CHM&quot;</span>,</a>
+<a class="sourceLine" id="cb2-50" title="50">             <span class="st">&quot;CLCN4&quot;</span>, <span class="st">&quot;DDX3X&quot;</span>,<span class="st">&quot;EIF1AX&quot;</span>,<span class="st">&quot;EIF2S3&quot;</span>, <span class="st">&quot;GPM6B&quot;</span>, <span class="st">&quot;GRPR&quot;</span>, <span class="st">&quot;HCFC1&quot;</span>,</a>
+<a class="sourceLine" id="cb2-51" title="51">             <span class="st">&quot;L1CAM&quot;</span>, <span class="st">&quot;MAOA&quot;</span>, <span class="st">&quot;MYCLP1&quot;</span>, <span class="st">&quot;NAP1L3&quot;</span>, <span class="st">&quot;GPR143&quot;</span>, <span class="st">&quot;CDK16&quot;</span>, <span class="st">&quot;PLXNB3&quot;</span>,</a>
+<a class="sourceLine" id="cb2-52" title="52">             <span class="st">&quot;PRKX&quot;</span>, <span class="st">&quot;RBBP7&quot;</span>, <span class="st">&quot;RENBP&quot;</span>, <span class="st">&quot;RPS4X&quot;</span>, <span class="st">&quot;TRAPPC2&quot;</span>, <span class="st">&quot;SH3BGRL&quot;</span>, <span class="st">&quot;TBL1X&quot;</span>,</a>
+<a class="sourceLine" id="cb2-53" title="53">             <span class="st">&quot;UBA1&quot;</span>, <span class="st">&quot;KDM6A&quot;</span>, <span class="st">&quot;XG&quot;</span>, <span class="st">&quot;XIST&quot;</span>, <span class="st">&quot;ZFX&quot;</span>, <span class="st">&quot;PUDP&quot;</span>, <span class="st">&quot;PNPLA4&quot;</span>, <span class="st">&quot;USP9X&quot;</span>,</a>
+<a class="sourceLine" id="cb2-54" title="54">             <span class="st">&quot;KDM5C&quot;</span>, <span class="st">&quot;SMC1A&quot;</span>, <span class="st">&quot;NAA10&quot;</span>, <span class="st">&quot;OFD1&quot;</span>, <span class="st">&quot;IKBKG&quot;</span>, <span class="st">&quot;PIR&quot;</span>, <span class="st">&quot;INE2&quot;</span>, <span class="st">&quot;INE1&quot;</span>,</a>
+<a class="sourceLine" id="cb2-55" title="55">             <span class="st">&quot;AP1S2&quot;</span>, <span class="st">&quot;GYG2&quot;</span>, <span class="st">&quot;MED14&quot;</span>, <span class="st">&quot;RAB9A&quot;</span>, <span class="st">&quot;ITM2A&quot;</span>, <span class="st">&quot;MORF4L2&quot;</span>, <span class="st">&quot;CA5B&quot;</span>,</a>
+<a class="sourceLine" id="cb2-56" title="56">             <span class="st">&quot;SRPX2&quot;</span>, <span class="st">&quot;GEMIN8&quot;</span>, <span class="st">&quot;CTPS2&quot;</span>, <span class="st">&quot;CLTRN&quot;</span>, <span class="st">&quot;NLGN4X&quot;</span>, <span class="st">&quot;DUSP21&quot;</span>, <span class="st">&quot;ALG13&quot;</span>,</a>
+<a class="sourceLine" id="cb2-57" title="57">             <span class="st">&quot;SYAP1&quot;</span>, <span class="st">&quot;SYTL4&quot;</span>, <span class="st">&quot;FUNDC1&quot;</span>, <span class="st">&quot;GAB3&quot;</span>, <span class="st">&quot;RIBC1&quot;</span>, <span class="st">&quot;FAM9C&quot;</span>,<span class="st">&quot;CA5BP1&quot;</span>)</a>
+<a class="sourceLine" id="cb2-58" title="58">y_genes &lt;-<span class="st">  </span><span class="kw">c</span>(<span class="st">&quot;AMELY&quot;</span>, <span class="st">&quot;DAZ1&quot;</span>, <span class="st">&quot;PRKY&quot;</span>, <span class="st">&quot;RBMY1A1&quot;</span>, <span class="st">&quot;RBMY1HP&quot;</span>, <span class="st">&quot;RPS4Y1&quot;</span>, <span class="st">&quot;SRY&quot;</span>,</a>
+<a class="sourceLine" id="cb2-59" title="59">            <span class="st">&quot;TSPY1&quot;</span>, <span class="st">&quot;UTY&quot;</span>, <span class="st">&quot;ZFY&quot;</span>,<span class="st">&quot;KDM5D&quot;</span>, <span class="st">&quot;USP9Y&quot;</span>, <span class="st">&quot;DDX3Y&quot;</span>, <span class="st">&quot;PRY&quot;</span>, <span class="st">&quot;XKRY&quot;</span>,</a>
+<a class="sourceLine" id="cb2-60" title="60">            <span class="st">&quot;BPY2&quot;</span>, <span class="st">&quot;VCY&quot;</span>, <span class="st">&quot;CDY1&quot;</span>, <span class="st">&quot;EIF1AY&quot;</span>, <span class="st">&quot;TMSB4Y&quot;</span>,<span class="st">&quot;CDY2A&quot;</span>, <span class="st">&quot;NLGN4Y&quot;</span>,</a>
+<a class="sourceLine" id="cb2-61" title="61">            <span class="st">&quot;PCDH11Y&quot;</span>, <span class="st">&quot;HSFY1&quot;</span>, <span class="st">&quot;TGIF2LY&quot;</span>, <span class="st">&quot;TBL1Y&quot;</span>, <span class="st">&quot;RPS4Y2&quot;</span>, <span class="st">&quot;HSFY2&quot;</span>,</a>
+<a class="sourceLine" id="cb2-62" title="62">            <span class="st">&quot;CDY2B&quot;</span>, <span class="st">&quot;TXLNGY&quot;</span>,<span class="st">&quot;CDY1B&quot;</span>, <span class="st">&quot;DAZ3&quot;</span>, <span class="st">&quot;DAZ2&quot;</span>, <span class="st">&quot;DAZ4&quot;</span>)</a>
+<a class="sourceLine" id="cb2-63" title="63">all_genes &lt;-<span class="st"> </span><span class="kw">c</span>(x_genes, y_genes) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">unique</span>()</a>
+<a class="sourceLine" id="cb2-64" title="64"></a>
+<a class="sourceLine" id="cb2-65" title="65"><span class="co">### Build model with ascites DCs </span><span class="al">###</span></a>
+<a class="sourceLine" id="cb2-66" title="66"><span class="co"># Get the ascites DC data</span></a>
+<a class="sourceLine" id="cb2-67" title="67">data_path &lt;-<span class="st"> &quot;/projects/home/nealpsmith/projects/ascites/dc_diff_3/sex_classification/data/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb&quot;</span></a>
+<a class="sourceLine" id="cb2-68" title="68"><span class="co"># Convert(paste(data_path, &quot;.h5ad&quot;, sep = &quot;&quot;), des = &quot;h5seurat&quot;, )</span></a>
+<a class="sourceLine" id="cb2-69" title="69">all_data &lt;-<span class="st"> </span><span class="kw">LoadH5Seurat</span>(<span class="kw">paste</span>(data_path, <span class="st">&quot;.h5seurat&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">meta.data =</span> <span class="ot">FALSE</span>, <span class="dt">misc =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb2-70" title="70"></a>
+<a class="sourceLine" id="cb2-71" title="71"><span class="co"># Read in obs</span></a>
+<a class="sourceLine" id="cb2-72" title="72">obs &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;/projects/home/nealpsmith/projects/ascites/dc_diff_3/sex_classification/data/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb_obs.csv&quot;</span>, <span class="dt">row.names =</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb2-73" title="73"></a>
+<a class="sourceLine" id="cb2-74" title="74">norm_res &lt;-<span class="st"> </span>all_data<span class="op">@</span>assays<span class="op">$</span>RNA<span class="op">@</span>data</a>
+<a class="sourceLine" id="cb2-75" title="75">keep_genes &lt;-<span class="st"> </span>all_genes[all_genes <span class="op">%in%</span><span class="st"> </span><span class="kw">rownames</span>(norm_res)]</a>
+<a class="sourceLine" id="cb2-76" title="76"></a>
+<a class="sourceLine" id="cb2-77" title="77"><span class="co"># Make a dataframe for logistic regression</span></a>
+<a class="sourceLine" id="cb2-78" title="78">regression_df &lt;-<span class="st"> </span>norm_res[keep_genes,] <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-79" title="79"><span class="st">  </span><span class="kw">as.matrix</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-80" title="80"><span class="st">  </span><span class="kw">t</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-81" title="81"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-82" title="82"><span class="st">  </span><span class="kw">rownames_to_column</span>(<span class="st">&quot;cell_id&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-83" title="83"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">left_join</span>(obs <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="st">&quot;sex&quot;</span>, <span class="st">&quot;tissue_type&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">rownames_to_column</span>(<span class="st">&quot;cell_id&quot;</span>), <span class="dt">by =</span> <span class="st">&quot;cell_id&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-84" title="84"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">filter</span>(tissue_type <span class="op">==</span><span class="st"> &quot;ascites&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-85" title="85"><span class="st">  </span><span class="kw">column_to_rownames</span>(<span class="st">&quot;cell_id&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">filter</span>(<span class="op">!</span><span class="kw">is.na</span>(sex)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-86" title="86"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="op">-</span>tissue_type)</a>
+<a class="sourceLine" id="cb2-87" title="87"></a>
+<a class="sourceLine" id="cb2-88" title="88"><span class="co"># Remve things not well detected</span></a>
+<a class="sourceLine" id="cb2-89" title="89">keep_col &lt;-<span class="st"> </span><span class="kw">colSums</span>(regression_df[,<span class="op">-</span><span class="kw">ncol</span>(regression_df)]) <span class="op">&gt;</span><span class="st"> </span><span class="dv">1000</span></a>
+<a class="sourceLine" id="cb2-90" title="90">keep_col &lt;-<span class="st"> </span><span class="kw">names</span>(keep_col[keep_col <span class="op">==</span><span class="st"> </span><span class="ot">TRUE</span>])</a>
+<a class="sourceLine" id="cb2-91" title="91">regression_df &lt;-<span class="st"> </span>regression_df <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="kw">c</span>(keep_col, <span class="st">&quot;sex&quot;</span>))</a>
+<a class="sourceLine" id="cb2-92" title="92"></a>
+<a class="sourceLine" id="cb2-93" title="93"></a>
+<a class="sourceLine" id="cb2-94" title="94">regression_df<span class="op">$</span>sex &lt;-<span class="st"> </span><span class="kw">ifelse</span>(regression_df<span class="op">$</span>sex <span class="op">==</span><span class="st"> &quot;M&quot;</span>, <span class="dv">1</span>, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb2-95" title="95"></a>
+<a class="sourceLine" id="cb2-96" title="96"><span class="co"># 5X CV for looking at accuracy</span></a>
+<a class="sourceLine" id="cb2-97" title="97">regression_df<span class="op">$</span>cv_group &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(regression_df) <span class="op">%%</span><span class="st"> </span><span class="dv">5</span>)</a>
+<a class="sourceLine" id="cb2-98" title="98"></a>
+<a class="sourceLine" id="cb2-99" title="99">eval_df &lt;-<span class="st"> </span><span class="kw">data.frame</span>()</a>
+<a class="sourceLine" id="cb2-100" title="100"><span class="cf">for</span> (i <span class="cf">in</span> <span class="kw">unique</span>(regression_df<span class="op">$</span>cv_group)){</a>
+<a class="sourceLine" id="cb2-101" title="101">  train_dat &lt;-<span class="st"> </span>regression_df <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-102" title="102"><span class="st">    </span>dplyr<span class="op">::</span><span class="kw">filter</span>(cv_group <span class="op">!=</span><span class="st"> </span>i) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-103" title="103"><span class="st">    </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="op">-</span>cv_group)</a>
+<a class="sourceLine" id="cb2-104" title="104">  test_dat &lt;-<span class="st"> </span>regression_df <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-105" title="105"><span class="st">    </span>dplyr<span class="op">::</span><span class="kw">filter</span>(cv_group <span class="op">==</span><span class="st"> </span>i) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-106" title="106"><span class="st">    </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="op">-</span>sex) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-107" title="107"><span class="st">    </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="op">-</span>cv_group)</a>
+<a class="sourceLine" id="cb2-108" title="108">  <span class="co"># test_dat &lt;- scale(test_dat) %&gt;% as.data.frame()</span></a>
+<a class="sourceLine" id="cb2-109" title="109">  <span class="co"># train_dat[,-c(ncol(train_dat))] &lt;- scale(train_dat[,-c(ncol(train_dat))]) %&gt;% as.data.frame()</span></a>
+<a class="sourceLine" id="cb2-110" title="110">  logreg_model &lt;-<span class="st"> </span><span class="kw">glm</span>(sex<span class="op">~</span>. , <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>, <span class="dt">data =</span> train_dat)</a>
+<a class="sourceLine" id="cb2-111" title="111"></a>
+<a class="sourceLine" id="cb2-112" title="112">  preds &lt;-<span class="st"> </span><span class="kw">predict</span>(logreg_model, <span class="dt">newdata =</span> test_dat, <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-113" title="113"><span class="st">    </span><span class="kw">round</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-114" title="114"><span class="st">    </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-115" title="115"><span class="st">    `</span><span class="dt">colnames&lt;-</span><span class="st">`</span>(<span class="kw">c</span>(<span class="st">&quot;predicted_sex&quot;</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-116" title="116"><span class="st">    </span><span class="kw">rownames_to_column</span>(<span class="st">&quot;cell_id&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-117" title="117"><span class="st">    </span>dplyr<span class="op">::</span><span class="kw">left_join</span>(obs <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="st">&quot;sex&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">rownames_to_column</span>(<span class="st">&quot;cell_id&quot;</span>), <span class="dt">by =</span> <span class="st">&quot;cell_id&quot;</span>)</a>
+<a class="sourceLine" id="cb2-118" title="118">  preds<span class="op">$</span>sex &lt;-<span class="st"> </span><span class="kw">ifelse</span>(preds<span class="op">$</span>sex <span class="op">==</span><span class="st"> &quot;M&quot;</span>, <span class="dv">1</span>, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb2-119" title="119">  eval &lt;-<span class="st"> </span><span class="kw">assess.prediction</span>(preds<span class="op">$</span>sex, preds<span class="op">$</span>predicted_sex)</a>
+<a class="sourceLine" id="cb2-120" title="120">  df &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(eval) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">t</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-121" title="121"><span class="st">        </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-122" title="122"><span class="st">        </span><span class="kw">mutate</span>(<span class="dt">iter =</span> i)</a>
+<a class="sourceLine" id="cb2-123" title="123">  eval_df &lt;-<span class="st"> </span><span class="kw">rbind</span>(eval_df, df)</a>
+<a class="sourceLine" id="cb2-124" title="124"></a>
+<a class="sourceLine" id="cb2-125" title="125">}</a>
+<a class="sourceLine" id="cb2-126" title="126">plot_list &lt;-<span class="st"> </span><span class="kw">plot_auc_stats</span>(eval_df)</a>
+<a class="sourceLine" id="cb2-127" title="127"><span class="kw">ggarrange</span>(<span class="dt">plotlist =</span> plot_list)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>So our Logistic regression model was 90% accurate. We decided to go forward with this model and predict the sex of the cells from our DC differentiation experiment using all ascites DCs as our training set</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co">### Okay we have ~90% accuracy, lets train on all DCs, apply to differentiation experiment </span><span class="al">###</span></a>
+<a class="sourceLine" id="cb3-2" title="2">data_path &lt;-<span class="st"> &quot;/projects/home/nealpsmith/projects/ascites/dc_diff_3/sex_classification/data/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb&quot;</span></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="co"># Convert(paste(data_path, &quot;.h5ad&quot;, sep = &quot;&quot;), des = &quot;h5seurat&quot;, )</span></a>
+<a class="sourceLine" id="cb3-4" title="4">ascites_dc_data &lt;-<span class="st"> </span><span class="kw">LoadH5Seurat</span>(<span class="kw">paste</span>(data_path, <span class="st">&quot;.h5seurat&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">meta.data =</span> <span class="ot">FALSE</span>, <span class="dt">misc =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb3-5" title="5"></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="co"># Read in obs</span></a>
+<a class="sourceLine" id="cb3-7" title="7">ascites_obs &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;/projects/home/nealpsmith/projects/ascites/dc_diff_3/sex_classification/data/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb_obs.csv&quot;</span>, <span class="dt">row.names =</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb3-8" title="8"></a>
+<a class="sourceLine" id="cb3-9" title="9">ascites_norm_res &lt;-<span class="st"> </span>ascites_dc_data<span class="op">@</span>assays<span class="op">$</span>RNA<span class="op">@</span>data</a>
+<a class="sourceLine" id="cb3-10" title="10"></a>
+<a class="sourceLine" id="cb3-11" title="11"><span class="co"># Now load the differentiation data</span></a>
+<a class="sourceLine" id="cb3-12" title="12">dc_diff_path &lt;-<span class="st"> &quot;/projects/home/nealpsmith/projects/ascites/dc_diff_3/sex_classification/data/dc_differentiation_processed_data&quot;</span></a>
+<a class="sourceLine" id="cb3-13" title="13"><span class="co"># Convert(paste(dc_diff_path, &quot;.h5ad&quot;, sep = &quot;&quot;), des = &quot;h5seurat&quot;)</span></a>
+<a class="sourceLine" id="cb3-14" title="14">dc_diff_data &lt;-<span class="st"> </span><span class="kw">LoadH5Seurat</span>(<span class="kw">paste</span>(dc_diff_path, <span class="st">&quot;.h5seurat&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">meta.data =</span> <span class="ot">FALSE</span>, <span class="dt">misc =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb3-15" title="15"></a>
+<a class="sourceLine" id="cb3-16" title="16">diff_norm_res &lt;-<span class="st"> </span>dc_diff_data<span class="op">@</span>assays<span class="op">$</span>RNA<span class="op">@</span>data</a>
+<a class="sourceLine" id="cb3-17" title="17"></a>
+<a class="sourceLine" id="cb3-18" title="18">common_genes &lt;-<span class="st"> </span><span class="kw">intersect</span>(<span class="kw">rownames</span>(diff_norm_res), <span class="kw">rownames</span>(ascites_norm_res))</a>
+<a class="sourceLine" id="cb3-19" title="19"></a>
+<a class="sourceLine" id="cb3-20" title="20">keep_genes &lt;-<span class="st"> </span>all_genes[all_genes <span class="op">%in%</span><span class="st"> </span>common_genes]</a>
+<a class="sourceLine" id="cb3-21" title="21"></a>
+<a class="sourceLine" id="cb3-22" title="22">train_df &lt;-<span class="st"> </span>ascites_norm_res[keep_genes,] <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-23" title="23"><span class="st">  </span><span class="kw">as.matrix</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-24" title="24"><span class="st">  </span><span class="kw">t</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-25" title="25"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-26" title="26"><span class="st">  </span><span class="kw">rownames_to_column</span>(<span class="st">&quot;cell_id&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-27" title="27"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">left_join</span>(ascites_obs <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="st">&quot;sex&quot;</span>, <span class="st">&quot;tissue_type&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">rownames_to_column</span>(<span class="st">&quot;cell_id&quot;</span>), <span class="dt">by =</span> <span class="st">&quot;cell_id&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-28" title="28"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">filter</span>(tissue_type <span class="op">==</span><span class="st"> &quot;ascites&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-29" title="29"><span class="st">  </span><span class="kw">column_to_rownames</span>(<span class="st">&quot;cell_id&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">filter</span>(<span class="op">!</span><span class="kw">is.na</span>(sex)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-30" title="30"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="op">-</span>tissue_type)</a>
+<a class="sourceLine" id="cb3-31" title="31"></a>
+<a class="sourceLine" id="cb3-32" title="32">train_df<span class="op">$</span>sex &lt;-<span class="st"> </span><span class="kw">ifelse</span>(train_df<span class="op">$</span>sex <span class="op">==</span><span class="st"> &quot;M&quot;</span>, <span class="dv">1</span>, <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb3-33" title="33"></a>
+<a class="sourceLine" id="cb3-34" title="34">test_df &lt;-<span class="st"> </span>diff_norm_res[keep_genes,] <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-35" title="35"><span class="st">  </span><span class="kw">as.matrix</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-36" title="36"><span class="st">  </span><span class="kw">t</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-37" title="37"><span class="st">  </span><span class="kw">as.data.frame</span>()</a>
+<a class="sourceLine" id="cb3-38" title="38"></a>
+<a class="sourceLine" id="cb3-39" title="39">logreg_model &lt;-<span class="st"> </span><span class="kw">glm</span>(sex<span class="op">~</span>. , <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>, <span class="dt">data =</span> train_df)</a>
+<a class="sourceLine" id="cb3-40" title="40"></a>
+<a class="sourceLine" id="cb3-41" title="41">preds &lt;-<span class="st"> </span><span class="kw">predict</span>(logreg_model, <span class="dt">newdata =</span> test_df, <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-42" title="42"><span class="st">    </span><span class="kw">round</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-43" title="43"><span class="st">    </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-44" title="44"><span class="st">    `</span><span class="dt">colnames&lt;-</span><span class="st">`</span>(<span class="kw">c</span>(<span class="st">&quot;predicted_sex&quot;</span>))</a>
+<a class="sourceLine" id="cb3-45" title="45">preds<span class="op">$</span>predicted_sex &lt;-<span class="st"> </span><span class="kw">ifelse</span>(preds<span class="op">$</span>predicted_sex <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, <span class="st">&quot;M&quot;</span>, <span class="st">&quot;F&quot;</span>)</a>
+<a class="sourceLine" id="cb3-46" title="46"><span class="co">#</span></a>
+<a class="sourceLine" id="cb3-47" title="47"><span class="co"># write.csv(preds, &quot;/projects/home/nealpsmith/projects/ascites/dc_diff_3/sex_classification/data/dc_diff_predicted_sex_for_cells_train_ascites_only.csv&quot;)</span></a></code></pre></div>
+
+</body>
+</html>
