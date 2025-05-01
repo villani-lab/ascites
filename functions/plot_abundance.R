@@ -1,6 +1,7 @@
 library(ggpubr)
 library(parameters)
 library(tidyverse)
+library(gtools)
 
 plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks = 5) {
     tissue_palette <- list("ascites" = "#2278B5",
@@ -59,7 +60,9 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks
     if (hasArg(cluster_order)) {
         lin_abundance <- lin_abundance %>% mutate(cluster = factor(cluster, levels = cluster_order))
     } else {
-        lin_abundance <- lin_abundance %>% mutate(cluster = factor(cluster))
+        # If no cluster order provided, set it to be numeric. Use mixedsort just in case it starts with a letter
+        cluster_order <- mixedsort(unique(lin_abundance$cluster))
+        lin_abundance <- lin_abundance %>% mutate(cluster = factor(cluster, levels = cluster_order))
     }
 
     # Remove selected clusters
@@ -71,6 +74,7 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks
         geom_boxplot(outlier.shape = NA) +
         geom_point(pch = 21, position = position_jitterdodge(), aes(fill = tissue_type), size = 2) +
         scale_x_log10() +
+        annotation_logticks(side = "b") +
         coord_cartesian(clip = "off") +
         scale_y_discrete(limits = rev) +
         labs(fill = "Tissue type") +
@@ -80,7 +84,8 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks
         theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
         scale_fill_manual(values = tissue_palette)
 
-    pt_res <- lapply(unique(lin_abundance$cluster), function(clust) {
+    # Use cluster order to maintain order for boxes and forest
+    pt_res <- lapply(cluster_order, function(clust) {
         pt_data <- lin_abundance %>% filter(cluster == clust)
         stats <- parameters(t.test(log_clust_percentage ~ tissue_type, pt_data, paired = TRUE))
         stats$cluster <- clust
@@ -90,8 +95,20 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks
         mutate(padj = p.adjust(p, method = "fdr")) %>%
         mutate(color = case_when(padj < 0.1 & Difference > 0 ~ "ascites", padj < 0.1 & Difference < 0 ~ "blood", padj >= 0.1 ~ "other"))
 
-    fp <- ggplot(pt_res, aes(x = Difference, y = factor(cluster), color = color)) +
+    pt_res$cluster <- factor(pt_res$cluster, levels = cluster_order)
+    max_diff <- max(pt_res$Difference)
+    pt_res$clean_pvals <- sapply(pt_res$p, function(x){
+        if (x>0.01){
+            return(as.character(round(x, 2)))
+        } else if (x < 0.01 & x > 0.001){
+            return(as.character(round(x, 3)))
+        } else {
+            formatC(x, format = "e", digits = 0)
+        }
+        })
+    fp <- ggplot(pt_res, aes(x = Difference, y = cluster, color = color, label = clean_pvals)) +
         geom_point(size = 3) +
+        geom_text(x = max_diff+0.05, size = 5, hjust = 0, nudge_y = -0.2) +
         geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high, height = 0)) +
         geom_vline(xintercept = 0) +
         scale_y_discrete(limits = rev) +
@@ -103,5 +120,5 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks
         theme(axis.text = element_text(size = 20)) +
         scale_color_manual(values = tissue_palette)
 
-    ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0), common.legend = TRUE, legend = "bottom")
+    ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.6, 1.0), common.legend = TRUE, legend = "bottom")
 }
