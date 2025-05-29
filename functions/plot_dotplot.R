@@ -13,12 +13,11 @@ blues_hex <- apply(blues_colormap, 1, function(row) {
     rgb(row[1], row[2], row[3], maxColorValue = 1)
 })
 
-# All dotplot markers
-dotplot_markers <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_markers.csv')
-
 plot_dotplot <- function(lin_gex, lin_cite, lin, widths, cluster_order) {
+    dotplot_markers <- read.xlsx('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_markers.xlsx', sheet = toupper(lin))
+
     lin_genes <- dotplot_markers %>%
-        filter(lineage == lin) %>%
+        filter(!is.na(genes)) %>%
         pull(genes) %>%
         strsplit(",") %>%
         unlist()
@@ -36,12 +35,12 @@ plot_dotplot <- function(lin_gex, lin_cite, lin, widths, cluster_order) {
         scale_fill_gradientn(colors = reds_hex) +
         lims(size = c(0, 100)) +
         theme_light(base_size = 25) +
-        theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+        theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, face = "italic")) +
         theme(legend.key.size = unit(.4, "cm"), legend.title = element_text(size = 20), legend.text = element_text(size = 12)) +
         guides(size = "none")
 
-    lin_proteins <- dotplot_markers %>%
-        filter(lineage == lin) %>%
+    lin_proteins <- dotplot_markers%>%
+        filter(!is.na(proteins)) %>%
         pull(proteins) %>%
         strsplit(",") %>%
         unlist()

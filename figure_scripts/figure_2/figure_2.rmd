@@ -13,7 +13,6 @@ use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
 setwd('/projects/home/tlchan/github_code/ascites/functions')
 source('plot_abundance.R')
 source('plot_dotplot.R')
-source('plot_sf_boxplot.R')
 source('plot_upset.R')
 ```
 
@@ -43,7 +42,7 @@ cd4_cluster_palette = {
 
 # Load single-cell object
 cd4_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.3/data/pseudobulk/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_1_3_complete_with_pb.zarr.zip')
+    '/projects/home/tlchan/projects/ascites/integrated_data/clusterings/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.3/data/pseudobulk/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_1_3_complete_with_pb.zarr.zip')
 
 pg.umap(cd4_data, rep='pca_cite_concat', min_dist=0.01, spread=2, out_basis='umap_pca_cite_concat')
 
@@ -55,42 +54,36 @@ fig = python_functions.plot_umap(lin_data=cd4_data,
                                  palette=cd4_cluster_palette,
                                  legend_loc=None,
                                  size=8)
-# plt.show()
-plt.savefig("/projects/home/tlchan/fig_panels/fig_2a.pdf")
+
+plt.show()
+# plt.savefig("/projects/home/tlchan/fig_panels/fig_2a.pdf")
 plt.close(fig)
 ```
 
 ## Figure 2B
 ```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, fig_2B}
-cd4_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/cd4_gene_exp.csv')
-cd4_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/cd4_cite_exp.csv')
+cd4_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/cd4_gene_exp.csv')
+cd4_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/cd4_cite_exp.csv')
 
 plot_dotplot(lin_gex = cd4_gex,
              lin_cite = cd4_cite,
              lin = "cd4",
              widths = c(1, .2, .2))
-ggsave("/projects/home/tlchan/fig_panels/fig_2b.pdf", width = 14, height = 8)
+
+# ggsave("/projects/home/tlchan/fig_panels/fig_2b.pdf", width = 14, height = 8)
 ```
 
-## Figure _C
+## Figure 2C
 ```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, fig_2C}
 plot_cluster_abundance("cd4")
-ggsave("/projects/home/tlchan/fig_panels/fig_2c.pdf", width = 8.5, height = 8)
+
+# ggsave("/projects/home/tlchan/fig_panels/fig_2c.pdf", width = 8.5, height = 8)
 ```
 
-## Figure 1D
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 10, fig_2D}
-cd4_res <- read.csv('/projects/home/tlchan/projects/ascites/ascites_deg_results/cd4/cd4_de_by_tissue_type_all_results.csv')
-
-plot_upset(res = cd4_res,
-           min_degree = 7)
-ggsave("/projects/home/tlchan/fig_panels/fig_2d.pdf", width = 8, height = 8, dpi = 300)
-```
-
-## Figure 2E
-```{python results = 'hold', fig_2E}
+## Figure 2D
+```{python results = 'hold', fig_2D}
 cd4_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.3/data/pseudobulk/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_1_3_complete_with_pb.zarr.zip')
+    '/projects/home/tlchan/projects/ascites/integrated_data/clusterings/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.3/data/pseudobulk/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_1_3_complete_with_pb.zarr.zip')
 
 pg.umap(cd4_data, rep='pca_cite_concat', min_dist=0.01, spread=2, out_basis='umap_pca_cite_concat')
 
@@ -98,14 +91,18 @@ cd4_data.obsm["X_umap"] = cd4_data.obsm["X_umap_pca_cite_concat"]
 
 fig = python_functions.plot_feature_by_tissue_type(lin_data=cd4_data,
                                                    genes=["CXCR3", "CXCR6"])
-# plt.show()
-plt.savefig("/projects/home/tlchan/fig_panels/fig_2e.pdf")
+
+plt.show()
+# plt.savefig("/projects/home/tlchan/fig_panels/fig_2d.pdf")
 plt.close(fig)
 ```
 
-## Figure 2F
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 8, fig_2F}
-plot_sf_boxplot(analytes = c("CXCL12", "IL-12p40", "IL-15", "TNFα", "IFNγ"),
-                nrow = 2)
-ggsave("/projects/home/tlchan/fig_panels/fig_2f.pdf", width = 8, height = 8, device = cairo_pdf)
+## Figure 1E
+```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 10, fig_2E}
+cd4_res <- read.csv('/projects/home/tlchan/projects/ascites/results/degs/integrated_data/cluster_level/cd4_tissue_type/cd4_de_by_tissue_type_all_results.csv')
+
+plot_upset(res = cd4_res,
+           min_degree = 7)
+
+# ggsave("/projects/home/tlchan/fig_panels/fig_2e.pdf", width = 8, height = 8, dpi = 300)
 ```

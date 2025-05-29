@@ -40,9 +40,9 @@ plot_fgsea <- function(fgsea_res, ranks, genes, lin, var, gs) {
         xlab("Rank") +
         ylab("Enrichment score") +
         geom_text(aes(label = "")) +
-        annotate("text", label = glue("NES : {nes}"), x = length(ranks), y = 0.9) +
-        annotate("text", label = glue("p-adj : {padj}"), x = length(ranks), y = 0.8) +
-        annotate("text", label = glue("# genes : {n_genes}"), x = length(ranks), y = 0.7) +
+        annotate("text", label = glue("NES : {nes}"), x = length(ranks), y = 0.9, size = 7) +
+        annotate("text", label = glue("p-adj : {padj}"), x = length(ranks), y = 0.8, size = 7) +
+        annotate("text", label = glue("# genes : {n_genes}"), x = length(ranks), y = 0.7, size = 7) +
         ggtitle(glue("{lin}, {var}, {gsub('_', ' ', gs)} signature")) +
-        theme_classic(base_size = 20)
+        theme_classic(base_size = 25)
 }

@@ -11,6 +11,7 @@ library(circlize)
 library(ComplexHeatmap)
 library(ggpubr)
 library(ggrepel)
+library(glue)
 library(limma)
 library(parameters)
 library(rstatix)
@@ -31,7 +32,7 @@ import scanpy as sc
 ## Figure 1B
 ```{r message = F, results = F, warning = F, fig.width = 18, fig.height = 10, fig_1B}
 # Read in metadata
-metadata <- read_csv("/projects/home/tlchan/projects/ascites/figure_panels/metadata_heatmap.csv")
+metadata <- read_csv("/projects/home/tlchan/projects/ascites/figure_panels/data/fig_1_data/fig_1b_heatmap.csv")
 
 # Get matrix
 metadata_mtx <- metadata %>%
@@ -80,23 +81,30 @@ make_rect <- function(j, i, x, y, width, height, fill) {
 
 # Add percent cells and age annotation
 lineage_cols <- c("B/Plasma cells" = "#FF0029",
-                  "CD4+ T/NK cells" = "#377EB8",
-                  "CD8+ T/NK cells" = "#66A61E",
+                  "CD4 T cells" = "#377EB8",
+                  "CD8 T/NK cells" = "#66A61E",
                   "Dendritic cells" = "#984EA3",
-                  "Monocytes/Macrophages" = "#00D2D5",
-                  "Cancer cells" = "#FF7F00")
+                  "Mono/Macs" = "#00D2D5",
+                  "Non-immune cells" = "#FF7F00")
 
-global_lineage <- read.csv("/projects/home/tlchan/projects/ascites/figure_panels/abundance_data/global_lineage_counts.csv", check.names = F)
-perc_mtx <- global_lineage %>%
+global_lineage <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/integrated_data/global_lineage_counts.csv", check.names = F)
+
+# Collapse tissue column
+global_lineage <- global_lineage %>%
+    group_by(Patient, Lineage) %>%
+    summarize(Count = sum(Count), Native_Count = sum(Native_Count))
+
+perc_mtx <- global_lineage  %>%
     group_by(Patient) %>%
     mutate(Native_Count = Native_Count / sum(Native_Count)) %>%
     select(Patient, Lineage, Native_Count) %>%
     pivot_wider(names_from = Lineage, values_from = Native_Count, values_fill = 0) %>%
     column_to_rownames("Patient") %>%
-    arrange(desc(`Cancer cells`)) %>%
+    arrange(desc(`Non-immune cells`)) %>%
     as.matrix()
+colnames(perc_mtx)
 
-# Organize patients by cancer contribution
+# Organize patients by non-immune contribution
 metadata_mtx <- metadata_mtx[, rownames(perc_mtx)]
 
 # Get age data
@@ -163,8 +171,8 @@ draw(pd, x = unit(0.93, "npc"), y = unit(0.58, "npc"))
 ```{python results = 'hold', fig_1C}
 lineage_palette = {
     "B/Plasma cells": "#FF0029",
-    "CD4+ T cells": "#377EB8",
-    "CD8+ T/NK cells": "#66A61E",
+    "CD4 T cells": "#377EB8",
+    "CD8 T/NK cells": "#66A61E",
     "Dendritic cells": "#984EA3",
     "Monocytes/Macrophages": "#00D2D5",
     "Cancer cells": "#FF7F00"
@@ -172,11 +180,11 @@ lineage_palette = {
 
 # Load single-cell object
 global_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip')
+    '/projects/home/tlchan/projects/ascites/integrated_data/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip')
 
 lineage_dict = {
-    'cd4': 'CD4+ T cells',
-    'cd8': 'CD8+ T/NK cells',
+    'cd4': 'CD4 T cells',
+    'cd8': 'CD8 T/NK cells',
     'monomac': 'Monocytes/Macrophages',
     'dc': 'Dendritic cells',
     'bplasma': 'B/Plasma cells'
@@ -198,6 +206,7 @@ lineage_umap = sc.pl.umap(adata=global_data.to_anndata(),
                           show=False,
                           ax=lineage_ax,
                           size=1)
+
 lineage_fig = plt.gcf()
 lineage_fig.set_size_inches(6, 6)
 lineage_fig.tight_layout()
@@ -208,14 +217,14 @@ plt.close(lineage_fig)
 
 ## Figure 1D
 ```{r message = F, results = F, warning = F, fig.width = 15, fig.height = 6, fig_1D}
-tissue_palette <- list("ascites" = "#2278b5",
+tissue_palette <- list("ascites" = "#2278B5",
                        "blood" = "#D62A28",
                        "other" = "#000000")
 
 paired_samples <- c("ASC_10", "ASC_25", "ASC_41", "ASC_45", "ASC_46", "ASC_48", "ASC_49", "ASC_52", "ASC_57", "ASC_61", "ASC_62", "ASC_65", "ASC_66", "ASC_67")
 
 # Load data
-abundance <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/metadata/ascites_abundance.csv")
+abundance <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/integrated_data/ascites_abundance.csv")
 
 # Remove cancer cells
 abundance <- abundance %>%
@@ -235,9 +244,7 @@ abundance <- abundance %>%
 # Get lin count
 abundance <- abundance %>%
     group_by(patient_id, tissue_type, lineage) %>%
-    mutate(lin_count = sum(immune == "True")) %>%
-    select(patient_id, tissue_type, lineage, lin_count) %>%
-    distinct()
+    summarize(lin_count = sum(immune == "True"))
 
 # Account for patient/tissue pairs that contributed zero cells to clusters
 combos <- expand.grid(unique(abundance$patient_id), unique(abundance$tissue_type), unique(abundance$lineage)) %>% `colnames<-`(c("patient_id", "tissue_type", "lineage"))
@@ -266,7 +273,7 @@ bp <- ggplot(abundance, aes(x = lin_percentage + 1, y = factor(lineage), fill = 
     scale_x_log10() +
     coord_cartesian(clip = "off") +
     labs(fill = "Tissue type") +
-    xlab("Percent native immune + 1") +
+    xlab("Percent of immune fraction + 1") +
     ylab("") +
     theme_classic(base_size = 27) +
     theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
@@ -282,29 +289,42 @@ pt_res <- lapply(unique(abundance$lineage), function(lin) {
     mutate(padj = p.adjust(p, method = "fdr")) %>%
     mutate(color = case_when(padj < 0.1 & Difference > 0 ~ "ascites", padj < 0.1 & Difference < 0 ~ "blood", padj >= 0.1 ~ "other"))
 
-fp <- ggplot(pt_res, aes(x = Difference, y = factor(lineage), color = color)) +
+max_diff <- max(pt_res$Difference)
+pt_res$clean_pvals <- sapply(pt_res$p, function(x) {
+    if (x > 0.01) {
+        return(as.character(round(x, 2)))
+    } else if (x < 0.01 & x > 0.001) {
+        return(as.character(round(x, 3)))
+    } else {
+        formatC(x, format = "e", digits = 0)
+    }
+})
+
+fp <- ggplot(pt_res, aes(x = Difference, y = factor(lineage), color = color, label = clean_pvals)) +
     geom_point(size = 3) +
+        geom_text(x = max_diff + 0.05, size = 5, hjust = 0, nudge_y = -0.2) +
     geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high, height = 0)) +
     geom_vline(xintercept = 0) +
     guides(color = "none") +
-    xlab("log2FC") +
+    xlab("Diff") +
     ylab("") +
     theme_classic(base_size = 27) +
-    scale_x_continuous(n.breaks = 3) +
+    scale_x_continuous(n.breaks = 4) +
     theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
     scale_color_manual(values = tissue_palette)
 
 ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0), common.legend = TRUE, legend = "bottom")
-# ggsave("/projects/home/tlchan/fig_panels/fig_1d.pdf", width = 7, height = 8)
+
+# ggsave("/projects/home/tlchan/fig_panels/fig_1d.pdf", width = 8.5, height = 7.5)
 ```
 
 ## Figure 1E
 ```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 6, fig_1E}
-sf_names <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/secreted_factors/sf_common_names.csv")
+sf_names <- read.csv("/projects/home/tlchan/util/secreted_factors/sf_common_names.csv")
 paired_list <- list('ASC_41', 'ASC_43', 'ASC_45', 'ASC_46', 'ASC_48', 'ASC_52', 'ASC_57', 'ASC_61', 'ASC_62', 'ASC_65', 'ASC_66', 'ASC_67')
 
 # Load and prepare data
-sf_data <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/secreted_factors/secreted_factors_updated.csv", row.names = 1) %>%
+sf_data <- read.csv("/projects/home/tlchan/projects/ascites/results/secreted_factors/integrated_data/secreted_factors_updated.csv", row.names = 1) %>%
     filter(diluted == "No") %>%
     filter(type != "pleural") %>%
     filter(panel == "96-cytokine") %>%
@@ -359,9 +379,7 @@ res <- topTable(fit, coef = "typeascites", number = length(fit$genes))
 res <- res %>% select(ID, logFC) %>% merge(t_results)
 
 # Visualize results as volcano plot
-label_genes <- sf_names %>%
-    filter(highlight) %>%
-    pull(common_name)
+label_genes <- c("CCL5", "IL-6", "FLT3LG", "CXCL10", "IL-15", "IL-8", "CCL2", "IL-10", "TNFα", "CXCL9", "CXCL16", "VEGFA", "CCL21", "CXCL13", "CCL19", "CCL20")
 
 ggplot(res, aes(x = logFC, y = -log10(p))) +
     geom_point(data = res[res$p.adj > 0.1,], color = "grey") +
@@ -369,5 +387,6 @@ ggplot(res, aes(x = logFC, y = -log10(p))) +
     geom_point(data = res[res$logFC < 0 & res$p.adj < 0.1,], color = "#D62A28") +
     geom_text_repel(data = res[res$ID %in% label_genes,], aes(label = ID), max.overlaps = Inf, size = 4.5) +
     theme_classic(base_size = 20)
+
 # ggsave("/projects/home/tlchan/fig_panels/fig_1e.pdf", width = 8, height = 6, device = cairo_pdf)
 ```

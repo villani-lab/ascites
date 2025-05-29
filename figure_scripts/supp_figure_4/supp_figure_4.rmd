@@ -1,5 +1,5 @@
 ---
-title: "Supplemental Figure 4"
+title: "Supplementary Figure 4"
 output: rmarkdown::github_document
 ---
 
@@ -8,253 +8,135 @@ output: rmarkdown::github_document
 Load R libraries
 ```{r message = F, results = F, warning = F, load_r_libraries}
 library(ggpubr)
-library(glue)
-library(openxlsx)
+library(ggrepel)
 library(tidyverse)
 
 library(reticulate)
 use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
 
 setwd('/projects/home/tlchan/github_code/ascites/functions')
+source('plot_abundance.R')
+source('plot_deg.R')
 source('plot_dotplot.R')
+source('plot_sf_boxplot.R')
 ```
 
 Load python libraries
 ```{python load_python_packages}
-import math
 import matplotlib.pyplot as plt
-import os
-import pandas as pd
 import pegasus as pg
-import scanpy as sc
 
 import sys
 sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
 import python_functions
 ```
 
-## Supplemental Figure 4A
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_4A}
-patient_palette <- list(
-    "ASC_1" = "#FF0029",
-    "ASC_10" = "#377EB8",
-    "ASC_21" = "#66A61E",
-    "ASC_25" = "#984EA3",
-    "ASC_41" = "#00D2D5",
-    "ASC_43" = "#FF7F00",
-    "ASC_45" = "#AF8D00",
-    "ASC_46" = "#7F80CD",
-    "ASC_48" = "#B3E900",
-    "ASC_49" = "#C42E60",
-    "ASC_5" = "#A65628",
-    "ASC_52" = "#F781BF",
-    "ASC_57" = "#8DD3C7",
-    "ASC_61" = "#BEBADA",
-    "ASC_62" = "#FB8072",
-    "ASC_65" = "#80B1D3",
-    "ASC_66" = "#FDB462",
-    "ASC_67" = "#FCCDE5",
-    "GC-PC_10" = "#BC80BD",
-    "GC-PC_11" = "#FFED6F",
-    "GC-PC_17" = "#C4EAFF",
-    "GC-PC_5" = "#CF8C00",
-    "GC-PC_7" = "#1B9E77"
-)
-
-abundance <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/metadata/ascites_abundance.csv")
-abundance <- abundance %>%
-    filter(lineage == "dc") %>%
-    group_by(patient_id, cluster) %>%
-    summarize(count = n())
-
-ggplot(abundance, aes(x = factor(cluster), y = count, fill = patient_id)) +
-    geom_bar(stat = 'identity', position = "fill") +
-    xlab("Cluster") +
-    ylab("Count") +
-    scale_fill_manual(name = "Patient", values = patient_palette) +
-    theme_classic(base_size = 22)
-ggsave("/projects/home/tlchan/fig_panels/supp_4a.pdf", width = 8, height = 8)
-```
-
-## Supplemental Figure 4B
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_4B}
-dc_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/dc_gene_exp_alt.csv')
-dc_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/dc_cite_exp_alt.csv')
-
-plot_dotplot(lin_gex = dc_gex,
-             lin_cite = dc_cite,
-             lin = "dc_alt",
-             widths = c(1, .4, .2))
-ggsave("/projects/home/tlchan/fig_panels/supp_4b.pdf", width = 13, height = 8)
-```
-
-## Supplemental Figure 4C
-```{python results = 'hold', supp_4C}
-dc_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/filter_qc/ascites_dc_R8_300mg_20pm_harm_channel_1_1.zarr.zip')
-
-dc_adata = dc_data.to_anndata()
-
-sc.pp.neighbors(dc_adata)
-
-sc.tl.paga(adata=dc_adata, groups="leiden_labels")
-
-fig, ax = plt.subplots(figsize=(9, 9))
-sc.pl.paga(adata=dc_adata, ax=ax, node_size_scale=2, show=False)
-# plt.show()
-plt.savefig("/projects/home/tlchan/fig_panels/supp_4c.pdf")
-plt.close(fig)
-```
-
-## Supplemental Figure 4D
-```{python results = 'hold', supp_4D}
-rss_list = list()
-for i in range(0, 10):
-    DATA_FOLDER = "/projects/home/tlchan/projects/ascites/second_data_freeze/data/dc_analysis/pigr/test_500"
-    RSS_FNAME = os.path.join(DATA_FOLDER, f"lineage_rss_{i}_mtx.csv")
-    rss_data = pd.read_csv(RSS_FNAME, index_col=0)
-    rss_data = rss_data.loc['dc_10'].to_frame(f"iter_{i}")
-    rss_list.append(rss_data)
-
-rss_all = pd.concat(rss_list, axis=1)
-rss_data = rss_all.mean(axis=1, skipna=True).to_frame('dc_10').T
-
-plt.rcParams.update({'font.size': 18})
-
-fig = plt.figure(figsize=(6, 8))
-c = "dc_10"
-x = rss_data.T[c]
-ax = fig.add_subplot(1, 1, 1)
-python_functions.plot_rss(rss_data, c, top_n=5, max_n=None, ax=ax)
-ax.set_ylim(x.min() - (x.max() - x.min()) * 0.05, x.max() + (x.max() - x.min()) * 0.05)
-ax.set_ylabel('Regulon specificity score (RSS)')
-ax.set_xlabel('Regulon')
-plt.tight_layout()
-# plt.show()
-plt.savefig("/projects/home/tlchan/fig_panels/supp_4d.pdf")
-plt.close(fig)
-```
-
-## Supplemental Figure 4E, F, G
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_4EFG}
-to_plot <- data.frame(
-    lineage = c("dc", "dc", "dc"),
-    tissue_type = c("ascites", "ascites", "ascites"),
-    cluster = c(2, 4, 7),
-    fig_alph = c("e", "f", "g")
-)
-
-c10_stats <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/metadata/dc_c10_alt_proportions.csv")
-
-plot_row <- function(row) {
-    lin <- row[1]
-    type <- row[2]
-    clust <- row[3]
-    alph <- row[4]
-    abundance <- read.xlsx("/projects/home/tlchan/ascites_percent_native_immune_abundance_by_cluster.xlsx", sheet = toupper(lin))
-    clust_data <- abundance %>%
-        filter(tissue_type == type) %>%
-        filter(cluster == clust) %>%
-        merge(c10_stats, by = "patient_id")
-
-    ggplot(clust_data, aes(x = log_clust_percentage, y = log_newDC_percentage)) +
-        geom_point(pch = 19, size = 4) +
-        geom_smooth(method = "lm", formula = y ~ x) +
-        stat_cor(method = "pearson", size = 7) +
-        xlab("log(patient percentage)") +
-        ylab("log(DC: PIGR, RORC percentage)") +
-        ggtitle(glue("{toupper(lin)}, {toupper(type)}, C{clust}")) +
-        theme_classic(base_size = 20)
-    ggsave(glue("/projects/home/tlchan/fig_panels/supp_4{alph}.pdf"), width = 6.5, height = 8)
-}
-
-apply(to_plot, 1, plot_row)
-```
-
-## Supplemental Figure 4H, I
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_4HI}
-to_plot <- data.frame(
-    tissue_type = c("ascites", "ascites"),
-    cluster = c("IL-6", "IL-10"),
-    fig_alph = c("h", "i")
-)
-
-c10_stats <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/metadata/dc_c10_alt_proportions.csv")
-
-plot_row <- function(row) {
-    ty <- row[1]
-    an <- row[2]
-    alph <- row[3]
-
-    sf_data <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/secreted_factors/secreted_factors_updated.csv", row.names = 1)
-    sf_data <- sf_data[sf_data["diluted"] == "No",]
-    sf_data <- sf_data[sf_data["analyte"] == an,]
-    sf_data <- sf_data[sf_data["type"] == ty,]
-    sf_data$log_concentration <- log(sf_data$concentration)
-
-    sf_data <- sf_data %>%
-        merge(c10_stats, by = "patient_id")
-
-    ggplot(sf_data, aes(x = log_concentration, y = log_newDC_percentage)) +
-        geom_point(pch = 19, size = 4) +
-        geom_smooth(method = "lm", formula = y ~ x) +
-        stat_cor(method = "pearson", size = 7) +
-        xlab("log(concentration)") +
-        ylab("log(newDC percentage)") +
-        ggtitle(glue("{toupper(ty)}, {an}")) +
-        theme_classic(base_size = 20)
-    ggsave(glue("/projects/home/tlchan/fig_panels/supp_4{alph}.pdf"), width = 6.5, height = 8)
-}
-
-apply(to_plot, 1, plot_row)
-```
-
-## Supplemental Figure 4J
-```{python results = 'hold', supp_4J}
-dataset_dict = {
-    "cancer_discovery": "Primary gastric",
-    "gastric": "Ascites (MGH)",
-    "ovarian": "Ovarian cancer",
-    "peritoneal": "Normal peritoneum",
-    "teichmann": "Immune atlas",
-    "tonsil": "Tonsil"
-}
-
-dataset_palette = {
-    "Primary gastric": "#666666",
-    "Ascites (MGH)": "#B52025",
-    "Ovarian cancer": "#3E52A3",
-    "Normal peritoneum": "#5F5B5B",
-    "Immune atlas": "#CBCC2C",
-    "Tonsil": "#009E73"
+## Supplementary Figure 4A
+```{python results = 'hold', supp_4A}
+monomac_cluster_palette = {
+    "1": "#FF0029",
+    "2": "#377EB8",
+    "3": "#66A61E",
+    "4": "#984EA3",
+    "5": "#00D2D5",
+    "6": "#FF7F00",
+    "7": "#AF8D00",
+    "8": "#7F80CD",
+    "9": "#B3E900",
+    "10": "#C42E60",
+    "11": "#A65628",
+    "12": "#F781BF",
+    "13": "#8DD3C7",
+    "14": "#BEBADA",
+    "15": "#FB8072"
 }
 
 # Load single-cell object
-ext_dc_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip')
+monomac_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/integrated_data/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip')
 
 # Relabel obs for function
-pg.annotate(ext_dc_data, 'dataset', 'dataset', dataset_dict)
+monomac_data.obs['Cluster'] = monomac_data.obs['leiden_labels'].cat.remove_unused_categories().astype(str)
 
-fig = python_functions.plot_umap(lin_data=ext_dc_data,
-                                 color="dataset",
-                                 palette=dataset_palette,
-                                 legend_loc=None)
-# plt.show()
-plt.savefig("/projects/home/tlchan/fig_panels/supp_4j.pdf")
+fig = python_functions.plot_umap(lin_data=monomac_data,
+                                 palette=monomac_cluster_palette,
+                                 legend_loc=None,
+                                 size=5)
+
+plt.show()
+# plt.savefig("/projects/home/tlchan/fig_panels/supp_4a.pdf")
 plt.close(fig)
 ```
 
-## Supplemental Figure 4K
-```{python results = 'hold', supp_4K}
-ext_dc_data = pg.read_input(
-    "/projects/home/tlchan/projects/ascites/dc_hunting/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip")
+## Supplementary Figure 4B
+```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_4B}
+monomac_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/monomac_gene_exp.csv')
+monomac_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/monomac_cite_exp.csv')
 
-fig = python_functions.plot_feature(lin_data=ext_dc_data,
-                                    genes=['PRDM16', 'PIGR', 'RORC', 'CLEC9A', 'CD1C', 'CCR7'],
-                                    ncol=3,
-                                    nrow=2)
-# plt.show()
-plt.savefig("/projects/home/tlchan/fig_panels/supp_4k.pdf")
+plot_dotplot(lin_gex = monomac_gex,
+             lin_cite = monomac_cite,
+             lin = "monomac",
+             widths = c(1, .1, .2),
+             cluster_order = c("1. MM: S100A12, CCR2-lo", "2. MM: S100A12, MCEMP1", "3. MM: APOE, LYVE1",
+                               "4. MM: CLEC10A, FCGR2B", "5. MM: CX3CR1, RHOC", "6. MM: IFIT3, IFI44L",
+                               "7. MM: LGALS2, ALDH1A1", "8. MM: TCF7L2, GBP4", "9. MM: IL1B, CCL4",
+                               "10. MM: high mito", "11. MM: cycling", "12. MM: MT1G, FN1", "13. MM: APOC1, NUPR1"))
+
+# ggsave("/projects/home/tlchan/fig_panels/supp_4b.pdf", width = 14, height = 8)
+```
+
+## Supplementary Figure 4C
+```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, supp_4C}
+plot_cluster_abundance("monomac")
+
+# ggsave("/projects/home/tlchan/fig_panels/supp_4c.pdf", width = 8.5, height = 8)
+```
+
+## Supplementary Figure 4D
+```{r message = F, results = F, warning = F, fig.width = 6, fig.height = 6, supp_4D}
+monomac_res <- read.csv('/projects/home/tlchan/projects/ascites/results/degs/integrated_data/lineage_level/tissue_type/monomac_de_by_tissue_type_all_results.csv')
+monomac_meta <- read.csv("/projects/home/tlchan/projects/ascites/results/degs/integrated_data/pb_objects/monomac_lineage_pseudobulk_meta.csv", row.names = 1)
+
+monomac_meta <- monomac_meta %>%
+    filter(tissue_type == "blood" | tissue_type == "ascites") %>%
+    mutate(tissue_type = factor(tissue_type, levels = c("blood", "ascites"))) %>%
+    mutate(sex = factor(sex, levels = c('M', 'F')))
+
+label_genes <- c("CXCL1", "IL10", "CXCL8", "CCL2", "CCL20", "HAVCR2", "VEGFA", "SPP1", "HLA-DQB2", "CLU", "SELL", "TREM2", "MEFV", "CPPED1")
+highlight_genes <-  c("CXCL1", "IL10", "CXCL8", "CSF1", "CCL2", "CCL20", "HAVCR2", "VEGFA")
+
+plot_lineage_deg(res = monomac_res,
+                 meta = monomac_meta,
+                 lin = "Mono/Macs",
+                 contrast = "tissue_type",
+                 ref_var = "blood",
+                 test_var = "ascites",
+                 label_genes = label_genes,
+                 highlight_genes = highlight_genes,
+                 ref_color = "#D62A28",
+                 test_color = "#2278B5",
+                 highlight_color = "#FFBF00")
+
+# ggsave("/projects/home/tlchan/fig_panels/supp_4d.pdf", width = 8, height = 8)
+```
+
+## Supplementary Figure 4E
+```{python results = 'hold', supp_4E}
+monomac_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/integrated_data/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip')
+
+fig = python_functions.plot_feature_by_tissue_type(lin_data=monomac_data,
+                                                   genes=["CCL2", "CCL20", "CXCL1", "CXCL8", "IL10", "VEGFA"])
+
+plt.show()
+# plt.savefig("/projects/home/tlchan/fig_panels/supp_4e.pdf")
 plt.close(fig)
+```
+
+## Supplementary Figure 4F
+```{r message = F, results = F, warning = F, fig.width = 4, fig.height = 18, supp_4F}
+plot_sf_boxplot(analytes = c("CCL2", "CCL20", "CXCL1", "IL-8", "IL-10", "VEGFA"),
+                nrow = 6)
+
+# ggsave("/projects/home/tlchan/fig_panels/supp_4f.pdf", width = 5, height = 18, device = cairo_pdf)
 ```

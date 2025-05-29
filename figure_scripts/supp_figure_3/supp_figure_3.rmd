@@ -1,5 +1,5 @@
 ---
-title: "Supplementary Figure 3"
+title: "Supplemental Figure 3"
 output: rmarkdown::github_document
 ---
 
@@ -7,22 +7,16 @@ output: rmarkdown::github_document
 
 Load R libraries
 ```{r message = F, results = F, warning = F, load_r_libraries}
-library(ggpubr)
-library(tidyverse)
-
 library(reticulate)
 use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
 
 setwd('/projects/home/tlchan/github_code/ascites/functions')
 source('plot_abundance.R')
-source('plot_deg.R')
 source('plot_dotplot.R')
-source('plot_sf_boxplot.R')
 ```
 
 Load python libraries
 ```{python load_python_packages}
-import matplotlib.pyplot as plt
 import pegasus as pg
 
 import sys
@@ -32,7 +26,7 @@ import python_functions
 
 ## Supplementary Figure 3A
 ```{python results = 'hold', supp_3A}
-monomac_cluster_palette = {
+b_cluster_palette = {
     "1": "#FF0029",
     "2": "#377EB8",
     "3": "#66A61E",
@@ -42,119 +36,40 @@ monomac_cluster_palette = {
     "7": "#AF8D00",
     "8": "#7F80CD",
     "9": "#B3E900",
-    "10": "#C42E60",
-    "11": "#A65628",
-    "12": "#F781BF",
-    "13": "#8DD3C7",
-    "14": "#BEBADA",
-    "15": "#FB8072"
+    "10": "#C42E60"
 }
 
 # Load single-cell object
-monomac_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip')
+b_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/integrated_data/clusterings/ascites_bplasma_R5_300mg_20pm_harm_channel_multi_res/1.5/data/pseudobulk/ascites_bplasma_R5_300mg_20pm_harm_channel_1_5_complete_with_pb.zarr.zip')
 
 # Relabel obs for function
-monomac_data.obs['Cluster'] = monomac_data.obs['leiden_labels'].cat.remove_unused_categories().astype(str)
+b_data.obs['Cluster'] = b_data.obs['leiden_labels'].cat.remove_unused_categories().astype(str)
 
-fig = python_functions.plot_umap(lin_data=monomac_data,
-                                 palette=monomac_cluster_palette,
-                                 legend_loc=None,
-                                 size = 5)
-# plt.show()
-plt.savefig("/projects/home/tlchan/fig_panels/supp_3a.pdf")
+fig = python_functions.plot_umap(lin_data=b_data,
+                           palette=b_cluster_palette)
+
+plt.show()
+# plt.savefig("/projects/home/tlchan/fig_panels/supp_3a.pdf")
 plt.close(fig)
 ```
 
 ## Supplementary Figure 3B
 ```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_3B}
-monomac_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/monomac_gene_exp.csv')
-monomac_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/dotplot_data/monomac_cite_exp.csv')
+b_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/bplasma_gene_exp.csv')
+b_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/bplasma_cite_exp.csv')
 
-plot_dotplot(lin_gex = monomac_gex,
-             lin_cite = monomac_cite,
-             lin = "monomac",
-             widths = c(1, .1, .2),
-             cluster_order = c("1. MM: S100A12, CCR2-low", "2. MM: S100A12, MCEMP1", "3. MM: APOE, LYVE1",
-                               "4. MM: CLEC10A, FCGR2B", "5. MM: CX3CR1, RHOC", "6. MM: IFIT3, IFI44L",
-                               "7. MM: LGALS2, ALDH1A1", "8. MM: TCF7L2, GBP4", "9. MM: IL1B, CCL4",
-                               "10. MM: high mito", "11. MM: cycling", "12. MM: MT1G, FN1", "13. MM: APOC1, NUPR1"))
+plot_dotplot(lin_gex = b_gex,
+             lin_cite = b_cite,
+             lin = "bplasma",
+            widths=c(1, .15, .2))
 
-ggsave("/projects/home/tlchan/fig_panels/supp_3b.pdf", width = 14, height = 8)
+# ggsave("/projects/home/tlchan/fig_panels/supp_3b.pdf", width = 12, height = 8)
 ```
 
 ## Supplementary Figure 3C
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, supp_3C}
-plot_cluster_abundance("monomac")
-ggsave("/projects/home/tlchan/fig_panels/supp_3c.pdf", width = 8.5, height = 8)
-```
+```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_3C}
+plot_cluster_abundance("bplasma")
 
-## Supplementary Figure 3D
-```{r message = F, results = F, warning = F, fig.width = 6, fig.height = 6, supp_3D}
-monomac_res <- read.csv('/projects/home/tlchan/projects/ascites/second_data_freeze/data/degs/lineage_level/tissue_type/monomac_de_by_tissue_type_all_results.csv')
-monomac_meta <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/degs/pb_objects/monomac_lineage_pseudobulk_meta.csv", row.names = 1)
-
-monomac_meta <- monomac_meta %>%
-    filter(tissue_type == "blood" | tissue_type == "ascites") %>%
-    mutate(tissue_type = factor(tissue_type, levels = c("blood", "ascites"))) %>%
-    mutate(sex = factor(sex, levels = c('M', 'F')))
-
-cell_cutoff <- 10
-fc_cutoff <- 0
-p_cutoff <- 0.1
-
-# Filtering for sample/clusters that have more than cell_cutoff cells
-monomac_meta <- monomac_meta[monomac_meta$n_cells >= cell_cutoff,]
-tot_cells <- sum(monomac_meta$n_cells)
-
-
-# Highlight genes
-highlight_df <- read.csv("/projects/home/tlchan/projects/ascites/monomac_tissue_type_deg_highlight_genes.csv")
-to_highlight <- highlight_df %>% filter(type == "secreted_factor") %>% pull(gene)
-label_genes <- highlight_df %>% pull(gene)
-to_label <- monomac_res[monomac_res$gene_symbol %in% label_genes,]
-
-# Make plot
-top <- monomac_res[monomac_res$log2FoldChange > fc_cutoff & monomac_res$padj < p_cutoff & !(monomac_res$gene_symbol %in% to_highlight),]
-bottom <- monomac_res[monomac_res$log2FoldChange < -fc_cutoff & monomac_res$padj < p_cutoff & !(monomac_res$gene_symbol %in% to_highlight),]
-sf <- monomac_res[monomac_res$padj < p_cutoff & monomac_res$gene_symbol %in% to_highlight,]
-
-plot_title <- sprintf('%s: %s (%i) vs %s (%i)', "Mono/Macs", "ascites",
-                      nrow(monomac_meta[monomac_meta["tissue_type"] == "ascites",]), "blood",
-                      nrow(monomac_meta[monomac_meta["tissue_type"] == "blood",]))
-plot_subtitle <- sprintf('%i total cells, %i cell cutoff, abs(log2fc) > %1.1f, and padj < %1.2f',
-                         tot_cells, cell_cutoff, fc_cutoff, p_cutoff)
-
-ggplot(monomac_res, aes(x = log2FoldChange, y = -log10(pvalue))) +
-    geom_point(data = monomac_res[abs(monomac_res$log2FoldChange) < fc_cutoff | monomac_res$padj > p_cutoff,], color = "grey") +
-    geom_point(data = top, color = "#2278B5") +
-    geom_point(data = bottom, color = "#D62A28") +
-    geom_point(data = sf, color = "#FFBF00") +
-    geom_hline(yintercept = -log10(p_cutoff), linetype = 'dashed', size = 0.75) +
-    geom_vline(xintercept = fc_cutoff, linetype = 'dashed', size = 0.75) +
-    geom_vline(xintercept = -fc_cutoff, linetype = 'dashed', size = 0.75) +
-    geom_text_repel(data = to_label, aes(label = gene_symbol), max.overlaps = Inf, size = 5) +
-    xlab("log2 Fold Change") +
-    ggtitle(plot_title, subtitle = plot_subtitle) +
-    theme_bw(base_size = 15)
-ggsave("/projects/home/tlchan/fig_panels/supp_3d.pdf", width = 8, height = 8)
-```
-
-## Supplementary Figure 3E
-```{python results = 'hold', supp_3E}
-monomac_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip')
-
-fig = python_functions.plot_feature_by_tissue_type(lin_data=monomac_data,
-                                                   genes=["CCL2", "CCL20", "CXCL1", "CXCL8", "IL10", "VEGFA"])
-# plt.show()
-plt.savefig("/projects/home/tlchan/fig_panels/supp_3e.pdf")
-plt.close(fig)
-```
-
-## Supplementary Figure 3F
-```{r message = F, results = F, warning = F, fig.width = 4, fig.height = 18, supp_3F}
-plot_sf_boxplot(analytes = c("CCL2", "IL-10", "CXCL1", "IL-8", "VEGFA", "CCL20"),
-                nrow = 6)
-ggsave("/projects/home/tlchan/fig_panels/supp_3f.pdf", width = 5, height = 18, device = cairo_pdf)
+# ggsave("/projects/home/tlchan/fig_panels/supp_3c.pdf", width = 8, height = 8)
 ```

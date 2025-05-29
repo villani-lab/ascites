@@ -1,4 +1,5 @@
 library(ggpubr)
+library(glue)
 library(parameters)
 library(tidyverse)
 library(gtools)
@@ -11,7 +12,7 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks
     paired_samples <- c("ASC_10", "ASC_25", "ASC_41", "ASC_45", "ASC_46", "ASC_48", "ASC_49", "ASC_52", "ASC_57", "ASC_61", "ASC_62", "ASC_65", "ASC_66", "ASC_67")
 
     # Load data
-    abundance <- read.csv("/projects/home/tlchan/projects/ascites/second_data_freeze/data/metadata/ascites_abundance.csv")
+    abundance <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/integrated_data/ascites_abundance.csv")
 
     # Remove cancer cells and doublets
     abundance <- abundance %>%
@@ -78,7 +79,7 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks
         coord_cartesian(clip = "off") +
         scale_y_discrete(limits = rev) +
         labs(fill = "Tissue type") +
-        xlab("Percent native immune + 1") +
+        xlab("Percent immune fraction + 1") +
         ylab("") +
         theme_classic(base_size = 27) +
         theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
@@ -97,26 +98,26 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks
 
     pt_res$cluster <- factor(pt_res$cluster, levels = cluster_order)
     max_diff <- max(pt_res$Difference)
-    pt_res$clean_pvals <- sapply(pt_res$p, function(x){
-        if (x>0.01){
+    pt_res$clean_pvals <- sapply(pt_res$p, function(x) {
+        if (x > 0.01) {
             return(as.character(round(x, 2)))
-        } else if (x < 0.01 & x > 0.001){
+        } else if (x < 0.01 & x > 0.001) {
             return(as.character(round(x, 3)))
         } else {
             formatC(x, format = "e", digits = 0)
         }
-        })
+    })
+
     fp <- ggplot(pt_res, aes(x = Difference, y = cluster, color = color, label = clean_pvals)) +
         geom_point(size = 3) +
-        geom_text(x = max_diff+0.05, size = 5, hjust = 0, nudge_y = -0.2) +
+        geom_text(x = max_diff + 0.05, size = 5, hjust = 0, nudge_y = -0.2) +
         geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high, height = 0)) +
         geom_vline(xintercept = 0) +
-        scale_y_discrete(limits = rev) +
         guides(color = "none") +
-        xlab("Log2FC") +
+        xlab("Diff") +
         ylab("") +
-        scale_x_continuous(n.breaks = n_breaks) +
         theme_classic(base_size = 27) +
+        scale_x_continuous(n.breaks = n_breaks) +
         theme(axis.text = element_text(size = 20)) +
         scale_color_manual(values = tissue_palette)
 

@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import scanpy as sc
 
-
+plt.rcParams['pdf.fonttype'] = 42
 def plot_umap(lin_data, palette, color="Cluster", width=6, height=6, legend_loc="on data", size=None):
     if size == None:
         size = 120000 / lin_data.shape[0]
@@ -70,35 +70,39 @@ def plot_feature(lin_data, genes, ncol, nrow):
                             gridsize=150,
                             edgecolors="none")
 
-        # Add percent expression
-        ax[num].annotate(f'{ncells:,} ({pcells:.1%}) cells',
-                         xy=(0.01, 0), xycoords='axes fraction',
-                         fontsize=10,
-                         horizontalalignment='left',
-                         verticalalignment='bottom')
-
         # Add axes and colorbar information
         cb = fig.colorbar(hb, ax=ax[num], shrink=.75, aspect=10)
-        cb.ax.set_title('logCPM', loc='left', fontsize=14)
-        ax[num].set_title(gene, fontsize=18)
+        cb.ax.set_title('logCPM', loc='left', fontsize=23)
+        cb.ax.tick_params(labelsize=23)
+        if gene.startswith('cite_'):
+            ax[num].set_title(gene, fontsize=23)
+        else:
+            ax[num].set_title(gene, fontsize=23, fontstyle='italic')
+
+            # Add percent expression
+            ax[num].annotate(f'{ncells:,} ({pcells:.1%}) cells',
+                             xy=(0.01, 0), xycoords='axes fraction',
+                             fontsize=20,
+                             horizontalalignment='left',
+                             verticalalignment='bottom')
+
         ax[num].tick_params(left=False, labelleft=False,
                             bottom=False, labelbottom=False)
 
         if (num + ncol) % ncol == 0:
             # Start of row
-            ax[num].set_ylabel('UMAP2', fontsize=18)
+            ax[num].set_ylabel('UMAP2', fontsize=23)
         if nrow == 1:
             # Only one row
-            ax[num].set_xlabel('UMAP1', fontsize=18)
+            ax[num].set_xlabel('UMAP1', fontsize=23)
         elif num > (len(genes) - ncol - 1):
             # Last row if more than one row
-            ax[num].set_xlabel('UMAP1', fontsize=18)
+            ax[num].set_xlabel('UMAP1', fontsize=23)
 
         ax[num].set_rasterization_zorder(2)
 
     for i in range(len(ax) - (len(ax) - len(genes)), len(ax)):
         ax[i].set_axis_off()
-    fig.tight_layout()
 
     return fig
 
@@ -162,31 +166,33 @@ def plot_feature_by_tissue_type(lin_data, genes):
                                         vmax=cb_max,
                                         edgecolors="none")
             cb = fig.colorbar(hb, ax=ax[num * 2 + i], shrink=.75, aspect=10)
-            cb.ax.set_title('logCPM', loc='left', fontsize=14)
+            cb.ax.set_title('logCPM', loc='left', fontsize=23)
+            cb.ax.tick_params(labelsize=23)
             if i == 0:
                 # ie. Blood
-                ax[num * 2 + i].set_ylabel('UMAP2', fontsize=18)
+                ax[num * 2 + i].set_ylabel('UMAP2', fontsize=23)
                 ax[num * 2 + i].annotate(f'{blood_n:,} ({blood_perc:.1%}) cells',
                                          xy=(0.01, 0), xycoords='axes fraction',
-                                         fontsize=10,
+                                         fontsize=20,
                                          horizontalalignment='left',
                                          verticalalignment='bottom')
             if num + 1 == len(genes):
                 # ie. Blood and only one row
-                ax[num * 2 + i].set_xlabel('UMAP1', fontsize=18)
+                ax[num * 2 + i].set_xlabel('UMAP1', fontsize=23)
             if i == 1:
                 # ie. Ascites
                 ax[num * 2 + i].annotate(f'{ascites_n:,} ({ascites_perc:.1%}) cells',
                                          xy=(0.01, 0), xycoords='axes fraction',
-                                         fontsize=10,
+                                         fontsize=20,
                                          horizontalalignment='left',
                                          verticalalignment='bottom')
-            ax[num * 2 + i].set_title(f'{title[i]}: {gene}', fontsize=18)
+            if gene.startswith('cite_'):
+                ax[num * 2 + i].set_title(f'{title[i]}: {gene}', fontsize=23)
+            else:
+                ax[num * 2 + i].set_title(f'{title[i]}: ${gene}$', fontsize=23)
             ax[num * 2 + i].tick_params(left=False, labelleft=False,
                                         bottom=False, labelbottom=False)
             ax[num * 2 + i].set_rasterization_zorder(2)
-
-    fig.tight_layout()
 
     return fig
 

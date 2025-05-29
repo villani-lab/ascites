@@ -50,13 +50,14 @@ dc_cluster_palette = {
 
 # Load single-cell object
 dc_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/second_data_freeze/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip')
+    '/projects/home/tlchan/projects/ascites/integrated_data/clusterings/ascites_dc_R8_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_dc_R8_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip')
 
 # Relabel obs for function
 dc_data.obs['Cluster'] = dc_data.obs['leiden_labels'].cat.remove_unused_categories().astype(str)
 
 fig = python_functions.plot_umap(lin_data=dc_data,
                                  palette=dc_cluster_palette)
+
 plt.show()
 # plt.savefig("/projects/home/tlchan/fig_panels/fig_3a.pdf")
 plt.close(fig)
@@ -64,12 +65,12 @@ plt.close(fig)
 
 ## Figure 3B
 ```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, fig_3B}
-count_mtx <- read.csv("/projects/home/tlchan/ascites_dc_R8_300mg_20pm_harm_channel_1_1_cluster_pseudobulk_counts.csv",
+count_mtx <- read.csv("/projects/home/tlchan/projects/ascites/figure_panels/data/fig_3_data/ascites_dc_R8_300mg_20pm_harm_channel_1_1_cluster_pseudobulk_counts.csv",
                       row.names = 1)
-meta_data <- read.csv("/projects/home/tlchan/ascites_dc_R8_300mg_20pm_harm_channel_1_1_cluster_pseudobulk_meta.csv",
+meta_data <- read.csv("/projects/home/tlchan/projects/ascites/figure_panels/data/fig_3_data/ascites_dc_R8_300mg_20pm_harm_channel_1_1_cluster_pseudobulk_meta.csv",
                       row.names = 1)
 
-annot_info <- read.csv("/projects/home/tlchan/ascites_dc_R8_300mg_20pm_harm_channel_1_1_cluster_pseudobulk_annotation.csv",
+annot_info <- read.csv("/projects/home/tlchan/projects/ascites/figure_panels/data/fig_3_data/ascites_dc_R8_300mg_20pm_harm_channel_1_1_cluster_pseudobulk_annotation.csv",
                        row.names = 1)
 
 colnames(annot_info) <- sapply(str_replace(colnames(annot_info), "_", " "), str_to_title)
@@ -114,7 +115,7 @@ label_genes$`Cluster 4` <- c("S100A8", "CSF3R")
 label_genes$`Cluster 5` <- c("CLEC9A", "XCR1")
 label_genes$`Cluster 6` <- c("SIGLEC6", "KIT")
 label_genes$`Cluster 7` <- c("KLF2", "C1QA")
-label_genes$`Cluster 8` <- c("NR4A2", "AREG")
+label_genes$`Cluster 8` <- c("NR4A1", "AREG")
 label_genes$`Cluster 9` <- c("CCR7", "IL7R")
 label_genes$`Cluster 10` <- c("GTF2IRD1", "ACY3", "NRXN2", "HOPX", "PRDM16", "RORC", "SFTPD", "PIGR")
 
@@ -138,7 +139,7 @@ for (gene in annotation_genes) {
 
 bottom_annotation <- HeatmapAnnotation(link = anno_mark(at = match(annotation_genes, colnames(heatmap_data)),
                                                         labels = annotation_genes,
-                                                        labels_gp = gpar(col = gene_cols, fontsize = 12, fontface = "bold"),
+                                                        labels_gp = gpar(col = gene_cols, fontsize = 17, fontface = "italic"),
                                                         side = "bottom"))
 
 mean_genes <- annot_info["mean_genes",] %>%
@@ -154,7 +155,7 @@ gene_lgd <- Legend(col_fun = gene_col_fun,
                    direction = "horizontal",
                    title_position = "topcenter",
                    title_gp = gpar(fontsize = 15),
-                   labels_gp = gpar(fontsize = 12))
+                   labels_gp = gpar(fontsize = 15))
 
 heatmap_col_fun <- colorRamp2(c(min(heatmap_data), 0, max(heatmap_data)), c("purple", "black", "yellow"))
 heatmap_lgd <- Legend(col_fun = heatmap_col_fun,
@@ -162,7 +163,7 @@ heatmap_lgd <- Legend(col_fun = heatmap_col_fun,
                       direction = "horizontal",
                       title_position = "topcenter",
                       title_gp = gpar(fontsize = 15),
-                      labels_gp = gpar(fontsize = 12))
+                      labels_gp = gpar(fontsize = 15))
 
 lgd_list <- packLegend(heatmap_lgd, gene_lgd, column_gap = unit(1, "cm"), direction = "horizontal")
 
@@ -218,8 +219,8 @@ heatmap_list <- Heatmap(heatmap_data,
                         column_split = split,
                         row_names_side = "right",
                         row_dend_side = "right",
-                        column_title_gp = gpar(fontsize = 15),
-                        row_names_gp = gpar(fontsize = 15),
+                        column_title_gp = gpar(fontsize = 20),
+                        row_names_gp = gpar(fontsize = 20),
                         show_column_names = FALSE)
 
 # pdf("/projects/home/tlchan/fig_panels/fig_3b.pdf", width = 7, height = 8)
@@ -232,6 +233,7 @@ draw(heatmap_list, heatmap_legend_list = lgd_list, heatmap_legend_side = "bottom
 plot_cluster_abundance(lin = "dc",
                        cluster_order = c(1, 5, 9, 10, 6, 2, 3, 8, 7, 4),
                        n_breaks = 2)
+
 # ggsave("/projects/home/tlchan/fig_panels/fig_3c.pdf", width = 7, height = 8)
 ```
 
@@ -239,13 +241,13 @@ plot_cluster_abundance(lin = "dc",
 ```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 8, fig_3D}
 select_regulons <- c("ID2(+)", "IRF4(+)", "IRF7(+)", "IRF8(+)", "KLF5(+)", "TCF4(+)", "SPIB(+)", "NFIL3(+)", "BATF3(+)", "KLF4(+)")
 
-dc10_regulons <- read.xlsx("/projects/home/tlchan/projects/ascites/second_data_freeze/data/dc_analysis/pigr/test_500_top_regulons.xlsx", sheetName = "dc_10") %>%
+dc10_regulons <- read.xlsx("/projects/home/tlchan/projects/ascites/results/scenic/pigr/test_500_top_regulons.xlsx", sheetName = "dc_10") %>%
     filter(count > 1) %>%
     pull(regulon)
 select_regulons <- append(select_regulons, dc10_regulons)
 
 rss_data <- lapply(seq(1, 9, 1), function(i) {
-    iter_data <- read.csv(glue("/projects/home/tlchan/projects/ascites/second_data_freeze/data/dc_analysis/pigr/test_500/lineage_rss_{i}_mtx.csv"), check.names = FALSE, row.names = 1) %>%
+    iter_data <- read.csv(glue("/projects/home/tlchan/projects/ascites/results/scenic/pigr/test_500/lineage_rss_{i}_mtx.csv"), check.names = FALSE, row.names = 1) %>%
         rownames_to_column("cluster") %>%
         pivot_longer(!cluster, names_to = "regulon", values_to = "score") %>%
         mutate(iter = i) %>%
@@ -303,57 +305,48 @@ hmap <- Heatmap(rss_data,
                 cluster_rows = FALSE,
                 show_heatmap_legend = TRUE,
                 column_title = "Cluster",
-                row_title = "Regulons")
+                row_title = "Regulons",
+                row_names_gp = gpar(fontface = "italic")
+)
+
 # pdf("/projects/home/tlchan/fig_panels/fig_3d.pdf", width = 4, height = 8)
 draw(hmap)
 # dev.off()
 ```
 
 ## Figure 3E
-```{python results = 'hold', fig_3E}
-dc_data = pg.read_input("/projects/home/tlchan/projects/ascites/data_cite_objects/dc.zarr.zip")
-
-fig = python_functions.plot_feature(lin_data=dc_data,
-                                    genes=['RORC', 'PIGR', 'ACY3', 'PRDM16', 'SFTPD', 'S100B', 'AIRE', 'IRF8', 'IL15'],
-                                    ncol=3,
-                                    nrow=3)
-plt.show()
-# plt.savefig("/projects/home/tlchan/fig_panels/fig_3e.pdf")
-plt.close(fig)
-```
-
-## Figure 3F
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 8, fig_3F}
-corr_mat <- read.csv("/projects/home/tlchan/projects/ascites/corr_human_mouse_thetis_long_norm.csv")
+```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 8, fig_3E}
+corr_mat <- read.csv("/projects/home/tlchan/projects/ascites/results/pearson/integrated_data/human_mouse_pca_corr_matrix_long.csv")
 
 corr_mat <- corr_mat %>% group_by(mouse_cells) %>% mutate(Nor = value/max(value))
 
 corr_mat <- corr_mat %>%
     mutate(human_cells = factor(human_cells, levels = c('1', '6', '10', '9', '8', '7', '4', '3', '2', '5'))) %>%
     mutate(mouse_cells = gsub("_", " ", mouse_cells)) %>%
-    mutate(mouse_cells = factor(mouse_cells, levels = c('DC1', 'DC2', 'migratoryDC', 'TC IV', 'Rorc-DC', 'TC II', 'TC I', 'TC III', 'newDC_human', 'tDC', 'pDC')))
+    mutate(mouse_cells = factor(mouse_cells, levels = c('DC1', 'DC2', 'migratoryDC', 'TC IV', 'Rorc-lo DC', 'TC II', 'TC I', 'TC III', 'tDC', 'pDC')))
 
 ggplot(corr_mat, aes(x = mouse_cells, y = human_cells, fill = Nor)) +
     geom_tile(colour = "black", size = 0.5) +
-    xlab("Mouse") +
-    ylab("Human") +
-    scale_fill_continuous_diverging(palette = "Blue-Red 3") +
-    scale_size_continuous(range = c(-1, 1)) +
+    xlab("Mouse DC subsets") +
+    ylab("Human DC subsets") +
+    scale_fill_continuous_diverging(palette = "Blue-Red 3", name ='Normalized Pearson') +
     scale_x_discrete(expand=c(0,0)) +
     scale_y_discrete(expand=c(0,0)) +
     coord_fixed() +
     theme_classic(base_size = 20) +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1), leg)
-# ggsave("/projects/home/tlchan/fig_panels/fig_3f.pdf", width = 5, height = 5)
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1), legend.position = "bottom") +
+    guides(fill = guide_colorbar(title.position = "top", barwidth = 12))
+
+# ggsave("/projects/home/tlchan/fig_panels/fig_3e.pdf", width = 5, height = 5)
 ```
 
-## Figure 3G
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 8, fig_3G}
+## Figure 3F
+```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 8, fig_3F}
 # "Other" organ types
 other_organs <- c("Adnexa", "Blood", "Bone marrow", "Liver", "Lung", "Muscle")
 
-# Load data
-abundance <- read.csv('/projects/home/tlchan/projects/ascites/external_dcs_obs.csv')
+# Load data, update values
+abundance <- read.csv("/projects/home/tlchan/projects/ascites/figure_panels/data/fig_3_data/external_dcs_obs.csv")
 
 abundance <- abundance %>%
     filter(!dataset %in% c("tonsil")) %>%
@@ -379,25 +372,26 @@ abundance <- abundance %>%
 
 organ_levels <- list("Other", "Upper quadrant", "Skeletal muscle", "Lung", "Liver", "Bone marrow", "Blood", "Adnexa",
                      "Thymus", "Thoracic LN", "Spleen", "Mesenteric LN", "Transverse colon", "Sigmoid colon", "Jejunum LP", "Jejunum epithelium", "Ileum", "Doudenum", "Caecum", "Bowel",
-                     "Stomach", "Omentum", "Peritoneum", "Healthy washing", "Ascites")
+                     "Stomach", "Omentum", "Peritoneum", "Peritoneal washing", "Ascites")
 
 tumor_palette <- list("Peritoneum" = "#66A61E", "GI tract" = "#984EA3", "Lymphoid" = "#00D2D5", "Other" = "#FF7F00")
 
 abundance <- abundance %>%
     filter(leiden_labels == 'dc_17') %>%
     mutate(organ = factor(organ, levels = organ_levels),
-           dataset = factor(dataset, levels = c('GEA', 'NI PC', 'Ovarian_Ca', 'Immune Atlas')))
+           dataset = factor(dataset, levels = c('GEA', 'Ovarian_Cancer', 'Healthy tissue')))
 
 ggplot(abundance, aes(y = organ, x = percentage, fill = organ_type)) +
     geom_boxplot(outlier.shape = NA) +
     geom_point(pch = 21, position = position_jitterdodge(), size = 3) +
     labs(fill = "Organ type") +
     scale_x_continuous(expand = expansion(mult = c(0.1, 0.3))) +
-    ylab("Organ") +
-    xlab("Percent of channel") +
+    ylab("Tissue") +
+    xlab("Percent of sample") +
     facet_grid(dataset ~ ., scales = "free_y", space = 'free') +
     scale_fill_manual(values = tumor_palette) +
     theme_classic(base_size = 15) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
-ggsave("/projects/home/tlchan/fig_panels/fig_3g.pdf", width = 7, height = 8)
+
+# ggsave("/projects/home/tlchan/fig_panels/fig_3f.pdf", width = 7, height = 8)
 ```
