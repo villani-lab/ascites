@@ -71,19 +71,23 @@ height <- length(unique(lin_gex$Cluster)) / 2 + 2
 
 ## Figure 6C
 ```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, fig_6C}
-
-DC_palette <- c("DC1" = '#B8ABE0', "DC2" = '#7F3F98', 'Other' = '#000000')
+DC_palette <- c("cDC1" = '#B8ABE0', "cDC2" = '#7F3F98', 'Other' = '#000000')
 
 excel_file <- '/projects/home/tlchan/projects/ascites/results/abundance/dc_diff_data/dc_diff_abundance.xlsx'
 
 lineage_order <- c("DC_Diff4", "DC_Diff5", "DC_Diff1", "DC_Diff3", "DC_Diff2")
 
 abundance <- read.xlsx(excel_file, sheet = "abundance") %>%
+    mutate(DC_start = ifelse(DC_start == "DC1", "cDC1", DC_start)) %>%
+    mutate(DC_start = ifelse(DC_start == "DC2", "cDC2", DC_start)) %>%
     mutate(lineage = factor(lineage, levels = lineage_order))
 
 pt_res <- read.xlsx(excel_file, sheet = "DC1vDC2_pt") %>%
+    mutate(color = ifelse(color == "DC1", "cDC1", color)) %>%
+    mutate(color = ifelse(color == "DC2", "cDC2", color)) %>%
     mutate(lineage = factor(lineage, levels = lineage_order))
 
+max_diff <- max(pt_res$Difference)
 pt_res$clean_pvals <- sapply(pt_res$p, function(x) {
     if (x > 0.01) {
         return(as.character(round(x, 2)))

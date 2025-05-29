@@ -323,7 +323,7 @@ corr_mat <- corr_mat %>% group_by(mouse_cells) %>% mutate(Nor = value/max(value)
 corr_mat <- corr_mat %>%
     mutate(human_cells = factor(human_cells, levels = c('1', '6', '10', '9', '8', '7', '4', '3', '2', '5'))) %>%
     mutate(mouse_cells = gsub("_", " ", mouse_cells)) %>%
-    mutate(mouse_cells = factor(mouse_cells, levels = c('DC1', 'DC2', 'migratoryDC', 'TC IV', 'Rorc-lo DC', 'TC II', 'TC I', 'TC III', 'tDC', 'pDC')))
+    mutate(mouse_cells = factor(mouse_cells, levels = c('cDC1', 'cDC2', 'migratoryDC', 'TC IV', 'Rorc-lo DC', 'TC II', 'TC I', 'TC III', 'tDC', 'pDC')))
 
 ggplot(corr_mat, aes(x = mouse_cells, y = human_cells, fill = Nor)) +
     geom_tile(colour = "black", size = 0.5) +

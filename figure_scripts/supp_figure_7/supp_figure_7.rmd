@@ -83,11 +83,15 @@ ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0), common.legend = TRUE
 
 ## Supplemental Figure 7E
 ```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_7E}
-DC_palette <- c("DC1" = '#B8ABE0', "DC2" = '#7F3F98', "DC: PIGR, RORC" = '#FFC857')
+
+DC_palette <- c("cDC1" = '#B8ABE0', "cDC2" = '#7F3F98', "DC: PIGR, RORC" = '#FFC857')
 
 excel_file <- glue('/projects/home/tlchan/projects/ascites/results/abundance/mlr_data/combo_mlr_all_CFSE_neg_lineage_DC_type_abundance.xlsx')
 
-abundance <- read.xlsx(excel_file, sheet = "abundance") %>% mutate(DC_type = gsub("newDC", "DC: PIGR, RORC", DC_type))
+abundance <- read.xlsx(excel_file, sheet = "abundance") %>%
+    mutate(DC_type = ifelse(DC_type == "newDC", "DC: PIGR, RORC", DC_type)) %>%
+    mutate(DC_type = ifelse(DC_type == "DC1", "cDC1", DC_type)) %>%
+    mutate(DC_type = ifelse(DC_type == "DC2", "cDC2", DC_type))
 
 ggplot(data = abundance, aes(y = factor(lineage), x = proportion + 1, fill = DC_type)) +
     geom_boxplot(outlier.shape = NA, alpha = 0.75) +
@@ -105,14 +109,17 @@ ggplot(data = abundance, aes(y = factor(lineage), x = proportion + 1, fill = DC_
 
 ## Supplemental Figure 7F
 ```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_7F}
-DC_palette <- c("DC1" = '#B8ABE0', "DC2" = '#7F3F98', "DC: PIGR, RORC" = '#FFC857')
+DC_palette <- c("cDC1" = '#B8ABE0', "cDC2" = '#7F3F98', "DC: PIGR, RORC" = '#FFC857')
 
 excel_file <- glue('/projects/home/tlchan/projects/ascites/results/abundance/mlr_data/combo_mlr_all_CFSE_neg_lineage_DC_type_abundance.xlsx')
 
-abundance <- read.xlsx(excel_file, sheet = "abundance") %>% mutate(DC_type = gsub("newDC", "DC: PIGR, RORC", DC_type))
+abundance <- read.xlsx(excel_file, sheet = "abundance") %>%
+    mutate(DC_type = ifelse(DC_type == "newDC", "DC: PIGR, RORC", DC_type)) %>%
+    mutate(DC_type = ifelse(DC_type == "DC1", "cDC1", DC_type)) %>%
+    mutate(DC_type = ifelse(DC_type == "DC2", "cDC2", DC_type))
 
 # Remap patient IDs
-patient_mapping <- read.csv("/projects/home/tlchan/projects/ascites/figure_panels/patient_name_remapping.csv")
+patient_mapping <- read.csv("/projects/home/tlchan/projects/ascites/figure_panels/data/patient_name_remapping.csv")
 patient_mapping <- setNames(patient_mapping$new_id, patient_mapping$patient_id)
 abundance$patient_id <- patient_mapping[abundance$patient_id]
 
@@ -224,21 +231,25 @@ plt.close(fig)
 cfse_neg_res <- read.csv("/projects/home/tlchan/projects/ascites/results/degs/mlr_data/lineage_level/combo_mlr_DC2vDC1_paired/combo_mlr_DC2vDC1_paired_CFSE_neg_de_by_DC2vDC1_paired_all_results.csv")
 cfse_pos_res <- read.csv("/projects/home/tlchan/projects/ascites/results/degs/mlr_data/lineage_level/combo_mlr_DC2vDC1_paired/combo_mlr_DC2vDC1_paired_CFSE_pos_de_by_DC2vDC1_paired_all_results.csv")
 
-mlr_meta <- read.csv('/projects/home/tlchan/projects/ascites/results/degs/mlr_data/pb_objects/combo_mlr_lineage_pseudobulk_meta.csv', row.names = 1)
+mlr_meta <- read.csv('/projects/home/tlchan/projects/ascites/results/degs/mlr_data/pb_objects/combo_mlr_lineage_pseudobulk_meta.csv', row.names = 1) %>%
+    mutate(DC_type = ifelse(DC_type == "newDC", "DC: PIGR, RORC", DC_type)) %>%
+    mutate(DC_type = ifelse(DC_type == "DC1", "cDC1", DC_type)) %>%
+    mutate(DC_type = ifelse(DC_type == "DC2", "cDC2", DC_type))
+
 cfse_neg_meta <- mlr_meta %>%
     filter(CFSE == "CFSE_neg") %>%
-    filter(DC_type == "DC1" | DC_type == "DC2")
+    filter(DC_type == "cDC1" | DC_type == "cDC2")
 cfse_pos_meta <- mlr_meta %>%
     filter(CFSE == "CFSE_pos") %>%
-    filter(DC_type == "DC1" | DC_type == "DC2")
+    filter(DC_type == "cDC1" | DC_type == "cDC2")
 
 # pdf("/projects/home/tlchan/fig_panels/supp_7k.pdf", width = 8, height = 8)
 plot_lineage_deg(res = cfse_neg_res,
                  meta = cfse_neg_meta,
                  lin = "All CFSE- cells",
                  contrast = "DC_type",
-                 ref_var = "DC1",
-                 test_var = "DC2",
+                 ref_var = "cDC1",
+                 test_var = "cDC2",
                  ref_color = "#B8ABE0",
                  test_color = "#7F3F98",
                  label_genes = c("CCL4", "IL2", "ISG15", "MYO1F", "AIR1", "TNFSF13B", "CD96", "IL16", "MYC", "RORA"))
@@ -246,8 +257,8 @@ plot_lineage_deg(res = cfse_pos_res,
                  meta = cfse_pos_meta,
                  lin = "All CFSE+ cells",
                  contrast = "DC_type",
-                 ref_var = "DC1",
-                 test_var = "DC2",
+                 ref_var = "cDC1",
+                 test_var = "cDC2",
                  ref_color = "#B8ABE0",
                  test_color = "#7F3F98",
                  label_genes = c("CXCL10", "PDE7B", "MYC", "GBP1", "TNFSF13B", "LAG3", "CD96", "IL16", "CD7", "LAIR1"))

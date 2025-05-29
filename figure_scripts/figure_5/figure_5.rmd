@@ -30,11 +30,10 @@ import squidpy as sq
 
 ## Figure 5B
 ```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_5B}
-DC_palette <- c("DC1" = '#B8ABE0', "DC2" = '#7F3F98', "DC: PIGR, RORC" = '#FFC857', "CD14" = "#36565C")
+DC_palette <- c("cDC1" = '#B8ABE0', "cDC2" = '#7F3F98', "DC: PIGR, RORC" = '#FFC857', "CD14" = "#36565C")
 
 CFSE_data <- read.csv("/projects/home/tlchan/projects/ascites/figure_panels/data/fig_5_data/combined_CFSE_stats.csv") %>%
-    mutate(cell_category = gsub("newDC", "DC: PIGR, RORC", cell_category)) %>%
-    mutate(cell_category = factor(cell_category, levels = c("CD14", "DC: PIGR, RORC", "DC1", "DC2")))
+    mutate(cell_category = factor(cell_category, levels = c("CD14", "DC: PIGR, RORC", "cDC1", "cDC2")))
 
 stats <- CFSE_data %>%
     filter(cell_category %in% c('DC: PIGR, RORC', 'CD14')) %>%
@@ -43,12 +42,22 @@ stats <- CFSE_data %>%
     add_xy_position(x = "cell_category") %>%
     mutate(p_label = paste0("p = ", round(p, 3)))
 
+stats$clean_pvals <- sapply(stats$p, function(x) {
+    if (x > 0.01) {
+        return(as.character(round(x, 2)))
+    } else if (x < 0.01 & x > 0.001) {
+        return(as.character(round(x, 3)))
+    } else {
+        formatC(x, format = "e", digits = 0)
+    }
+})
+
 ggplot(CFSE_data, aes(x = factor(cell_category), y = log_CFSE_neg_perc)) +
     geom_jitter(pch = 21, size = 5, width = 0.1, height = 0, aes(fill = cell_category)) +
     xlab("Cell category") +
     ylab("log(CFSE- percentage)") +
     scale_fill_manual(values = DC_palette) +
-    stat_pvalue_manual(stats, label = "p_label", size = 7) +
+    stat_pvalue_manual(data = stats, label = "p = {clean_pvals}", size = 7) +
     theme_classic(base_size = 22) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none")
 
@@ -60,21 +69,24 @@ ggplot(CFSE_data, aes(x = factor(cell_category), y = log_CFSE_neg_perc)) +
 cfse_neg_res <- read.csv("/projects/home/tlchan/projects/ascites/results/degs/mlr_data/lineage_level/combo_mlr_newDCvDC2_paired/combo_mlr_newDCvDC2_paired_CFSE_neg_de_by_newDCvDC2_paired_all_results.csv")
 cfse_pos_res <- read.csv("/projects/home/tlchan/projects/ascites/results/degs/mlr_data/lineage_level/combo_mlr_newDCvDC2_paired/combo_mlr_newDCvDC2_paired_CFSE_pos_de_by_newDCvDC2_paired_all_results.csv")
 
-mlr_meta <- read.csv('/projects/home/tlchan/projects/ascites/results/degs/mlr_data/pb_objects/combo_mlr_lineage_pseudobulk_meta.csv', row.names = 1) %>% mutate(DC_type = gsub("newDC", "DC: PIGR, RORC", DC_type))
+mlr_meta <- read.csv('/projects/home/tlchan/projects/ascites/results/degs/mlr_data/pb_objects/combo_mlr_lineage_pseudobulk_meta.csv', row.names = 1) %>%
+    mutate(DC_type = ifelse(DC_type == "newDC", "DC: PIGR, RORC", DC_type)) %>%
+    mutate(DC_type = ifelse(DC_type == "DC1", "cDC1", DC_type)) %>%
+    mutate(DC_type = ifelse(DC_type == "DC2", "cDC2", DC_type))
 
 cfse_neg_meta <- mlr_meta %>%
     filter(CFSE == "CFSE_neg") %>%
-    filter(DC_type == "DC: PIGR, RORC" | DC_type == "DC2")
+    filter(DC_type == "DC: PIGR, RORC" | DC_type == "cDC2")
 cfse_pos_meta <- mlr_meta %>%
     filter(CFSE == "CFSE_pos") %>%
-    filter(DC_type == "DC: PIGR, RORC" | DC_type == "DC2")
+    filter(DC_type == "DC: PIGR, RORC" | DC_type == "cDC2")
 
 # pdf("/projects/home/tlchan/fig_panels/fig_5c.pdf", width = 8, height = 8)
 plot_lineage_deg(res = cfse_neg_res,
                  meta = cfse_neg_meta,
                  lin = "All CFSE- cells",
                  contrast = "DC_type",
-                 ref_var = "DC2",
+                 ref_var = "cDC2",
                  test_var = "DC: PIGR, RORC",
                  ref_color = "#7F3F98",
                  test_color = "#FFC857",
@@ -83,7 +95,7 @@ plot_lineage_deg(res = cfse_pos_res,
                  meta = cfse_pos_meta,
                  lin = "All CFSE+ cells",
                  contrast = "DC_type",
-                 ref_var = "DC2",
+                 ref_var = "cDC2",
                  test_var = "DC: PIGR, RORC",
                  ref_color = "#7F3F98",
                  test_color = "#FFC857",
@@ -93,6 +105,7 @@ plot_lineage_deg(res = cfse_pos_res,
 
 ## Figure 5D
 ```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_5D}
+
 newDC_data <- read.csv("/projects/home/tlchan/projects/ascites/results/degs/mlr_data/mlr_newDCvDC2_paired_degs_summary.csv", row.names = 1) %>% rownames_to_column("gene_symbol")
 newDC_up <- newDC_data %>%
     mutate(newDC_up = rowSums(. == "newDC")) %>%
@@ -114,12 +127,12 @@ DC1_down <- DC1_data %>%
     pull("gene_symbol")
 
 up_genes <- list(
-    "DC1" = DC1_up,
+    "cDC1" = DC1_up,
     "DC: PIGR, RORC" = newDC_up
 )
 
 down_genes <- list(
-    "DC1" = DC1_down,
+    "cDC1" = DC1_down,
     "DC: PIGR, RORC" = newDC_down
 )
 
@@ -132,6 +145,8 @@ up_vd <- venn.diagram(x = up_genes,
                       fontfamily = "sans",
                       cat.fontfamily = "sans",
                       cat.cex = 2,
+                      main = "Increased vs cDC2",
+                      main.cex = 2,
                       filename = NULL,
                       disable.logging = TRUE)
 down_vd <- venn.diagram(x = down_genes,
@@ -143,6 +158,8 @@ down_vd <- venn.diagram(x = down_genes,
                         fontfamily = "sans",
                         cat.fontfamily = "sans",
                         cat.cex = 2,
+                        main = "Decreased vs cDC2",
+                        main.cex = 2,
                         filename = NULL,
                         disable.logging = TRUE)
 
@@ -209,7 +226,7 @@ for (gene in highlight_genes) {
 
 gene_annot <- rowAnnotation(link = anno_mark(at = match(highlight_genes, rownames(lfc_mtx)),
                                              labels = highlight_genes,
-                                             labels_gp = gpar(fontsize = 12, col = gene_colors)))
+                                             labels_gp = gpar(fontsize = 12, fontface = "italic", col = gene_colors)))
 
 # Split CFSE
 lfc_mtx <- lfc_mtx[, c("ALL_CFSE_pos", "CD8_CFSE_pos", "CD4_CFSE_pos", "ALL_CFSE_neg", "CD8_CFSE_neg", "CD4_CFSE_neg")]

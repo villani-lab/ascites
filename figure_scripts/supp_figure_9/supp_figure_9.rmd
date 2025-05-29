@@ -230,7 +230,9 @@ DC_palette <- c("DC_Diff1" = '#00916E',
                 "DC_Diff4" = '#FFC857',
                 "DC_Diff5" = '#B8ABE0')
 
-diff_cell_type <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/dc_diff_data/dc_diff_3_R3_obs.csv")
+diff_cell_type <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/dc_diff_data/dc_diff_3_R3_obs.csv") %>%
+    mutate(DC_start = ifelse(DC_start == "DC1", "cDC1", DC_start)) %>%
+    mutate(DC_start = ifelse(DC_start == "DC2", "cDC2", DC_start))
 
 diff_cell_type <- diff_cell_type %>%
     filter(DC_start != "invalid") %>%
