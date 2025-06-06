@@ -103,7 +103,7 @@ monomac_meta <- monomac_meta %>%
     mutate(sex = factor(sex, levels = c('M', 'F')))
 
 label_genes <- c("CXCL1", "IL10", "CXCL8", "CCL2", "CCL20", "HAVCR2", "VEGFA", "SPP1", "HLA-DQB2", "CLU", "SELL", "TREM2", "MEFV", "CPPED1")
-highlight_genes <-  c("CXCL1", "IL10", "CXCL8", "CSF1", "CCL2", "CCL20", "HAVCR2", "VEGFA")
+highlight_genes <-  c("CCL2", "CCL20", "CXCL1", "CXCL8", "IL10", "VEGFA")
 
 plot_lineage_deg(res = monomac_res,
                  meta = monomac_meta,
@@ -117,7 +117,7 @@ plot_lineage_deg(res = monomac_res,
                  test_color = "#2278B5",
                  highlight_color = "#FFBF00")
 
-# ggsave("/projects/home/tlchan/fig_panels/supp_4d.pdf", width = 8, height = 8)
+ggsave("/projects/home/tlchan/fig_panels/supp_4d.pdf", width = 8, height = 8)
 ```
 
 ## Supplementary Figure 4E

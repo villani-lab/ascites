@@ -39,7 +39,7 @@ plot_dotplot <- function(lin_gex, lin_cite, lin, widths, cluster_order) {
         theme(legend.key.size = unit(.4, "cm"), legend.title = element_text(size = 20), legend.text = element_text(size = 12)) +
         guides(size = "none")
 
-    lin_proteins <- dotplot_markers%>%
+    lin_proteins <- dotplot_markers %>%
         filter(!is.na(proteins)) %>%
         pull(proteins) %>%
         strsplit(",") %>%

@@ -333,7 +333,7 @@ niche_palette <- list(
 cd4_prolif_data <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/violinplot_data/spatial_cd4_prolif_gene_exp.csv') %>%
     mutate(DC_RORC_niche = ifelse(DC_RORC_niche == "CD4_prolif_non_niche", "Outside DC_RORC niche", "Inside DC_RORC niche")) %>%
     mutate(DC_RORC_niche = factor(DC_RORC_niche, levels = c("Outside DC_RORC niche", "Inside DC_RORC niche"))) %>%
-    mutate(Gene = factor(Gene, levels = c("CD3E", "CD4", "MKI67", "IFNG", "IL5", "IL13")))
+    mutate(Gene = factor(Gene, levels = c("CD3E", "CD4", "IFNG", "IL5", "IL13")))
 
 stats <- cd4_prolif_data %>%
     group_by(Gene) %>%
