@@ -1,0 +1,333 @@
+Supplemental Figure 9
+================
+
+## Set up
+
+Load R libraries
+
+``` r
+library(ggpubr)
+library(ggrepel)
+library(glue)
+library(tidyverse)
+
+library(reticulate)
+use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
+```
+
+Load python libraries
+
+``` python
+import math
+import matplotlib.pyplot as plt
+import os
+import pandas as pd
+import pegasus as pg
+import scanpy as sc
+
+import sys
+sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
+import python_functions
+```
+
+## Supplemental Figure 9A
+
+``` r
+# Load data
+abundance <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/integrated_data/ascites_abundance_include_non_native.csv")
+
+# Subset DCs
+abundance <- abundance %>%
+    filter(lineage == "dc")
+
+# Get immune count
+abundance <- abundance %>%
+    group_by(patient_id, tissue_type, cluster, .drop = FALSE) %>%
+    summarize(abundance = n())
+
+# Account for patient/tissue pairs that contributed zero cells to clusters
+combos <- expand.grid(unique(abundance$patient_id), unique(abundance$tissue_type), unique(abundance$cluster)) %>% `colnames<-`(c("patient_id", "tissue_type", "cluster"))
+
+abundance <- combos %>%
+    left_join(abundance, by = c("patient_id", "tissue_type", "cluster")) %>%
+    replace(is.na(.), 0)
+
+abundance <- abundance %>%
+    group_by(patient_id, tissue_type) %>%
+    filter(sum(abundance) > 50)
+
+# Get statistics
+abundance <- abundance %>%
+    group_by(patient_id, tissue_type) %>%
+    mutate(proportion = abundance / sum(abundance) * 100) %>%
+    mutate(log_proportion = log1p(proportion)) %>%
+    mutate(tissue_type = factor(tissue_type, levels = c("blood", "ascites")))
+
+# Filter for ascites, and non-null values
+abundance <- abundance %>%
+    filter(tissue_type == 'ascites') %>%
+    filter(!is.na(proportion)) %>%
+    ungroup() %>%
+    select(patient_id, cluster, log_proportion)
+
+### DC NEW CORRELATION
+c10_stats <- abundance %>%
+    filter(cluster == 10) %>%
+    rename("log_newDC_proportion" = log_proportion) %>%
+    select(patient_id, log_newDC_proportion)
+
+analyte_list <- c("IL-6", "IL-10")
+
+# pdf("/projects/home/tlchan/fig_panels/supp_9a.pdf", width = 5.5, height = 8)
+for (an in analyte_list) {
+    sf_data <- read.csv("/projects/home/tlchan/projects/ascites/results/secreted_factors/integrated_data/secreted_factors_updated.csv", row.names = 1)
+    sf_data <- sf_data[sf_data["diluted"] == "No",]
+    sf_data <- sf_data[sf_data["analyte"] == an,]
+    sf_data <- sf_data[sf_data["type"] == "ascites",]
+    sf_data$log_concentration <- log(sf_data$concentration)
+
+    sf_data <- sf_data %>%
+        merge(c10_stats, by = "patient_id")
+
+    p <- ggplot(sf_data, aes(x = log_concentration, y = log_newDC_proportion)) +
+        geom_point(pch = 19, size = 4) +
+        geom_smooth(method = "lm", formula = y ~ x) +
+        stat_cor(method = "pearson", size = 7) +
+        xlab("log(concentration)") +
+        ylab("log(DC: PIGR, RORC percentage)") +
+        ggtitle(glue("Ascites, {an}")) +
+        theme_classic(base_size = 28)
+    print(p)
+}
+```
+
+![](supp_figure_9_files/figure-gfm/supp_9A-1.png)<!-- -->![](supp_figure_9_files/figure-gfm/supp_9A-2.png)<!-- -->
+
+``` r
+# dev.off()
+```
+
+## Supplemental Figure 9B
+
+``` r
+# Load data
+abundance <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/integrated_data/ascites_abundance_include_non_native.csv")
+
+# Subset DCs
+abundance <- abundance %>%
+    filter(lineage == "dc")
+
+# Get immune count
+abundance <- abundance %>%
+    group_by(patient_id, tissue_type, cluster, .drop = FALSE) %>%
+    summarize(abundance = n())
+
+# Account for patient/tissue pairs that contributed zero cells to clusters
+combos <- expand.grid(unique(abundance$patient_id), unique(abundance$tissue_type), unique(abundance$cluster)) %>% `colnames<-`(c("patient_id", "tissue_type", "cluster"))
+
+abundance <- combos %>%
+    left_join(abundance, by = c("patient_id", "tissue_type", "cluster")) %>%
+    replace(is.na(.), 0)
+
+abundance <- abundance %>%
+    group_by(patient_id, tissue_type) %>%
+    filter(sum(abundance) > 50)
+
+# Get statistics
+abundance <- abundance %>%
+    group_by(patient_id, tissue_type) %>%
+    mutate(proportion = abundance / sum(abundance) * 100) %>%
+    mutate(log_proportion = log1p(proportion)) %>%
+    mutate(tissue_type = factor(tissue_type, levels = c("blood", "ascites")))
+
+# Filter for ascites, and non-null values
+abundance <- abundance %>%
+    filter(tissue_type == 'ascites') %>%
+    filter(!is.na(proportion)) %>%
+    ungroup() %>%
+    select(patient_id, cluster, log_proportion)
+
+### DC NEW CORRELATION
+c10_stats <- abundance %>%
+    filter(cluster == 10) %>%
+    rename("log_newDC_proportion" = log_proportion) %>%
+    select(patient_id, log_newDC_proportion)
+
+else_stats <- abundance %>%
+    filter(cluster != 10)
+
+dc_stats <- merge(c10_stats, else_stats, by = "patient_id")
+
+cluster_list <- c('2', '4', '7')
+
+# pdf("/projects/home/tlchan/fig_panels/supp_9b.pdf", width = 5.5, height = 8)
+for (clust in cluster_list) {
+    clust_data <- dc_stats %>%
+        filter(cluster == clust)
+
+    p <- ggplot(clust_data, aes(x = log_proportion, y = log_newDC_proportion)) +
+        geom_point(pch = 19, size = 4) +
+        geom_smooth(method = "lm", formula = y ~ x) +
+        stat_cor(method = "pearson", size = 7) +
+        xlab("log(patient percentage)") +
+        ylab("log(DC: PIGR, RORC percentage)") +
+        ggtitle(glue("Ascites, Cluster {clust}")) +
+        theme_classic(base_size = 28)
+    print(p)
+}
+```
+
+![](supp_figure_9_files/figure-gfm/supp_9B-1.png)<!-- -->![](supp_figure_9_files/figure-gfm/supp_9B-2.png)<!-- -->![](supp_figure_9_files/figure-gfm/supp_9B-3.png)<!-- -->
+
+``` r
+# dev.off()
+```
+
+## Supplemental Figure 9F
+
+``` python
+patient_palette = {
+    "Pt_1": "#FF0029",
+    "Pt_2": "#377EB8",
+    "Pt_3": "#66A61E",
+    "Pt_4": "#984EA3",
+    "Pt_5": "#00D2D5",
+    "Pt_6": "#FF7F00",
+    "Pt_7": "#AF8D00",
+    "Pt_8": "#7F80CD",
+    "Pt_9": "#B3E900",
+    "Pt_10": "#C42E60",
+    "Pt_11": "#A65628",
+    "Pt_12": "#F781BF",
+    "Pt_13": "#8DD3C7",
+    "Pt_14": "#BEBADA",
+    "Pt_15": "#FB8072",
+    "Pt_16": "#80B1D3",
+    "Pt_17": "#FDB462",
+    "Pt_18": "#FCCDE5",
+    "Pt_19": "#BC80BD",
+    "Pt_20": "#FFED6F",
+    "Pt_21": "#C4EAFF",
+    "Pt_22": "#CF8C00",
+    "Pt_23": "#1B9E77",
+    "Pt_24": "#D95F02",
+    "Pt_25": "#E7298A",
+    "Pt_26": "#E6AB02",
+    "Control": "#A6761D"
+}
+
+# Load single-cell object
+dc_diff = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/dc_diff_data/clusterings/dc_diff_3_R3_500mg_20pm_multi_res/1.3/data/filter_qc/dc_diff_3_R3_500mg_20pm_1_3.zarr.zip')
+
+patient_mapping = pd.read_csv("/projects/home/tlchan/projects/ascites/figure_panels/data/patient_name_remapping.csv")
+patient_mapping = dict(zip(patient_mapping['patient_id'], patient_mapping['new_id']))
+
+dc_diff.obs["patient"] = dc_diff.obs["patient"].replace(patient_mapping)
+dc_diff.obs["patient"] = dc_diff.obs["patient"].replace("control", "Control")
+
+fig = python_functions.plot_umap(lin_data=dc_diff,
+                                 color="patient",
+                                 palette=patient_palette,
+                                 legend_loc=None)
+
+plt.show()
+# plt.savefig("/projects/home/tlchan/fig_panels/supp_9f.pdf")
+plt.close(fig)
+```
+
+    ## <string>:2: FutureWarning: The behavior of Series.replace (and DataFrame.replace) with CategoricalDtype is deprecated. In a future version, replace will only be used for cases that preserve the categories. To change the categories, use ser.cat.rename_categories instead.
+    ## <string>:1: FutureWarning: The behavior of Series.replace (and DataFrame.replace) with CategoricalDtype is deprecated. In a future version, replace will only be used for cases that preserve the categories. To change the categories, use ser.cat.rename_categories instead.
+
+<img src="supp_figure_9_files/figure-gfm/supp_9F-1.png" width="576" />
+
+## Supplemental Figure 9G
+
+``` r
+DC_palette <- c("DC_Diff1" = '#00916E',
+                "DC_Diff2" = "#44DAE5",
+                "DC_Diff3" = "#F88FBD",
+                "DC_Diff4" = '#FFC857',
+                "DC_Diff5" = '#B8ABE0')
+
+diff_cell_type <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/dc_diff_data/dc_diff_3_R3_obs.csv") %>%
+    mutate(DC_start = ifelse(DC_start == "DC1", "cDC1", DC_start)) %>%
+    mutate(DC_start = ifelse(DC_start == "DC2", "cDC2", DC_start))
+
+diff_cell_type <- diff_cell_type %>%
+    filter(DC_start != "invalid") %>%
+    group_by(lineage, DC_start) %>%
+    summarize(count = n())
+
+ggplot(diff_cell_type, aes(x = DC_start, y = count, fill = lineage)) +
+    geom_bar(stat = "identity", position = "fill") +
+    xlab("Starting DC subset") +
+    ylab("% cell type") +
+    labs(fill = "Lineage") +
+    theme_classic(base_size = 23) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    scale_fill_manual(values = DC_palette)
+```
+
+![](supp_figure_9_files/figure-gfm/supp_9G-3.png)<!-- -->
+
+``` r
+# ggsave("/projects/home/tlchan/fig_panels/supp_9g.pdf", width = 4, height = 8)
+```
+
+## Supplemental Figure 9H
+
+``` r
+markers <- read.csv("/projects/home/tlchan/projects/ascites/results/ova_correlation/dc_diff_data/asc_dc_with_diff_combo_markers.csv")
+
+both_up <- markers[markers$dc_pb_lFC >= 1.25 & markers$diff_pb_lFC >= 1.25,]
+ggplot(markers, aes(x = dc_pb_lFC, y = diff_pb_lFC)) +
+    geom_point(data = both_up, color = "red") +
+    geom_point(data = markers[markers$dc_pb_lFC < 1.25 | markers$diff_pb_lFC < 1.25,], color = "grey") +
+    geom_label_repel(data = both_up, label = both_up$featurekey, force = 0.2, max.overlaps = Inf, size = 7) +
+    xlab("log2FC of DC: PIGR, RORC") +
+    ylab("log2FC of DC_Diff4") +
+    theme_classic(base_size = 20)
+```
+
+![](supp_figure_9_files/figure-gfm/supp_9H-1.png)<!-- -->
+
+``` r
+# ggsave("/projects/home/tlchan/fig_panels/supp_9h.pdf", width = 5, height = 6)
+```
+
+## Supplemental Figure 9I
+
+``` python
+dc_data = pg.read_input("/projects/home/tlchan/projects/ascites/figure_panels/data/data_cite_objects/dc.zarr.zip")
+
+fig = python_functions.plot_feature(lin_data=dc_data,
+                                    genes=["LST1", "PAK1", "GPR82", "PLBD1", "HPGD", "TOX", "ATP10A", "PAWR", "PRSS3"],
+                                    ncol=3,
+                                    nrow=3)
+
+plt.show()
+# plt.savefig("/projects/home/tlchan/fig_panels/supp_9i.pdf")
+plt.close(fig)
+```
+
+<img src="supp_figure_9_files/figure-gfm/supp_9I-1.png" width="1440" />
+
+## Supplemental Figure 9J
+
+``` python
+dc_diff = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/dc_diff_data/clusterings/dc_diff_3_R3_500mg_20pm_multi_res/1.3/data/filter_qc/dc_diff_3_R3_500mg_20pm_1_3.zarr.zip')
+dc_diff.add_matrix('X', dc_diff.X)
+
+fig = python_functions.plot_feature(lin_data=dc_diff,
+                                    genes=["LST1", "PAK1", "GPR82", "PLBD1", "HPGD", "TOX", "ATP10A", "PAWR", "PRSS3"],
+                                    ncol=3,
+                                    nrow=3)
+
+plt.show()
+# plt.savefig("/projects/home/tlchan/fig_panels/supp_9j.pdf")
+plt.close(fig)
+```
+
+<img src="supp_figure_9_files/figure-gfm/supp_9J-3.png" width="1440" />
