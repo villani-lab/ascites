@@ -324,7 +324,7 @@ ggplot(global_lineage, aes(x = Patient, y = Count, fill = Lineage)) +
 ```
 
 ## Supplemental Figure 1M
-```{r message = F, results = F, warning = F, fig.width = 9, fig.height = 8, supp_1L}
+```{r message = F, results = F, warning = F, fig.width = 9, fig.height = 8, supp_1M}
 plot_sf_boxplot(analytes = c("CXCL9", "CXCL10", "CXCL16", "IL-12p40", "IL-15", "CCL5"), nrow = 2)
 
 # ggsave("/projects/home/tlchan/fig_panels/supp_1m.pdf", width = 9, height = 8)

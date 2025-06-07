@@ -32,7 +32,6 @@ import python_functions
 
 ## Supplemental Figure 7D
 ```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, supp_7D}
-
 CFSE_palette <- c("CFSE_pos" = '#fa9f42', "CFSE_neg" = '#6F4E37', 'Other' = '#000000')
 
 excel_file <- glue('/projects/home/tlchan/projects/ascites/results/abundance/mlr_data/combo_mlr_all_lineage_CFSE_abundance.xlsx')
@@ -173,7 +172,7 @@ reds_hex <- apply(reds_colormap, 1, function(row) {
 lineage_list <- list(cd4 = "h", cd8 = "j")
 
 for (lineage in names(lineage_list)) {
-    gene_order <- read.xlsx('/projects/home/tlchan/projects/ascites/figure_panels/data/MLR_dotplot_markers.xlsx', sheetName = toupper(lineage)) %>%
+    gene_order <- read.xlsx('/projects/home/tlchan/projects/ascites/figure_panels/data/MLR_dotplot_markers.xlsx', sheet = toupper(lineage)) %>%
         filter(!is.na(genes)) %>%
         pull(genes) %>%
         strsplit(",") %>%

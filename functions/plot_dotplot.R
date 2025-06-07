@@ -1,5 +1,5 @@
 library(ggpubr)
-library(xlsx)
+library(openxlsx)
 library(tidyverse)
 
 # Use Reds
@@ -15,7 +15,7 @@ blues_hex <- apply(blues_colormap, 1, function(row) {
 })
 
 plot_dotplot <- function(lin_gex, lin_cite, lin, widths, cluster_order) {
-    dotplot_markers <- read.xlsx('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_markers.xlsx', sheetName = toupper(lin))
+    dotplot_markers <- read.xlsx('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_markers.xlsx', sheet = toupper(lin))
 
     lin_genes <- dotplot_markers %>%
         filter(!is.na(genes)) %>%

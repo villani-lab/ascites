@@ -17,6 +17,7 @@ source('plot_dotplot.R')
 
 Load python libraries
 ```{python load_python_packages}
+import matplotlib.pyplot as plt
 import pegasus as pg
 
 import sys

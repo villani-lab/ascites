@@ -21,7 +21,7 @@ reds_hex <- apply(reds_colormap, 1, function(row) {
     rgb(row[1], row[2], row[3], maxColorValue = 1)
 })
 
-gene_order <- read.xlsx('/projects/home/tlchan/projects/ascites/figure_panels/data/spatial_dotplot_markers.xlsx', sheetName = "LINEAGE") %>%
+gene_order <- read.xlsx('/projects/home/tlchan/projects/ascites/figure_panels/data/spatial_dotplot_markers.xlsx', sheet = "LINEAGE") %>%
     filter(!is.na(genes)) %>%
     pull(genes) %>%
     strsplit(",") %>%

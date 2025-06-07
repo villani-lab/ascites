@@ -12,8 +12,8 @@ library(colorspace)
 library(ComplexHeatmap)
 library(ggpubr)
 library(glue)
+library(openxlsx)
 library(tidyverse)
-library(xlsx)
 
 library(reticulate)
 use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
@@ -241,7 +241,7 @@ plot_cluster_abundance(lin = "dc",
 ```{r message = F, results = F, warning = F, fig.width = 4, fig.height = 8, fig_3D}
 select_regulons <- c("ID2(+)", "IRF4(+)", "IRF7(+)", "IRF8(+)", "KLF5(+)", "TCF4(+)", "SPIB(+)", "NFIL3(+)", "BATF3(+)", "KLF4(+)")
 
-dc10_regulons <- read.xlsx("/projects/home/tlchan/projects/ascites/results/scenic/pigr/test_500_top_regulons.xlsx", sheetName = "dc_10") %>%
+dc10_regulons <- read.xlsx("/projects/home/tlchan/projects/ascites/results/scenic/pigr/test_500_top_regulons.xlsx", sheet = "dc_10") %>%
     filter(count > 1) %>%
     pull(regulon)
 select_regulons <- append(select_regulons, dc10_regulons)
