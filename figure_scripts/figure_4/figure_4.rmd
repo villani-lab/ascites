@@ -41,7 +41,7 @@ plt.close(fig)
 ```
 
 ## Figure 4D
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_4D}
+```{r message = F, results = F, warning = F, fig.width = 6, fig.height = 8, fig_4D}
 corr_mat <- read.csv("/projects/home/tlchan/projects/ascites/results/pearson/dc_iso_data/asc_dc_with_pigr_dc_corr_long.csv")
 
 corr_mat <- corr_mat %>%
@@ -147,7 +147,7 @@ plt.close(fig)
 ```
 
 ## Figure 4H
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_4H}
+```{r message = F, results = F, warning = F, fig.width = 4, fig.height = 8, fig_4H}
 dc_cluster_palette = list(
     "cDC2" = "#7F3F98",
     "pDC" = "#377EB8",

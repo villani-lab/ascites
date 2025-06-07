@@ -30,7 +30,7 @@ import python_functions
 ```
 
 ## Supplemental Figure 9A
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_9A}
+```{r message = F, results = F, warning = F, fig.width = 5.5, fig.height = 8, supp_9A}
 # Load data
 abundance <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/integrated_data/ascites_abundance_include_non_native.csv")
 
@@ -101,7 +101,7 @@ for (an in analyte_list) {
 ```
 
 ## Supplemental Figure 9B
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_9B}
+```{r message = F, results = F, warning = F, fig.width = 5.5, fig.height = 8, supp_9B}
 # Load data
 abundance <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/integrated_data/ascites_abundance_include_non_native.csv")
 
@@ -223,7 +223,7 @@ plt.close(fig)
 ```
 
 ## Supplemental Figure 9G
-```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, supp_9G}
+```{r message = F, results = F, warning = F, fig.width = 4, fig.height = 8, supp_9G}
 DC_palette <- c("DC_Diff1" = '#00916E',
                 "DC_Diff2" = "#44DAE5",
                 "DC_Diff3" = "#F88FBD",
@@ -252,7 +252,7 @@ ggplot(diff_cell_type, aes(x = DC_start, y = count, fill = lineage)) +
 ```
 
 ## Supplemental Figure 9H
-```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, supp_9H}
+```{r message = F, results = F, warning = F, fig.width = 5, fig.height = 6, supp_9H}
 markers <- read.csv("/projects/home/tlchan/projects/ascites/results/ova_correlation/dc_diff_data/asc_dc_with_diff_combo_markers.csv")
 
 both_up <- markers[markers$dc_pb_lFC >= 1.25 & markers$diff_pb_lFC >= 1.25,]

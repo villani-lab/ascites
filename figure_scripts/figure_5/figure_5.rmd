@@ -29,7 +29,7 @@ import squidpy as sq
 ```
 
 ## Figure 5B
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_5B}
+```{r message = F, results = F, warning = F, fig.width = 3.5, fig.height = 7, fig_5B}
 DC_palette <- c("cDC1" = '#B8ABE0', "cDC2" = '#7F3F98', "DC: PIGR, RORC" = '#FFC857', "CD14" = "#36565C")
 
 CFSE_data <- read.csv("/projects/home/tlchan/projects/ascites/figure_panels/data/fig_5_data/combined_CFSE_stats.csv") %>%
@@ -65,7 +65,7 @@ ggplot(CFSE_data, aes(x = factor(cell_category), y = log_CFSE_neg_perc)) +
 ```
 
 ## Figure 5C
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_5C}
+```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, fig_5C}
 cfse_neg_res <- read.csv("/projects/home/tlchan/projects/ascites/results/degs/mlr_data/lineage_level/combo_mlr_newDCvDC2_paired/combo_mlr_newDCvDC2_paired_CFSE_neg_de_by_newDCvDC2_paired_all_results.csv")
 cfse_pos_res <- read.csv("/projects/home/tlchan/projects/ascites/results/degs/mlr_data/lineage_level/combo_mlr_newDCvDC2_paired/combo_mlr_newDCvDC2_paired_CFSE_pos_de_by_newDCvDC2_paired_all_results.csv")
 
@@ -104,8 +104,7 @@ plot_lineage_deg(res = cfse_pos_res,
 ```
 
 ## Figure 5D
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_5D}
-
+```{r message = F, results = F, warning = F, fig.width = 10, fig.height = 10, fig_5D}
 newDC_data <- read.csv("/projects/home/tlchan/projects/ascites/results/degs/mlr_data/mlr_newDCvDC2_paired_degs_summary.csv", row.names = 1) %>% rownames_to_column("gene_symbol")
 newDC_up <- newDC_data %>%
     mutate(newDC_up = rowSums(. == "newDC")) %>%
@@ -170,7 +169,7 @@ plot_grid(down_vd)
 ```
 
 ## Figure 5E
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_5E}
+```{r message = F, results = F, warning = F, fig.width = 3.5, fig.height = 12, fig_5E}
 setwd('/projects/home/tlchan/projects/ascites/results/degs/mlr_data/lineage_level')
 
 lineage_list <- list(
@@ -301,7 +300,7 @@ plt.close(fig)
 ```
 
 ## Figure 5G
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_5G}
+```{r message = F, results = F, warning = F, fig.width = 4.5, fig.height = 8, fig_5G}
 overenrichment_data <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/spatial_data/spatial_overenrichment_stats.csv")
 overenrichment_data$sig <- ifelse(overenrichment_data$proportion > 1.5, 'sig', 'not_sig')
 
@@ -324,7 +323,7 @@ ggplot(overenrichment_data, aes(x = proportion, y = annots, color = sig)) +
 
 
 ## Figure 5H
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_5H}
+```{r message = F, results = F, warning = F, fig.width = 4.5, fig.height = 8, fig_5H}
 niche_palette <- list(
     "Inside DC_RORC niche" = "#C42E60",
     "Outside DC_RORC niche" = "#A8B0B2"

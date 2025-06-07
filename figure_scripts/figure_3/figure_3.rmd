@@ -64,7 +64,7 @@ plt.close(fig)
 ```
 
 ## Figure 3B
-```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, fig_3B}
+```{r message = F, results = F, warning = F, fig.width = 7, fig.height = 8, fig_3B}
 count_mtx <- read.csv("/projects/home/tlchan/projects/ascites/figure_panels/data/fig_3_data/ascites_dc_R8_300mg_20pm_harm_channel_1_1_cluster_pseudobulk_counts.csv",
                       row.names = 1)
 meta_data <- read.csv("/projects/home/tlchan/projects/ascites/figure_panels/data/fig_3_data/ascites_dc_R8_300mg_20pm_harm_channel_1_1_cluster_pseudobulk_meta.csv",
@@ -229,7 +229,7 @@ draw(heatmap_list, heatmap_legend_list = lgd_list, heatmap_legend_side = "bottom
 ```
 
 ## Figure 3C
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, fig_3C}
+```{r message = F, results = F, warning = F, fig.width = 7, fig.height = 8, fig_3C}
 plot_cluster_abundance(lin = "dc",
                        cluster_order = c(1, 5, 9, 10, 6, 2, 3, 8, 7, 4),
                        n_breaks = 2)
@@ -238,7 +238,7 @@ plot_cluster_abundance(lin = "dc",
 ```
 
 ## Figure 3D
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 8, fig_3D}
+```{r message = F, results = F, warning = F, fig.width = 4, fig.height = 8, fig_3D}
 select_regulons <- c("ID2(+)", "IRF4(+)", "IRF7(+)", "IRF8(+)", "KLF5(+)", "TCF4(+)", "SPIB(+)", "NFIL3(+)", "BATF3(+)", "KLF4(+)")
 
 dc10_regulons <- read.xlsx("/projects/home/tlchan/projects/ascites/results/scenic/pigr/test_500_top_regulons.xlsx", sheetName = "dc_10") %>%
@@ -315,7 +315,7 @@ draw(hmap)
 ```
 
 ## Figure 3E
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 8, fig_3E}
+```{r message = F, results = F, warning = F, fig.width = 5, fig.height = 5, fig_3E}
 corr_mat <- read.csv("/projects/home/tlchan/projects/ascites/results/pearson/integrated_data/human_mouse_pca_corr_matrix_long.csv")
 
 corr_mat <- corr_mat %>% group_by(mouse_cells) %>% mutate(Nor = value/max(value))
@@ -341,7 +341,7 @@ ggplot(corr_mat, aes(x = mouse_cells, y = human_cells, fill = Nor)) +
 ```
 
 ## Figure 3F
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 8, fig_3F}
+```{r message = F, results = F, warning = F, fig.width = 7, fig.height = 8, fig_3F}
 # "Other" organ types
 other_organs <- c("Adnexa", "Blood", "Bone marrow", "Liver", "Lung", "Muscle")
 

@@ -31,7 +31,7 @@ import python_functions
 ```
 
 ## Supplemental Figure 7D
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_7D}
+```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, supp_7D}
 
 CFSE_palette <- c("CFSE_pos" = '#fa9f42', "CFSE_neg" = '#6F4E37', 'Other' = '#000000')
 
@@ -82,7 +82,7 @@ ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 1.0), common.legend = TRUE
 ```
 
 ## Supplemental Figure 7E
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_7E}
+```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, supp_7E}
 
 DC_palette <- c("cDC1" = '#B8ABE0', "cDC2" = '#7F3F98', "DC: PIGR, RORC" = '#FFC857')
 
@@ -108,7 +108,7 @@ ggplot(data = abundance, aes(y = factor(lineage), x = proportion + 1, fill = DC_
 ```
 
 ## Supplemental Figure 7F
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_7F}
+```{r message = F, results = F, warning = F, fig.width = 4, fig.height = 8, supp_7F}
 DC_palette <- c("cDC1" = '#B8ABE0', "cDC2" = '#7F3F98', "DC: PIGR, RORC" = '#FFC857')
 
 excel_file <- glue('/projects/home/tlchan/projects/ascites/results/abundance/mlr_data/combo_mlr_all_CFSE_neg_lineage_DC_type_abundance.xlsx')
@@ -163,7 +163,7 @@ plt.close(fig)
 ```
 
 ## Supplemental Figure 7H,J
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_7HJ}
+```{r message = F, results = F, warning = F, fig.width = 11.5, fig.height = 6, supp_7HJ}
 # Use Reds
 reds_colormap <- read.table('/projects/home/tlchan/util/cmaps/reds_cmap.txt', header = FALSE)
 reds_hex <- apply(reds_colormap, 1, function(row) {
@@ -173,7 +173,7 @@ reds_hex <- apply(reds_colormap, 1, function(row) {
 lineage_list <- list(cd4 = "h", cd8 = "j")
 
 for (lineage in names(lineage_list)) {
-    gene_order <- read.xlsx('/projects/home/tlchan/projects/ascites/figure_panels/data/MLR_dotplot_markers.xlsx', sheet = toupper(lineage)) %>%
+    gene_order <- read.xlsx('/projects/home/tlchan/projects/ascites/figure_panels/data/MLR_dotplot_markers.xlsx', sheetName = toupper(lineage)) %>%
         filter(!is.na(genes)) %>%
         pull(genes) %>%
         strsplit(",") %>%
@@ -227,7 +227,7 @@ plt.close(fig)
 ```
 
 ## Supplemental Figure 7K
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_7K}
+```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, supp_7K}
 cfse_neg_res <- read.csv("/projects/home/tlchan/projects/ascites/results/degs/mlr_data/lineage_level/combo_mlr_DC2vDC1_paired/combo_mlr_DC2vDC1_paired_CFSE_neg_de_by_DC2vDC1_paired_all_results.csv")
 cfse_pos_res <- read.csv("/projects/home/tlchan/projects/ascites/results/degs/mlr_data/lineage_level/combo_mlr_DC2vDC1_paired/combo_mlr_DC2vDC1_paired_CFSE_pos_de_by_DC2vDC1_paired_all_results.csv")
 

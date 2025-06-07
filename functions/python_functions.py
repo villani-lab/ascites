@@ -5,7 +5,7 @@ import pandas as pd
 import scanpy as sc
 
 plt.rcParams['pdf.fonttype'] = 42
-def plot_umap(lin_data, palette, color="Cluster", width=6, height=6, legend_loc="on data", size=None):
+def plot_umap(lin_data, palette, color="Cluster", width=6, height=6, legend_loc=None, size=None):
     if size == None:
         size = 120000 / lin_data.shape[0]
 

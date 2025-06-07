@@ -61,7 +61,7 @@ plt.close(fig)
 ```
 
 ## Figure 2B
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, fig_2B}
+```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 8, fig_2B}
 cd4_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/cd4_gene_exp.csv')
 cd4_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/cd4_cite_exp.csv')
 
@@ -74,7 +74,7 @@ plot_dotplot(lin_gex = cd4_gex,
 ```
 
 ## Figure 2C
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, fig_2C}
+```{r message = F, results = F, warning = F, fig.width = 8.5, fig.height = 8, fig_2C}
 plot_cluster_abundance("cd4")
 
 # ggsave("/projects/home/tlchan/fig_panels/fig_2c.pdf", width = 8.5, height = 8)
@@ -97,8 +97,8 @@ plt.show()
 plt.close(fig)
 ```
 
-## Figure 1E
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 10, fig_2E}
+## Figure 2E
+```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, fig_2E}
 cd4_res <- read.csv('/projects/home/tlchan/projects/ascites/results/degs/integrated_data/cluster_level/cd4_tissue_type/cd4_de_by_tissue_type_all_results.csv')
 
 plot_upset(res = cd4_res,

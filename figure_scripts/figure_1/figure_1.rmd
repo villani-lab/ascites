@@ -216,7 +216,7 @@ plt.close(lineage_fig)
 ```
 
 ## Figure 1D
-```{r message = F, results = F, warning = F, fig.width = 15, fig.height = 6, fig_1D}
+```{r message = F, results = F, warning = F, fig.width = 8.5, fig.height = 7.5, fig_1D}
 tissue_palette <- list("ascites" = "#2278B5",
                        "blood" = "#D62A28",
                        "other" = "#000000")

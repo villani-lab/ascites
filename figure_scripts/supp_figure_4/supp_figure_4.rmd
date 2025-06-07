@@ -69,7 +69,7 @@ plt.close(fig)
 ```
 
 ## Supplementary Figure 4B
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_4B}
+```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 8, supp_4B}
 monomac_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/monomac_gene_exp.csv')
 monomac_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/monomac_cite_exp.csv')
 
@@ -86,14 +86,14 @@ plot_dotplot(lin_gex = monomac_gex,
 ```
 
 ## Supplementary Figure 4C
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 6, supp_4C}
+```{r message = F, results = F, warning = F, fig.width = 8.5, fig.height = 8, supp_4C}
 plot_cluster_abundance("monomac")
 
 # ggsave("/projects/home/tlchan/fig_panels/supp_4c.pdf", width = 8.5, height = 8)
 ```
 
 ## Supplementary Figure 4D
-```{r message = F, results = F, warning = F, fig.width = 6, fig.height = 6, supp_4D}
+```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, supp_4D}
 monomac_res <- read.csv('/projects/home/tlchan/projects/ascites/results/degs/integrated_data/lineage_level/tissue_type/monomac_de_by_tissue_type_all_results.csv')
 monomac_meta <- read.csv("/projects/home/tlchan/projects/ascites/results/degs/integrated_data/pb_objects/monomac_lineage_pseudobulk_meta.csv", row.names = 1)
 
@@ -117,7 +117,7 @@ plot_lineage_deg(res = monomac_res,
                  test_color = "#2278B5",
                  highlight_color = "#FFBF00")
 
-ggsave("/projects/home/tlchan/fig_panels/supp_4d.pdf", width = 8, height = 8)
+# ggsave("/projects/home/tlchan/fig_panels/supp_4d.pdf", width = 8, height = 8)
 ```
 
 ## Supplementary Figure 4E
@@ -134,7 +134,7 @@ plt.close(fig)
 ```
 
 ## Supplementary Figure 4F
-```{r message = F, results = F, warning = F, fig.width = 4, fig.height = 18, supp_4F}
+```{r message = F, results = F, warning = F, fig.width = 5, fig.height = 18, supp_4F}
 plot_sf_boxplot(analytes = c("CCL2", "CCL20", "CXCL1", "IL-8", "IL-10", "VEGFA"),
                 nrow = 6)
 

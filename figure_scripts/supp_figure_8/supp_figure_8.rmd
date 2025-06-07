@@ -14,14 +14,14 @@ library(tidyverse)
 ```
 
 ## Supplemental Figure 8A
-```{r message = F, results = F, warning = F, fig.width = 20, fig.height = 12, supp_8A}
+```{r message = F, results = F, warning = F, fig.width = 25, fig.height = 15.5, supp_8A}
 # Use Reds
 reds_colormap <- read.table('/projects/home/tlchan/util/cmaps/reds_cmap.txt', header = FALSE)
 reds_hex <- apply(reds_colormap, 1, function(row) {
     rgb(row[1], row[2], row[3], maxColorValue = 1)
 })
 
-gene_order <- read.xlsx('/projects/home/tlchan/projects/ascites/figure_panels/data/spatial_dotplot_markers.xlsx', sheet = "LINEAGE") %>%
+gene_order <- read.xlsx('/projects/home/tlchan/projects/ascites/figure_panels/data/spatial_dotplot_markers.xlsx', sheetName = "LINEAGE") %>%
     filter(!is.na(genes)) %>%
     pull(genes) %>%
     strsplit(",") %>%
@@ -77,4 +77,5 @@ ggplot(corr_mat, aes(x = spatial_clusters, y = dc_clusters, fill = Nor)) +
     theme_classic(base_size = 20) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 
+# ggsave(glue("/projects/home/tlchan/fig_panels/supp_8b.pdf"), width = 8, height = 8)
 ```

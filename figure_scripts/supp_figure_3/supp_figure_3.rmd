@@ -55,7 +55,7 @@ plt.close(fig)
 ```
 
 ## Supplementary Figure 3B
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_3B}
+```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 8, supp_3B}
 b_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/bplasma_gene_exp.csv')
 b_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/bplasma_cite_exp.csv')
 
@@ -68,7 +68,7 @@ plot_dotplot(lin_gex = b_gex,
 ```
 
 ## Supplementary Figure 3C
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, supp_3C}
+```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, supp_3C}
 plot_cluster_abundance("bplasma")
 
 # ggsave("/projects/home/tlchan/fig_panels/supp_3c.pdf", width = 8, height = 8)

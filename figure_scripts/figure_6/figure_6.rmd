@@ -41,7 +41,7 @@ plt.close(fig)
 
 
 ## Figure 6B
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, fig_6B}
+```{r message = F, results = F, warning = F, fig.width = 10.25, fig.height = 4.5, fig_6B}
 # Use Reds
 reds_colormap <- read.table('/projects/home/tlchan/util/cmaps/reds_cmap.txt', header = FALSE)
 reds_hex <- apply(reds_colormap, 1, function(row) {
@@ -70,7 +70,7 @@ height <- length(unique(lin_gex$Cluster)) / 2 + 2
 ```
 
 ## Figure 6C
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, fig_6C}
+```{r message = F, results = F, warning = F, fig.width = 10, fig.height = 9, fig_6C}
 DC_palette <- c("cDC1" = '#B8ABE0', "cDC2" = '#7F3F98', 'Other' = '#000000')
 
 excel_file <- '/projects/home/tlchan/projects/ascites/results/abundance/dc_diff_data/dc_diff_abundance.xlsx'
@@ -130,7 +130,7 @@ ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 0.75), common.legend = TRU
 ```
 
 ## Figure 6D
-```{r message = F, results = F, warning = F, fig.width = 12, fig.height = 6, fig_6D}
+```{r message = F, results = F, warning = F, fig.width = 6, fig.height = 8, fig_6D}
 corr_mat <- read.csv("/projects/home/tlchan/projects/ascites/results/pearson/dc_diff_data/asc_dc_with_diff_corr_long.csv")
 
 corr_mat <- corr_mat %>%
