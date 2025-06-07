@@ -7,6 +7,7 @@ output: rmarkdown::github_document
 
 Load R libraries
 ```{r message = F, results = F, warning = F, load_r_libraries}
+library(ggpubr)
 library(ggrepel)
 library(glue)
 library(tidyverse)

@@ -26,6 +26,7 @@ source('plot_sf_boxplot.R')
 Load python libraries
 ```{python load_python_packages}
 import matplotlib.pyplot as plt
+import pandas as pd
 import pegasus as pg
 
 import sys
