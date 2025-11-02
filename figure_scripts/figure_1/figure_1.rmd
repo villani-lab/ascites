@@ -180,7 +180,7 @@ lineage_palette = {
 
 # Load single-cell object
 global_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/integrated_data/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip')
+    '/projects/home/nealpsmith/projects/ascites/data/resubmission_objects/global_ascites_blood_normal_peritoneam_300mg_20pm_harm.zarr/')
 
 lineage_dict = {
     'cd4': 'CD4 T cells',
@@ -191,7 +191,7 @@ lineage_dict = {
 }
 
 # Rename labels for plot
-pg.annotate(global_data, 'Lineage', 'lineage', lineage_dict)
+pg.annotate(global_data, 'Lineage', 'updated_lineage', lineage_dict)
 
 sc.set_figure_params(scanpy=True, fontsize=20)
 
