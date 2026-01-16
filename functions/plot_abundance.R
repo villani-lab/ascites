@@ -82,7 +82,7 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks
         xlab("Percent immune fraction + 1") +
         ylab("") +
         theme_classic(base_size = 27) +
-        theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
+        # theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
         scale_fill_manual(values = tissue_palette)
 
     # Use cluster order to maintain order for boxes and forest
@@ -114,6 +114,7 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks
         geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high, height = 0)) +
         geom_vline(xintercept = 0) +
         guides(color = "none") +
+        scale_y_discrete(limits = rev) +
         xlab("Diff") +
         ylab("") +
         theme_classic(base_size = 27) +

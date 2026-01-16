@@ -35,188 +35,7 @@ import python_functions
 ```
 
 ## Supplemental Figure 1C
-```{python results = 'hold', supp_1C}
-patient_palette = {
-    "Pt_1": "#FF0029",
-    "Pt_2": "#377EB8",
-    "Pt_3": "#66A61E",
-    "Pt_4": "#984EA3",
-    "Pt_5": "#00D2D5",
-    "Pt_6": "#FF7F00",
-    "Pt_7": "#AF8D00",
-    "Pt_8": "#7F80CD",
-    "Pt_9": "#B3E900",
-    "Pt_10": "#C42E60",
-    "Pt_11": "#A65628",
-    "Pt_12": "#F781BF",
-    "Pt_13": "#8DD3C7",
-    "Pt_14": "#BEBADA",
-    "Pt_15": "#FB8072",
-    "Pt_16": "#80B1D3",
-    "Pt_17": "#FDB462",
-    "Pt_18": "#FCCDE5",
-    "Pt_19": "#BC80BD",
-    "Pt_20": "#FFED6F",
-    "Pt_21": "#C4EAFF",
-    "Pt_22": "#CF8C00",
-    "Pt_23": "#1B9E77"
-}
-
-cancer_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/integrated_data/clusterings/ascites_cancer_R3_300mg_20pm_multi_res/1.3/data/pseudobulk/ascites_cancer_R3_300mg_20pm_1_3_complete_with_pb.zarr.zip')
-
-patient_mapping = pd.read_csv("/projects/home/tlchan/projects/ascites/figure_panels/data/patient_name_remapping.csv")
-patient_mapping = dict(zip(patient_mapping['patient_id'], patient_mapping['new_id']))
-
-cancer_data.obs["Patient"] = cancer_data.obs["patient_id"].replace(patient_mapping)
-
-fig = python_functions.plot_umap(lin_data=cancer_data,
-                                 palette=patient_palette,
-                                 color="Patient",
-                                 legend_loc="right margin",
-                                 width=8,
-                                 height=6)
-
-plt.show()
-# plt.savefig("/projects/home/tlchan/fig_panels/supp_1c.pdf")
-plt.close(fig)
-```
-
-## Supplemental Figure 1D
-```{python results = 'hold', supp_1D}
-cancer_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/integrated_data/clusterings/ascites_cancer_R3_300mg_20pm_multi_res/1.3/data/pseudobulk/ascites_cancer_R3_300mg_20pm_1_3_complete_with_pb.zarr.zip')
-
-fig = python_functions.plot_feature(lin_data=cancer_data,
-                                    ncol=1,
-                                    nrow=3,
-                                    genes=["EPCAM", "THY1", "WT1"])
-
-plt.show()
-# plt.savefig("/projects/home/tlchan/fig_panels/supp_1d.pdf")
-plt.close(fig)
-```
-
-## Supplemental Figure 1E
-```{r message = F, results = F, warning = F, fig.width = 6, fig.height = 5, supp_1E}
-metadata <- read.csv("/projects/home/tlchan/projects/ascites/integrated_data/data/metadata/ascites_deg_metadata_w_immune_fraction.csv")
-
-ggplot(metadata, aes(x = survival, y = log1p(immune_percentage))) +
-    geom_point(pch = 19, size = 4) +
-    geom_smooth(method = "lm", formula = y ~ x) +
-    stat_cor(size = 7) +
-    scale_x_log10() +
-    xlab("log(Days survival)") +
-    ylab("log1p(immune percentage)") +
-    theme_classic(base_size = 20)
-
-# ggsave("/projects/home/tlchan/fig_panels/supp_1e.pdf", width = 6, height = 5)
-```
-
-## Supplemental Figure 1F
-```{r message = F, results = F, warning = F, fig.width = 10, fig.height = 6, supp_1F}
-cancer_counts_filepath <- "/projects/home/tlchan/projects/ascites/results/degs/integrated_data/pb_objects/cancer_lineage_pseudobulk_counts.csv"
-cancer_meta_filepath <- "/projects/home/tlchan/projects/ascites/results/degs/integrated_data/pb_objects/cancer_lineage_pseudobulk_meta.csv"
-
-# Normalize counts
-counts <- read_csv(cancer_counts_filepath) %>% column_to_rownames("featurekey")
-norm_counts <- apply(counts, 2, function(c) {
-    n_total <- sum(c)
-    per_100k <- (c * 1000000) / n_total
-    return(per_100k)
-})
-norm_counts <- log1p(norm_counts)
-
-# Remap patient IDs
-patient_mapping <- read.csv("/projects/home/tlchan/projects/ascites/figure_panels/data/patient_name_remapping.csv")
-patient_mapping <- setNames(patient_mapping$new_id, patient_mapping$patient_id)
-colnames(norm_counts) <- patient_mapping[colnames(norm_counts)]
-
-testing_csv <- "/projects/home/tlchan/projects/ascites/results/gsea/canon_gene_sets.csv"
-testing_data <- read_csv(testing_csv, show_col_types = FALSE) %>%
-    filter(grepl("NatureMed", program_name)) %>%
-    select("program_name", "genes") %>%
-    column_to_rownames("program_name")
-
-# Get gene mapping
-gastric_genes <- unlist(strsplit(testing_data["NatureMed_gastric", "genes"], split = ",")) %>%
-    enframe() %>%
-    rename(program_name = "name", gene = "value") %>%
-    mutate(program_name = "gastric")
-colon_genes <- unlist(strsplit(testing_data["NatureMed_colon", "genes"], split = ",")) %>%
-    enframe() %>%
-    rename(program_name = "name", gene = "value") %>%
-    mutate(program_name = "colon")
-gene_df <- rbind(gastric_genes, colon_genes)
-
-# Make and scale heatmap matrix
-heatmap_mtx <- norm_counts[gene_df$gene,]
-heatmap_mtx <- t(scale(t(heatmap_mtx)))
-
-heatmap_col_fun <- colorRamp2(c(min(heatmap_mtx), 0, max(heatmap_mtx)), c("purple", "black", "yellow"))
-
-# This creates the dendrogram for the samples, using euclidean distance and Ward method. These can def be changed. see documentation
-clustering_cols <- hclust(dist(t(heatmap_mtx), method = "euclidean"), method = "ward.D2")
-col_hc <- as.dendrogram(clustering_cols)
-
-# Make gene bar
-genes <- rownames(heatmap_mtx)
-programs <- paste(lapply(genes, function(gene) gene_df$program_name[match(gene, gene_df$gene)]), sep = " ", collapse = NULL)
-
-gene_bar <- rowAnnotation(program = programs,
-                          col = list(program = c('gastric' = '#fff2ac', 'colon' = '#fd9941')),
-                          annotation_legend_param = list(title_gp = gpar(fontsize = 20),
-                                                         labels_gp = gpar(fontsize = 18)),
-                          show_legend = TRUE,
-                          show_annotation_name = FALSE)
-
-# This creates the dendrogram for the genes
-clustering_rows <- hclust(dist(heatmap_mtx, method = "euclidean"), method = "ward.D2")
-row_hc <- as.dendrogram(clustering_rows)
-
-hmap <- Heatmap(heatmap_mtx,
-                name = "z-score",
-                col = heatmap_col_fun,
-                right_annotation = gene_bar,
-                show_column_names = TRUE,
-                column_names_gp = gpar(fontsize = 18),
-                show_row_names = TRUE,
-                row_names_gp = gpar(fontsize = 18, fontface = "italic"),
-                cluster_columns = col_hc,
-                cluster_rows = row_hc,
-                show_heatmap_legend = TRUE,
-                heatmap_legend_param = list(direction = "horizontal",
-                                            title_gp = gpar(fontsize = 20),
-                                            labels_gp = gpar(fontsize = 18)),
-                column_title = "Patient",
-                column_title_gp = gpar(fontsize = 20),
-                row_title = "Genes",
-                row_title_gp = gpar(fontsize = 20))
-
-# pdf("/projects/home/tlchan/fig_panels/supp_1f.pdf", width = 10, height = 6)
-draw(hmap, heatmap_legend_side = "bottom")
-# dev.off()
-```
-
-## Supplemental Figure 1G
-```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, supp_1G}
-
-cancer_res <- read.csv('/projects/home/tlchan/projects/ascites/results/degs/integrated_data/lineage_level/log_survival/cancer_de_by_log_survival_all_results.csv')
-cancer_meta <- read.csv('/projects/home/tlchan/projects/ascites/integrated_data/clusterings/ascites_cancer_R4_300mg_20pm_multi_res/1.3/data/pseudobulk/ascites_cancer_R4_300mg_20pm_1_3_pseudobulk_meta.csv', row.names = 1)
-
-plot_lineage_deg(res = cancer_res,
-                 meta = cancer_meta,
-                 lin = "Cancer",
-                 ref_color = "#05FF48",
-                 test_color = "#964B00",
-                 label_genes = c("DEFB1", "ZEB1", "CAVIN3", "SOX7", "VIM", "PRAP1", "PLEKHG6", "KRT23", "KRT20"),
-                 highlight_genes = c("DEFB1"))
-
-# ggsave("/projects/home/tlchan/fig_panels/supp_1g.pdf", width = 8, height = 8)
-```
-
-## Supplemental Figure 1H
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 9, supp_1H}
+```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 9, supp_1C}
 lineage_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/lineage_gene_exp.csv')
 lineage_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/lineage_cite_exp.csv')
 
@@ -225,24 +44,26 @@ plot_dotplot(lin_gex = lineage_gex,
              lin = "lineage",
              widths = c(1, .4, .2))
 
-# ggsave("/projects/home/tlchan/fig_panels/supp_1h.pdf", width = 14, height = 9)
+# ggsave("/projects/home/tlchan/fig_panels/supp_1c.pdf", width = 14, height = 9)
 ```
 
-## Supplemental Figure 1I
-```{python results = 'hold', supp_1I}
+## Supplemental Figure 1D
+```{python results = 'hold', supp_1D}
 tissue_palette = {
     "Ascites": "#2278B5",
-    "Blood": "#D62A28"
+    "Blood": "#D62A28",
+    "Peritoneal": "#00D2D5"
 }
 
 tissue_dict = {
     'blood': 'Blood',
-    'ascites': 'Ascites'
+    'ascites': 'Ascites',
+    'peritoneal': 'Peritoneal'
 }
 
 # Load single-cell object
 global_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/integrated_data/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip')
+    '/projects/home/tlchan/projects/ascites/w_peritoneal/clusterings/ascites_combo_lineage_R3_300mg_20pm_harm_channel_multi_res/0.3/data/pseudobulk/ascites_combo_lineage_R3_300mg_20pm_harm_channel_0_3_complete_with_pb.zarr.zip')
 
 # Rename labels for plot
 pg.annotate(global_data, 'Tissue', 'tissue_type', tissue_dict)
@@ -252,19 +73,19 @@ fig = python_functions.plot_umap(lin_data=global_data,
                                  palette=tissue_palette)
 
 plt.show()
-# plt.savefig("/projects/home/tlchan/fig_panels/supp_1i.pdf")
+# plt.savefig("/projects/home/tlchan/fig_panels/supp_1d.pdf")
 plt.close(fig)
 ```
 
-## Supplemental Figure 1J
-```{r message = F, results = F, warning = F, fig.width = 6, fig.height = 8, supp_1J}
+## Supplemental Figure 1E
+```{r message = F, results = F, warning = F, fig.width = 6, fig.height = 8, supp_1E}
 lineage_palette <- list("B/Plasma cells" = "#FF0029",
                         "CD4 T cells" = "#377EB8",
                         "CD8 T/NK cells" = "#66A61E",
                         "Dendritic cells" = "#984EA3",
                         "Mono/Macs" = "#00D2D5")
 
-global_lineage <- read.csv('/projects/home/tlchan/projects/ascites/results/abundance/integrated_data/global_lineage_counts.csv')
+global_lineage <- read.csv('/projects/home/tlchan/projects/ascites/results/abundance/w_peritoneal/global_lineage_counts.csv')
 
 global_lineage <- global_lineage %>%
     filter(Lineage != "Non-immune cells") %>%
@@ -273,19 +94,19 @@ global_lineage <- global_lineage %>%
 
 ggplot(global_lineage, aes(x = Tissue_Type, y = Count, fill = Lineage)) +
     geom_bar(stat = "identity", position = "fill") +
-    xlab("Tissue type") +
-    ylab("% lineage") +
+    xlab("Tissue Type") +
+    ylab("% Lineage") +
     theme_classic(base_size = 20) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
     scale_fill_manual(values = lineage_palette)
 
-# ggsave("/projects/home/tlchan/fig_panels/supp_1j.pdf", width = 6, height = 8)
+ggsave("/projects/home/tlchan/fig_panels/supp_1e.pdf", width = 6, height = 8)
 ```
 
-## Supplemental Figure 1K
-```{python results = 'hold', supp_1K}
+## Supplemental Figure 1F
+```{python results = 'hold', supp_1F}
 global_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/integrated_data/clusterings/ascites_combo_lineage_R8_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_combo_lineage_R8_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip')
+    '/projects/home/tlchan/projects/ascites/w_peritoneal/clusterings/ascites_combo_lineage_R3_300mg_20pm_harm_channel_multi_res/0.3/data/pseudobulk/ascites_combo_lineage_R3_300mg_20pm_harm_channel_0_3_complete_with_pb.zarr.zip')
 
 fig = python_functions.plot_feature(lin_data=global_data,
                                     ncol=1,
@@ -293,12 +114,12 @@ fig = python_functions.plot_feature(lin_data=global_data,
                                     genes=["LYVE1", "C1QA"])
 
 plt.show()
-# plt.savefig("/projects/home/tlchan/fig_panels/supp_1k.pdf")
+# plt.savefig("/projects/home/tlchan/fig_panels/supp_1f.pdf")
 plt.close(fig)
 ```
 
-## Supplemental Figure 1L
-```{r message = F, results = F, warning = F, fig.width = 11, fig.height = 8, supp_1L}
+## Supplemental Figure 1G
+```{r message = F, results = F, warning = F, fig.width = 11, fig.height = 8, supp_1G}
 lineage_palette <- list("B/Plasma cells" = "#FF0029",
                         "CD4 T cells" = "#377EB8",
                         "CD8 T/NK cells" = "#66A61E",
@@ -306,27 +127,34 @@ lineage_palette <- list("B/Plasma cells" = "#FF0029",
                         "Mono/Macs" = "#00D2D5",
                         "Non-immune cells" = "#FF7F00")
 
-global_lineage <- read.csv('/projects/home/tlchan/projects/ascites/results/abundance/integrated_data/global_lineage_counts.csv')
+global_lineage <- read.csv('/projects/home/tlchan/projects/ascites/results/abundance/w_peritoneal/global_lineage_counts.csv')
 
 # Collapse tissue column
 global_lineage <- global_lineage %>%
     group_by(Patient, Lineage) %>%
     summarize(Count = sum(Count), Native_Count = sum(Native_Count))
 
-global_lineage$Patient <- factor(global_lineage$Patient, levels = mixedsort(unique(global_lineage$Patient)))
+global_lineage <- global_lineage %>%
+    mutate(cohort = ifelse(str_starts(Patient, "Pt"), "MGH", "Han")) %>%
+    mutate(cohort = factor(cohort, levels = c("MGH", "Han"))) %>%
+    mutate(Patient = factor(Patient, levels = mixedsort(unique(Patient))))
+
+global_lineage$Patient <- factor(global_lineage$Patient,
+                                 levels = patient_levels)
 
 ggplot(global_lineage, aes(x = Patient, y = Count, fill = Lineage)) +
     geom_bar(stat = "identity") +
+    facet_grid(~cohort, scales = "free_x", space = "free_x") +
     theme_classic(base_size = 20) +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+          strip.text = element_text(size = 22)) +
     scale_fill_manual(values = lineage_palette)
-
-# ggsave("/projects/home/tlchan/fig_panels/supp_1l.pdf", width = 11, height = 8)
+# ggsave("/projects/home/tlchan/fig_panels/supp_1g.pdf", width = 12, height = 8)
 ```
 
-## Supplemental Figure 1M
-```{r message = F, results = F, warning = F, fig.width = 9, fig.height = 8, supp_1M}
+## Supplemental Figure 1H
+```{r message = F, results = F, warning = F, fig.width = 9, fig.height = 8, supp_1H}
 plot_sf_boxplot(analytes = c("CXCL9", "CXCL10", "CXCL16", "IL-12p40", "IL-15", "CCL5"), nrow = 2)
 
-# ggsave("/projects/home/tlchan/fig_panels/supp_1m.pdf", width = 9, height = 8)
+# ggsave("/projects/home/tlchan/fig_panels/supp_1h.pdf", width = 9, height = 8)
 ```
