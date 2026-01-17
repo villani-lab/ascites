@@ -15,7 +15,8 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks
     abundance <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/integrated_data/ascites_abundance.csv")
 
     # Remove cancer cells and doublets
-    abundance <- abundance %>%
+    abundance <- abundance  %>%
+        filter(use_as_native == "True") %>%
         filter(lineage != "cancer") %>%
         filter(patient_id %in% paired_samples) %>%
         filter(patient_id != "ASC_48")
@@ -28,7 +29,10 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks
         distinct()
 
     # Account for patient/tissue pairs that contributed zero cells to clusters
-    combos <- expand.grid(unique(abundance$patient_id), unique(abundance$tissue_type), unique(abundance$lineage), unique(abundance$cluster)) %>% `colnames<-`(c("patient_id", "tissue_type", "lineage", "cluster"))
+    combos <- abundance %>%
+        ungroup() %>%
+        distinct(patient_id, tissue_type, lineage, cluster) %>%
+        complete(patient_id, tissue_type, lineage, cluster)
 
     abundance <- combos %>%
         left_join(abundance, by = c("patient_id", "tissue_type", "lineage", "cluster")) %>%
@@ -82,7 +86,7 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks
         xlab("Percent immune fraction + 1") +
         ylab("") +
         theme_classic(base_size = 27) +
-        # theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
+        theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
         scale_fill_manual(values = tissue_palette)
 
     # Use cluster order to maintain order for boxes and forest
@@ -123,4 +127,200 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks
         scale_color_manual(values = tissue_palette)
 
     ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.6, 1.0), common.legend = TRUE, legend = "bottom")
+}
+
+
+plot_cluster_abundance_w_peritoneal <- function(lin, cluster_order, remove_clusters, n_breaks = 5) {
+    tissue_palette <- list("ascites" = "#2278B5",
+                           "blood" = "#D62A28",
+                           "peritoneal" = "#00D2D5",
+                           "other" = "#000000")
+
+    paired_samples <- c("ASC_10", "ASC_25", "ASC_41", "ASC_45", "ASC_46", "ASC_48", "ASC_49", "ASC_52", "ASC_57", "ASC_61", "ASC_62", "ASC_65", "ASC_66", "ASC_67")
+    peritoneal_samples <- c("Adu001", "Adu002", "Adu003", "Adu004", "Adu005", "Adu006", "Adu007", "Ped001", "Ped002", "Ped004", "Ped006", "Ped007", "Ped008", "Ped009", "Ped010", "Ped011")
+
+    # Load data
+    abundance <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/w_peritoneal/ascites_abundance.csv")
+
+    # Remove cancer cells
+    abundance <- abundance %>%
+        filter(use_as_native == "True") %>%
+        filter(lineage != "cancer") %>%
+        filter(patient_id %in% c(paired_samples, peritoneal_samples)) %>%
+        filter(patient_id != "ASC_48") %>%
+        mutate(lineage = factor(lineage, levels = c('bplasma', 'dc', 'cd4', 'monomac', 'cd8')))
+
+    # Get immune count
+    abundance <- abundance %>%
+        group_by(patient_id, tissue_type, lineage, cluster) %>%
+        summarize(clust_count = sum(immune == "True"))
+
+
+    # Account for patient/tissue pairs that contributed zero cells to clusters
+    gastric_combos <- abundance %>%
+        ungroup() %>%
+        filter(tissue_type != "peritoneal") %>%
+        distinct(patient_id, tissue_type, lineage, cluster) %>%
+        complete(patient_id, tissue_type, lineage, cluster)
+
+    gastric_abundance <- gastric_combos %>%
+        left_join(abundance, by = c("patient_id", "tissue_type", "lineage", "cluster")) %>%
+        replace(is.na(.), 0)
+
+    peritoneal_combos <- abundance %>%
+        ungroup() %>%
+        filter(tissue_type == "peritoneal") %>%
+        distinct(patient_id, tissue_type, lineage, cluster) %>%
+        complete(patient_id, tissue_type, lineage, cluster)
+
+    peritoneal_abundance <- peritoneal_combos %>%
+        left_join(abundance, by = c("patient_id", "tissue_type", "lineage", "cluster")) %>%
+        replace(is.na(.), 0)
+
+    combo_abundance <- rbind(gastric_abundance, peritoneal_abundance)
+
+    # Get statistics
+    combo_abundance <- combo_abundance %>%
+        group_by(patient_id, tissue_type) %>%
+        mutate(total_count = sum(clust_count)) %>%
+        mutate(clust_percentage = clust_count / total_count * 100) %>%
+        mutate(log_clust_percentage = log1p(clust_percentage))
+
+    # Remove patients with fewer than 250 immune native fraction cells
+    combo_abundance <- combo_abundance %>%
+        group_by(patient_id) %>%
+        mutate(min_total_count = min(total_count)) %>%
+        filter(min_total_count > 250)
+
+    # Subset abundance
+    combo_abundance <- combo_abundance %>% filter(lineage == lin)
+
+    # Remove extra clusters
+    combo_abundance <- combo_abundance %>%
+        group_by(cluster) %>%
+        filter(sum(clust_count) != 0) %>%
+        droplevels()
+
+    # Remove selected clusters
+    if (hasArg(remove_clusters)) {
+        combo_abundance <- combo_abundance %>% filter(!cluster %in% remove_clusters)
+    }
+
+    # Order clusters
+    if (hasArg(cluster_order)) {
+        combo_abundance <- combo_abundance %>% mutate(cluster = factor(cluster, levels = cluster_order))
+    } else {
+        # If no cluster order provided, set it to be numeric. Use mixedsort just in case it starts with a letter
+        cluster_order <- mixedsort(unique(combo_abundance$cluster))
+        combo_abundance <- combo_abundance %>% mutate(cluster = factor(cluster, levels = cluster_order))
+    }
+
+    # Change order for boxplot
+    combo_abundance <- combo_abundance %>%
+        mutate(tissue_type = factor(tissue_type, levels = c("peritoneal", "ascites", "blood")))
+
+    bp <- ggplot(combo_abundance, aes(x = clust_percentage + 1, y = cluster, fill = tissue_type)) +
+        geom_boxplot(outlier.shape = NA) +
+        geom_point(pch = 21, position = position_jitterdodge(), aes(fill = tissue_type), size = 2) +
+        scale_x_log10() +
+        annotation_logticks(side = "b") +
+        coord_cartesian(clip = "off") +
+        scale_y_discrete(limits = rev) +
+        labs(fill = "Tissue type") +
+        xlab("Percent immune fraction + 1") +
+        ylab("") +
+        theme_classic(base_size = 27) +
+        theme(axis.text = element_text(size = 20)) +
+        # theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
+        scale_fill_manual(values = tissue_palette)
+
+    # Keep ascites as reference
+    combo_abundance <- combo_abundance %>%
+        mutate(tissue_type = factor(tissue_type, levels = c("ascites", "blood", "peritoneal")))
+
+    # Use cluster order to maintain order for boxes and forest
+    gastric_res <- lapply(cluster_order, function(clust) {
+        pt_data <- combo_abundance %>%
+            filter(tissue_type != "peritoneal") %>%
+            filter(cluster == clust)
+        stats <- parameters(t.test(log_clust_percentage ~ tissue_type, pt_data, paired = TRUE))
+        stats$cluster <- clust
+        return(stats)
+    }) %>%
+        do.call(rbind, .) %>%
+        mutate(padj = p.adjust(p, method = "fdr")) %>%
+        mutate(color = case_when(padj < 0.1 & Difference > 0 ~ "ascites", padj < 0.1 & Difference < 0 ~ "blood", padj >= 0.1 ~ "other"))
+
+    gastric_res$cluster <- factor(gastric_res$cluster, levels = cluster_order)
+    max_gastric_diff <- max(gastric_res$Difference)
+    gastric_res$clean_pvals <- sapply(gastric_res$p, function(x) {
+        if (x > 0.01) {
+            return(as.character(round(x, 2)))
+        } else if (x < 0.01 & x > 0.001) {
+            return(as.character(round(x, 3)))
+        } else {
+            formatC(x, format = "e", digits = 0)
+        }
+    })
+
+    gastric_fp <- ggplot(gastric_res, aes(x = Difference, y = cluster, color = color, label = clean_pvals)) +
+        geom_point(size = 3) +
+        geom_text(x = max_gastric_diff + 0.05, size = 5, hjust = 0, nudge_y = -0.2) +
+        geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high, height = 0)) +
+        geom_vline(xintercept = 0) +
+        guides(color = "none") +
+        scale_y_discrete(limits = rev) +
+        xlab("Diff") +
+        ylab("") +
+        theme_classic(base_size = 27) +
+        scale_x_continuous(n.breaks = n_breaks) +
+        theme(axis.text = element_text(size = 20)) +
+        # theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
+        scale_color_manual(values = tissue_palette)
+
+    # Use cluster order to maintain order for boxes and forest
+    peritoneal_res <- lapply(cluster_order, function(clust) {
+        pt_data <- combo_abundance %>%
+            filter(tissue_type != "blood") %>%
+            filter(cluster == clust)
+        stats <- parameters(t.test(log_clust_percentage ~ tissue_type, pt_data))
+        stats$cluster <- clust
+        return(stats)
+    }) %>%
+        do.call(rbind, .) %>%
+        mutate(padj = p.adjust(p, method = "fdr")) %>%
+        mutate(color = case_when(padj < 0.1 & Difference > 0 ~ "ascites", padj < 0.1 & Difference < 0 ~ "peritoneal", padj >= 0.1 ~ "other"))
+
+    peritoneal_res$cluster <- factor(peritoneal_res$cluster, levels = cluster_order)
+    max_peritoneal_diff <- max(peritoneal_res$Difference)
+    peritoneal_res$clean_pvals <- sapply(peritoneal_res$p, function(x) {
+        if (x > 0.01) {
+            return(as.character(round(x, 2)))
+        } else if (x < 0.01 & x > 0.001) {
+            return(as.character(round(x, 3)))
+        } else {
+            formatC(x, format = "e", digits = 0)
+        }
+    })
+
+    peritoneal_fp <- ggplot(peritoneal_res, aes(x = Difference, y = cluster, color = color, label = clean_pvals)) +
+        geom_point(size = 3) +
+        geom_text(x = max_peritoneal_diff + 0.05, size = 5, hjust = 0, nudge_y = -0.2) +
+        geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high, height = 0)) +
+        geom_vline(xintercept = 0) +
+        guides(color = "none") +
+        scale_y_discrete(limits = rev) +
+        xlab("Diff") +
+        ylab("") +
+        theme_classic(base_size = 27) +
+        scale_x_continuous(n.breaks = n_breaks) +
+        theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
+        scale_color_manual(values = tissue_palette)
+
+    gastric_res$tissue_comp <- "AvB"
+    peritoneal_res$tissue_comp <- "AvP"
+    abundance_stats <- bind_rows(gastric_res, peritoneal_res)
+    write.csv(abundance_stats, glue('/projects/home/tlchan/projects/ascites/results/abundance/w_peritoneal/ascites_{lin}_abundance_stats.csv'), row.names = FALSE)
+
+    ggarrange(gastric_fp, peritoneal_fp, bp, ncol = 3, nrow = 1, widths = c(0.5, 0.5, 1.0), common.legend = TRUE, legend = "bottom")
 }

@@ -139,9 +139,6 @@ global_lineage <- global_lineage %>%
     mutate(cohort = factor(cohort, levels = c("MGH", "Han"))) %>%
     mutate(Patient = factor(Patient, levels = mixedsort(unique(Patient))))
 
-global_lineage$Patient <- factor(global_lineage$Patient,
-                                 levels = patient_levels)
-
 ggplot(global_lineage, aes(x = Patient, y = Count, fill = Lineage)) +
     geom_bar(stat = "identity") +
     facet_grid(~cohort, scales = "free_x", space = "free_x") +
