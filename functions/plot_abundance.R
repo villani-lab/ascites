@@ -62,13 +62,12 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks
         droplevels()
 
     # Order clusters
-    if (hasArg(cluster_order)) {
-        lin_abundance <- lin_abundance %>% mutate(cluster = factor(cluster, levels = cluster_order))
-    } else {
+    if (!hasArg(cluster_order)) {
         # If no cluster order provided, set it to be numeric. Use mixedsort just in case it starts with a letter
         cluster_order <- mixedsort(unique(lin_abundance$cluster))
-        lin_abundance <- lin_abundance %>% mutate(cluster = factor(cluster, levels = cluster_order))
     }
+
+    lin_abundance <- lin_abundance %>% mutate(cluster = factor(cluster, levels = cluster_order))
 
     # Remove selected clusters
     if (hasArg(remove_clusters)) {
@@ -115,7 +114,7 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks
     fp <- ggplot(pt_res, aes(x = Difference, y = cluster, color = color, label = clean_pvals)) +
         geom_point(size = 3) +
         geom_text(x = max_diff + 0.05, size = 5, hjust = 0, nudge_y = -0.2) +
-        geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high, height = 0)) +
+        geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high), height = 0) +
         geom_vline(xintercept = 0) +
         guides(color = "none") +
         scale_y_discrete(limits = rev) +
@@ -128,7 +127,6 @@ plot_cluster_abundance <- function(lin, cluster_order, remove_clusters, n_breaks
 
     ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.6, 1.0), common.legend = TRUE, legend = "bottom")
 }
-
 
 plot_cluster_abundance_w_peritoneal <- function(lin, cluster_order, remove_clusters, n_breaks = 5) {
     tissue_palette <- list("ascites" = "#2278B5",
@@ -207,13 +205,11 @@ plot_cluster_abundance_w_peritoneal <- function(lin, cluster_order, remove_clust
     }
 
     # Order clusters
-    if (hasArg(cluster_order)) {
-        combo_abundance <- combo_abundance %>% mutate(cluster = factor(cluster, levels = cluster_order))
-    } else {
-        # If no cluster order provided, set it to be numeric. Use mixedsort just in case it starts with a letter
+    if (!hasArg(cluster_order)) {
         cluster_order <- mixedsort(unique(combo_abundance$cluster))
-        combo_abundance <- combo_abundance %>% mutate(cluster = factor(cluster, levels = cluster_order))
     }
+
+    combo_abundance <- combo_abundance %>% mutate(cluster = factor(cluster, levels = cluster_order))
 
     # Change order for boxplot
     combo_abundance <- combo_abundance %>%
@@ -231,7 +227,7 @@ plot_cluster_abundance_w_peritoneal <- function(lin, cluster_order, remove_clust
         ylab("") +
         theme_classic(base_size = 27) +
         theme(axis.text = element_text(size = 20)) +
-        # theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
+        theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
         scale_fill_manual(values = tissue_palette)
 
     # Keep ascites as reference
@@ -266,7 +262,7 @@ plot_cluster_abundance_w_peritoneal <- function(lin, cluster_order, remove_clust
     gastric_fp <- ggplot(gastric_res, aes(x = Difference, y = cluster, color = color, label = clean_pvals)) +
         geom_point(size = 3) +
         geom_text(x = max_gastric_diff + 0.05, size = 5, hjust = 0, nudge_y = -0.2) +
-        geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high, height = 0)) +
+        geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high), height = 0) +
         geom_vline(xintercept = 0) +
         guides(color = "none") +
         scale_y_discrete(limits = rev) +
@@ -275,7 +271,7 @@ plot_cluster_abundance_w_peritoneal <- function(lin, cluster_order, remove_clust
         theme_classic(base_size = 27) +
         scale_x_continuous(n.breaks = n_breaks) +
         theme(axis.text = element_text(size = 20)) +
-        # theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
+        theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
         scale_color_manual(values = tissue_palette)
 
     # Use cluster order to maintain order for boxes and forest
@@ -306,7 +302,7 @@ plot_cluster_abundance_w_peritoneal <- function(lin, cluster_order, remove_clust
     peritoneal_fp <- ggplot(peritoneal_res, aes(x = Difference, y = cluster, color = color, label = clean_pvals)) +
         geom_point(size = 3) +
         geom_text(x = max_peritoneal_diff + 0.05, size = 5, hjust = 0, nudge_y = -0.2) +
-        geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high, height = 0)) +
+        geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high), height = 0) +
         geom_vline(xintercept = 0) +
         guides(color = "none") +
         scale_y_discrete(limits = rev) +

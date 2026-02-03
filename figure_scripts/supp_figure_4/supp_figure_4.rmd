@@ -53,7 +53,7 @@ monomac_cluster_palette = {
 
 # Load single-cell object
 monomac_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/integrated_data/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip')
+    '/projects/home/tlchan/projects/ascites/w_peritoneal/clusterings/ascites_monomac_R2_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_monomac_R2_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip')
 
 # Relabel obs for function
 monomac_data.obs['Cluster'] = monomac_data.obs['leiden_labels'].cat.remove_unused_categories().astype(str)
@@ -77,25 +77,25 @@ plot_dotplot(lin_gex = monomac_gex,
              lin_cite = monomac_cite,
              lin = "monomac",
              widths = c(1, .1, .2),
-             cluster_order = c("1. MM: S100A12, CCR2-lo", "2. MM: S100A12, MCEMP1", "3. MM: APOE, LYVE1",
-                               "4. MM: CLEC10A, FCGR2B", "5. MM: CX3CR1, RHOC", "6. MM: IFIT3, IFI44L",
-                               "7. MM: LGALS2, ALDH1A1", "8. MM: TCF7L2, GBP4", "9. MM: IL1B, CCL4",
-                               "10. MM: high mito", "11. MM: cycling", "12. MM: MT1G, FN1", "13. MM: APOC1, NUPR1"))
+             cluster_order = c("1. MM: LYVE1, TREM2", "2. MM: CD14, CCR2-lo", "3. MM: S100A12, MCEMP1",
+                               "4. MM: CLEC10A, FCGR2B", "5. MM: TCF7L2, CX3CR1", "6. MM: LMNA, CRIP2",
+                               "7. MM: ISG15, IFI44L", "8. MM: high mito", "9. MM: IL1B, CCL4",
+                               "10. MM: cycling", "11. MM: MT1G, MT1X", "12. Mast: TPSAB1, CPA3"))
 
 # ggsave("/projects/home/tlchan/fig_panels/supp_4b.pdf", width = 14, height = 8)
 ```
 
 ## Supplementary Figure 4C
 ```{r message = F, results = F, warning = F, fig.width = 8.5, fig.height = 8, supp_4C}
-plot_cluster_abundance("monomac")
+plot_cluster_abundance_w_peritoneal("monomac")
 
-# ggsave("/projects/home/tlchan/fig_panels/supp_4c.pdf", width = 8.5, height = 8)
+ggsave("/projects/home/tlchan/fig_panels/supp_4c.pdf", width = 14, height = 8)
 ```
 
 ## Supplementary Figure 4D
 ```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, supp_4D}
-monomac_res <- read.csv('/projects/home/tlchan/projects/ascites/results/degs/integrated_data/lineage_level/tissue_type/monomac_de_by_tissue_type_all_results.csv')
-monomac_meta <- read.csv("/projects/home/tlchan/projects/ascites/results/degs/integrated_data/pb_objects/monomac_lineage_pseudobulk_meta.csv", row.names = 1)
+monomac_res <- read.csv('/projects/home/tlchan/projects/ascites/results/degs/w_peritoneal/lineage_level/tissue_type_AvB/monomac_de_by_tissue_type_AvB_all_results.csv')
+monomac_meta <- read.csv("/projects/home/tlchan/projects/ascites/results/degs/w_peritoneal/pb_objects/monomac_lineage_pseudobulk_meta.csv", row.names = 1)
 
 monomac_meta <- monomac_meta %>%
     filter(tissue_type == "blood" | tissue_type == "ascites") %>%
@@ -123,7 +123,7 @@ plot_lineage_deg(res = monomac_res,
 ## Supplementary Figure 4E
 ```{python results = 'hold', supp_4E}
 monomac_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/integrated_data/clusterings/ascites_mono-mac_R7_300mg_20pm_harm_channel_multi_res/1.1/data/pseudobulk/ascites_mono-mac_R7_300mg_20pm_harm_channel_1_1_complete_with_pb.zarr.zip')
+    '/projects/home/tlchan/projects/ascites/w_peritoneal/clusterings/ascites_monomac_R2_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_monomac_R2_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip')
 
 fig = python_functions.plot_feature_by_tissue_type(lin_data=monomac_data,
                                                    genes=["CCL2", "CCL20", "CXCL1", "CXCL8", "IL10", "VEGFA"])

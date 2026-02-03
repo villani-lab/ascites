@@ -1,4 +1,5 @@
 library(ggpubr)
+library(gtools)
 library(openxlsx)
 library(tidyverse)
 
@@ -25,9 +26,12 @@ plot_dotplot <- function(lin_gex, lin_cite, lin, widths, cluster_order) {
     lin_gex <- lin_gex %>%
         mutate(Gene = factor(Gene, levels = lin_genes), Cluster = factor(Cluster))
 
-    if (hasArg(cluster_order)) {
-        lin_gex <- lin_gex %>% mutate(Cluster = factor(Cluster, levels = cluster_order))
+    if (!hasArg(cluster_order)) {
+        cluster_order <- mixedsort(unique(lin_gex$Cluster))
     }
+
+    lin_gex <- lin_gex %>% mutate(Cluster = factor(Cluster, levels = cluster_order))
+
 
     lin_gp <- ggplot(lin_gex, aes(x = Gene, y = fct_rev(Cluster), fill = Count, size = Percent_Expressed)) +
         geom_point(color = "black", shape = 21) +

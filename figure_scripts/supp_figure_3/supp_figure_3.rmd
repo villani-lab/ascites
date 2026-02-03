@@ -72,5 +72,5 @@ plot_dotplot(lin_gex = b_gex,
 ```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, supp_3C}
 plot_cluster_abundance("bplasma")
 
-# ggsave("/projects/home/tlchan/fig_panels/supp_3c.pdf", width = 8, height = 8)
+ggsave("/projects/home/tlchan/fig_panels/supp_3c.pdf", width = 8, height = 8)
 ```

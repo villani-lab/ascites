@@ -320,7 +320,7 @@ gastric_res$clean_pvals <- sapply(gastric_res$p, function(x) {
 gastric_fp <- ggplot(gastric_res, aes(x = Difference, y = factor(lineage), color = color, label = clean_pvals)) +
     geom_point(size = 3) +
     geom_text(x = max_gastric_diff + 0.05, size = 5, hjust = 0, nudge_y = -0.2) +
-    geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high, height = 0)) +
+    geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high), height = 0) +
     geom_vline(xintercept = 0) +
     guides(color = "none") +
     xlab("Diff") +
@@ -354,7 +354,7 @@ peritoneal_res$clean_pvals <- sapply(peritoneal_res$p, function(x) {
 peritoneal_fp <- ggplot(peritoneal_res, aes(x = Difference, y = factor(lineage), color = color, label = clean_pvals)) +
     geom_point(size = 3) +
     geom_text(x = max_peritoneal_diff + 0.05, size = 5, hjust = 0, nudge_y = -0.2) +
-    geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high, height = 0)) +
+    geom_errorbarh(mapping = aes(xmin = CI_low, xmax = CI_high), height = 0) +
     geom_vline(xintercept = 0) +
     guides(color = "none") +
     xlab("Diff") +
@@ -368,8 +368,8 @@ ggarrange(gastric_fp, peritoneal_fp, bp, ncol = 3, nrow = 1, widths = c(0.5, 0.5
 ggsave("/projects/home/tlchan/fig_panels/fig_1d.pdf", width = 8.5, height = 7.5)
 ```
 
-## Figure 1E
-```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 6, fig_1E}
+## Figure 1F
+```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 6, fig_1F}
 sf_names <- read.csv("/projects/home/tlchan/util/secreted_factors/sf_common_names.csv")
 paired_list <- list('ASC_41', 'ASC_43', 'ASC_45', 'ASC_46', 'ASC_48', 'ASC_52', 'ASC_57', 'ASC_61', 'ASC_62', 'ASC_65', 'ASC_66', 'ASC_67')
 
@@ -438,5 +438,5 @@ ggplot(res, aes(x = logFC, y = -log10(p))) +
     geom_text_repel(data = res[res$ID %in% label_genes,], aes(label = ID), max.overlaps = Inf, size = 4.5) +
     theme_classic(base_size = 20)
 
-# ggsave("/projects/home/tlchan/fig_panels/fig_1e.pdf", width = 8, height = 6, device = cairo_pdf)
+# ggsave("/projects/home/tlchan/fig_panels/fig_1f.pdf", width = 8, height = 6, device = cairo_pdf)
 ```

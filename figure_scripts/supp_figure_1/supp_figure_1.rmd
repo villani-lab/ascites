@@ -44,7 +44,7 @@ plot_dotplot(lin_gex = lineage_gex,
              lin = "lineage",
              widths = c(1, .4, .2))
 
-# ggsave("/projects/home/tlchan/fig_panels/supp_1c.pdf", width = 14, height = 9)
+ggsave("/projects/home/tlchan/fig_panels/supp_1c.pdf", width = 14, height = 9)
 ```
 
 ## Supplemental Figure 1D

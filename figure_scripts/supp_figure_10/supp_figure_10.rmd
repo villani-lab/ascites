@@ -1,0 +1,68 @@
+---
+title: "Supplemental Figure 10"
+output: rmarkdown::github_document
+---
+
+## Set up
+
+Load python libraries
+```{python load_python_packages}
+import matplotlib.pyplot as plt
+import pegasus as pg
+
+import sys
+sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
+import python_functions
+```
+
+## Supplemental Figure 10A
+```{python results = 'hold', supp_10A}
+dataset_dict = {
+    "cancer_discovery": "Primary gastric",
+    "gastric": "Ascites (MGH)",
+    "ovarian": "Ovarian cancer",
+    "peritoneal": "Normal peritoneum",
+    "teichmann": "Immune atlas",
+    "tonsil": "Tonsil"
+}
+
+dataset_palette = {
+    "Primary gastric": "#666666",
+    "Ascites (MGH)": "#B52025",
+    "Ovarian cancer": "#3E52A3",
+    "Normal peritoneum": "#5F5B5B",
+    "Immune atlas": "#CBCC2C",
+    "Tonsil": "#009E73"
+}
+
+# Load single-cell object
+ext_dc_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/external_dc_data/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip')
+
+# Relabel obs for function
+pg.annotate(ext_dc_data, 'dataset', 'dataset', dataset_dict)
+
+fig = python_functions.plot_umap(lin_data=ext_dc_data,
+                                 color="dataset",
+                                 palette=dataset_palette,
+                                 legend_loc=None)
+
+plt.show()
+# plt.savefig("/projects/home/tlchan/fig_panels/supp_10a.pdf")
+plt.close(fig)
+```
+
+## Supplemental Figure 10B
+```{python results = 'hold', supp_10B}
+ext_dc_data = pg.read_input(
+    "/projects/home/tlchan/projects/ascites/external_dc_data/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip")
+
+fig = python_functions.plot_feature(lin_data=ext_dc_data,
+                                    genes=['PRDM16', 'PIGR', 'RORC', 'CLEC9A', 'CD1C', 'CCR7'],
+                                    ncol=2,
+                                    nrow=3)
+
+plt.show()
+# plt.savefig("/projects/home/tlchan/fig_panels/supp_10b.pdf")
+plt.close(fig)
+```

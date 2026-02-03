@@ -88,10 +88,11 @@ ggplot(abundance, aes(x = factor(cluster), y = count, fill = patient_id)) +
 dc_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/dc_gene_exp_alt.csv')
 dc_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/dc_cite_exp_alt.csv')
 
-cluster_order <- c("1. pDC: LILRA4, IL3RA", "2. cDC2: CD1C, CD33-hi", "3. cDC2: CD1C, CD33-lo",
-                   "4. cDC3: CD1C, VCAN", "5. cDC1: CLEC9A, XCR1", "6. cDC: SIGLEC6, IL22RA2",
-                   "7. cDC: CD1C, FCGR3A", "8. cDC: IL1R2, NR4A1", "9. mregDCs: LAMP3, CCR7",
-                   "10. DC: PIGR, RORC", "B/Plasma", "CD4 T", "CD8 T/NK", "Mono/Mac")
+cluster_order <- c("1. cDC2: CD1C, IFITM1", "2. cDC3: CD1C, VCAN", "3. cDC2: CX3CR1, CD200R1",
+                   "4. pDC: LILRA4, IL3RA", "5. cDC1: CLEC9A, XCR1", "6. cDC: NR4A1, CCL3",
+                   "7. cDC2: IL22RA2, CD1A", "8. mregDC: LAMP3, CCR7", "9. cDC2: EMP1, LMNA",
+                   "10. cDC2: high mito", "11. ASDC: AXL, SIGLEC6", "12. DC: PIGR RORC",
+                   "13. DC: IFIT1, ISG15", "B/Plasma", "CD4 T", "CD8 T/NK", "ILC", "Mono/Mac")
 
 plot_dotplot(lin_gex = dc_gex,
              lin_cite = dc_cite,
@@ -115,7 +116,7 @@ fig = python_functions.plot_feature(lin_data=dc_data,
                                     nrow=4)
 
 plt.show()
-# plt.savefig("/projects/home/tlchan/fig_panels/fig_5c.pdf")
+# plt.savefig("/projects/home/tlchan/fig_panels/supp_5c.pdf")
 plt.close(fig)
 ```
 
@@ -123,19 +124,19 @@ plt.close(fig)
 ```{python results = 'hold', supp_5D}
 rss_list = list()
 for i in range(0, 10):
-    DATA_FOLDER = "/projects/home/tlchan/projects/ascites/results/scenic/pigr/test_500"
+    DATA_FOLDER = "/projects/home/tlchan/projects/ascites/results/scenic/w_peritoneal/test_500"
     RSS_FNAME = os.path.join(DATA_FOLDER, f"lineage_rss_{i}_mtx.csv")
     rss_data = pd.read_csv(RSS_FNAME, index_col=0)
-    rss_data = rss_data.loc['dc_10'].to_frame(f"iter_{i}")
+    rss_data = rss_data.loc['dc_12'].to_frame(f"iter_{i}")
     rss_list.append(rss_data)
 
 rss_all = pd.concat(rss_list, axis=1)
-rss_data = rss_all.mean(axis=1, skipna=True).to_frame('dc_10').T
+rss_data = rss_all.mean(axis=1, skipna=True).to_frame('dc_12').T
 
 plt.rcParams.update({'font.size': 20})
 
 fig = plt.figure(figsize=(8, 8))
-c = "dc_10"
+c = "dc_12"
 x = rss_data.T[c]
 ax = fig.add_subplot(1, 1, 1)
 python_functions.plot_rss(rss_data, c, top_n=5, max_n=None, ax=ax)
@@ -144,59 +145,7 @@ ax.set_ylabel('Regulon specificity score (RSS)')
 ax.set_xlabel('Regulon')
 
 plt.tight_layout()
-plt.show()
-# plt.savefig("/projects/home/tlchan/fig_panels/supp_5d.pdf")
-plt.close(fig)
-```
-
-## Supplemental Figure 5E
-```{python results = 'hold', supp_5E}
-dataset_dict = {
-    "cancer_discovery": "Primary gastric",
-    "gastric": "Ascites (MGH)",
-    "ovarian": "Ovarian cancer",
-    "peritoneal": "Normal peritoneum",
-    "teichmann": "Immune atlas",
-    "tonsil": "Tonsil"
-}
-
-dataset_palette = {
-    "Primary gastric": "#666666",
-    "Ascites (MGH)": "#B52025",
-    "Ovarian cancer": "#3E52A3",
-    "Normal peritoneum": "#5F5B5B",
-    "Immune atlas": "#CBCC2C",
-    "Tonsil": "#009E73"
-}
-
-# Load single-cell object
-ext_dc_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/external_dc_data/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip')
-
-# Relabel obs for function
-pg.annotate(ext_dc_data, 'dataset', 'dataset', dataset_dict)
-
-fig = python_functions.plot_umap(lin_data=ext_dc_data,
-                                 color="dataset",
-                                 palette=dataset_palette,
-                                 legend_loc=None)
-
-plt.show()
-# plt.savefig("/projects/home/tlchan/fig_panels/supp_5e.pdf")
-plt.close(fig)
-```
-
-## Supplemental Figure 5F
-```{python results = 'hold', supp_5F}
-ext_dc_data = pg.read_input(
-    "/projects/home/tlchan/projects/ascites/external_dc_data/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip")
-
-fig = python_functions.plot_feature(lin_data=ext_dc_data,
-                                    genes=['PRDM16', 'PIGR', 'RORC', 'CLEC9A', 'CD1C', 'CCR7'],
-                                    ncol=2,
-                                    nrow=3)
-
-plt.show()
-# plt.savefig("/projects/home/tlchan/fig_panels/supp_5f.pdf")
+# plt.show()
+plt.savefig("/projects/home/tlchan/fig_panels/supp_5d.pdf")
 plt.close(fig)
 ```

@@ -7,294 +7,75 @@ output: rmarkdown::github_document
 
 Load R libraries
 ```{r message = F, results = F, warning = F, load_r_libraries}
-library(ggpubr)
-library(ggrepel)
+library(colorspace)
 library(glue)
+library(openxlsx)
 library(tidyverse)
-
-library(reticulate)
-use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
-```
-
-Load python libraries
-```{python load_python_packages}
-import math
-import matplotlib.pyplot as plt
-import os
-import pandas as pd
-import pegasus as pg
-import scanpy as sc
-
-import sys
-sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
-import python_functions
 ```
 
 ## Supplemental Figure 9A
-```{r message = F, results = F, warning = F, fig.width = 5.5, fig.height = 8, supp_9A}
-# Load data
-abundance <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/integrated_data/ascites_abundance_include_non_native.csv")
+```{r message = F, results = F, warning = F, fig.width = 25, fig.height = 15.5, supp_9A}
+# Use Reds
+reds_colormap <- read.table('/projects/home/tlchan/util/cmaps/reds_cmap.txt', header = FALSE)
+reds_hex <- apply(reds_colormap, 1, function(row) {
+    rgb(row[1], row[2], row[3], maxColorValue = 1)
+})
 
-# Subset DCs
-abundance <- abundance %>%
-    filter(lineage == "dc")
+gene_order <- read.xlsx('/projects/home/tlchan/projects/ascites/figure_panels/data/spatial_dotplot_markers.xlsx', sheet = "LINEAGE") %>%
+    filter(!is.na(genes)) %>%
+    pull(genes) %>%
+    strsplit(",") %>%
+    unlist()
 
-# Get immune count
-abundance <- abundance %>%
-    group_by(patient_id, tissue_type, cluster, .drop = FALSE) %>%
-    summarize(abundance = n())
+cluster_order <- c("CD4_naive", "CD4_prolif", "Treg", "CD8_naive", "CD8_1", "CD8_2", "NK", "NK_prolif", "B_cell_naive",
+                   "B_cell_mem", "B_cell_germinal", "B_cell_prolif", "Plasma", "Plasma_prolif", "cDC1", "cDC2",
+                   "cDC2_prolif", "DC_CCR7", "DC_RORC", "pDC", "Mac", "Mast_cell", "Endothelium_lymph",
+                   "Endothelium_vascular", "Endothelium_sinusoidal", "Follicular_DC", "HEV")
 
-# Account for patient/tissue pairs that contributed zero cells to clusters
-combos <- expand.grid(unique(abundance$patient_id), unique(abundance$tissue_type), unique(abundance$cluster)) %>% `colnames<-`(c("patient_id", "tissue_type", "cluster"))
+lin_gex <- read.csv(glue('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/spatial_gene_exp.csv')) %>%
+    mutate(Gene = factor(Gene, levels = gene_order), Cluster = factor(Cluster, levels = cluster_order))
 
-abundance <- combos %>%
-    left_join(abundance, by = c("patient_id", "tissue_type", "cluster")) %>%
-    replace(is.na(.), 0)
+ggplot(lin_gex, aes(x = Gene, y = fct_rev(Cluster), fill = Count, size = Percent_Expressed)) +
+    geom_point(color = "black", shape = 21) +
+    ylab('Cluster') +
+    labs(size = "% Expressed", fill = "Scaled expression") +
+    scale_fill_gradientn(colors = reds_hex) +
+    lims(size = c(0, 100)) +
+    theme_light(base_size = 25) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, face = "italic")) +
+    theme(legend.key.size = unit(.4, "cm"), legend.title = element_text(size = 20), legend.text = element_text(size = 12))
+width <- length(unique(lin_gex$Gene)) / 4 + 7.5
+height <- length(unique(lin_gex$Cluster)) / 2 + 2
 
-abundance <- abundance %>%
-    group_by(patient_id, tissue_type) %>%
-    filter(sum(abundance) > 50)
-
-# Get statistics
-abundance <- abundance %>%
-    group_by(patient_id, tissue_type) %>%
-    mutate(proportion = abundance / sum(abundance) * 100) %>%
-    mutate(log_proportion = log1p(proportion)) %>%
-    mutate(tissue_type = factor(tissue_type, levels = c("blood", "ascites")))
-
-# Filter for ascites, and non-null values
-abundance <- abundance %>%
-    filter(tissue_type == 'ascites') %>%
-    filter(!is.na(proportion)) %>%
-    ungroup() %>%
-    select(patient_id, cluster, log_proportion)
-
-### DC NEW CORRELATION
-c10_stats <- abundance %>%
-    filter(cluster == 10) %>%
-    rename("log_newDC_proportion" = log_proportion) %>%
-    select(patient_id, log_newDC_proportion)
-
-analyte_list <- c("IL-6", "IL-10")
-
-# pdf("/projects/home/tlchan/fig_panels/supp_9a.pdf", width = 5.5, height = 8)
-for (an in analyte_list) {
-    sf_data <- read.csv("/projects/home/tlchan/projects/ascites/results/secreted_factors/integrated_data/secreted_factors_updated.csv", row.names = 1)
-    sf_data <- sf_data[sf_data["diluted"] == "No",]
-    sf_data <- sf_data[sf_data["analyte"] == an,]
-    sf_data <- sf_data[sf_data["type"] == "ascites",]
-    sf_data$log_concentration <- log(sf_data$concentration)
-
-    sf_data <- sf_data %>%
-        merge(c10_stats, by = "patient_id")
-
-    p <- ggplot(sf_data, aes(x = log_concentration, y = log_newDC_proportion)) +
-        geom_point(pch = 19, size = 4) +
-        geom_smooth(method = "lm", formula = y ~ x) +
-        stat_cor(method = "pearson", size = 7) +
-        xlab("log(concentration)") +
-        ylab("log(DC: PIGR, RORC percentage)") +
-        ggtitle(glue("Ascites, {an}")) +
-        theme_classic(base_size = 28)
-    print(p)
-}
-# dev.off()
+# ggsave(glue("/projects/home/tlchan/fig_panels/supp_9a.pdf"), width = width, height = height)
 ```
+
 
 ## Supplemental Figure 9B
-```{r message = F, results = F, warning = F, fig.width = 5.5, fig.height = 8, supp_9B}
-# Load data
-abundance <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/integrated_data/ascites_abundance_include_non_native.csv")
+```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, supp_9B}
+corr_mat <- read.csv("/projects/home/tlchan/projects/ascites/results/spearman/w_peritoneal/spatial_dc_with_pigr_dc_corr_long.csv")
 
-# Subset DCs
-abundance <- abundance %>%
-    filter(lineage == "dc")
+corr_mat <- corr_mat %>%
+    mutate(Nor = (value - min(value)) / (max(value) - min(value)))
 
-# Get immune count
-abundance <- abundance %>%
-    group_by(patient_id, tissue_type, cluster, .drop = FALSE) %>%
-    summarize(abundance = n())
+corr_mat <- corr_mat %>%
+    mutate(dc_clusters = factor(dc_clusters, levels = c("1. cDC2: CD1C, IFITM1", "2. cDC3: CD1C, VCAN", "3. cDC2: CX3CR1, CD200R1",
+                                                            "4. pDC: LILRA4, IL3RA", "5. cDC1: CLEC9A, XCR1", "6. cDC: NR4A1, CCL3",
+                                                            "7. cDC2: IL22RA2, CD1A", "8. mregDC: LAMP3, CCR7", "9. cDC2: EMP1, LMNA",
+                                                            "10. cDC2: high mito", "11. ASDC: AXL, SIGLEC6", "12. DC: PIGR RORC",
+                                                            "13. DC: IFIT1, ISG15"))) %>%
+    mutate(spatial_clusters = factor(spatial_clusters, levels = c('cDC1', 'cDC2', 'cDC2_prolif', 'DC_CCR7', 'DC_RORC', 'pDC')))
 
-# Account for patient/tissue pairs that contributed zero cells to clusters
-combos <- expand.grid(unique(abundance$patient_id), unique(abundance$tissue_type), unique(abundance$cluster)) %>% `colnames<-`(c("patient_id", "tissue_type", "cluster"))
+ggplot(corr_mat, aes(x = spatial_clusters, y = dc_clusters, fill = Nor)) +
+    geom_tile(colour = "black", size = 0.5) +
+    xlab("Spatial DC subsets") +
+    ylab("Ascites DC subsets") +
+    scale_fill_continuous_diverging(palette = "Blue-Red 3", limits = c(0, 1), mid = 0.5, name = "Normalized Spearman") +
+    scale_x_discrete(expand = c(0, 0)) +
+    scale_y_discrete(expand = c(0, 0)) +
+    coord_fixed() +
+    theme_classic(base_size = 20) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
 
-abundance <- combos %>%
-    left_join(abundance, by = c("patient_id", "tissue_type", "cluster")) %>%
-    replace(is.na(.), 0)
-
-abundance <- abundance %>%
-    group_by(patient_id, tissue_type) %>%
-    filter(sum(abundance) > 50)
-
-# Get statistics
-abundance <- abundance %>%
-    group_by(patient_id, tissue_type) %>%
-    mutate(proportion = abundance / sum(abundance) * 100) %>%
-    mutate(log_proportion = log1p(proportion)) %>%
-    mutate(tissue_type = factor(tissue_type, levels = c("blood", "ascites")))
-
-# Filter for ascites, and non-null values
-abundance <- abundance %>%
-    filter(tissue_type == 'ascites') %>%
-    filter(!is.na(proportion)) %>%
-    ungroup() %>%
-    select(patient_id, cluster, log_proportion)
-
-### DC NEW CORRELATION
-c10_stats <- abundance %>%
-    filter(cluster == 10) %>%
-    rename("log_newDC_proportion" = log_proportion) %>%
-    select(patient_id, log_newDC_proportion)
-
-else_stats <- abundance %>%
-    filter(cluster != 10)
-
-dc_stats <- merge(c10_stats, else_stats, by = "patient_id")
-
-cluster_list <- c('2', '4', '7')
-
-# pdf("/projects/home/tlchan/fig_panels/supp_9b.pdf", width = 5.5, height = 8)
-for (clust in cluster_list) {
-    clust_data <- dc_stats %>%
-        filter(cluster == clust)
-
-    p <- ggplot(clust_data, aes(x = log_proportion, y = log_newDC_proportion)) +
-        geom_point(pch = 19, size = 4) +
-        geom_smooth(method = "lm", formula = y ~ x) +
-        stat_cor(method = "pearson", size = 7) +
-        xlab("log(patient percentage)") +
-        ylab("log(DC: PIGR, RORC percentage)") +
-        ggtitle(glue("Ascites, Cluster {clust}")) +
-        theme_classic(base_size = 28)
-    print(p)
-}
-# dev.off()
-```
-
-## Supplemental Figure 9F
-```{python results = 'hold', supp_9F}
-patient_palette = {
-    "Pt_1": "#FF0029",
-    "Pt_2": "#377EB8",
-    "Pt_3": "#66A61E",
-    "Pt_4": "#984EA3",
-    "Pt_5": "#00D2D5",
-    "Pt_6": "#FF7F00",
-    "Pt_7": "#AF8D00",
-    "Pt_8": "#7F80CD",
-    "Pt_9": "#B3E900",
-    "Pt_10": "#C42E60",
-    "Pt_11": "#A65628",
-    "Pt_12": "#F781BF",
-    "Pt_13": "#8DD3C7",
-    "Pt_14": "#BEBADA",
-    "Pt_15": "#FB8072",
-    "Pt_16": "#80B1D3",
-    "Pt_17": "#FDB462",
-    "Pt_18": "#FCCDE5",
-    "Pt_19": "#BC80BD",
-    "Pt_20": "#FFED6F",
-    "Pt_21": "#C4EAFF",
-    "Pt_22": "#CF8C00",
-    "Pt_23": "#1B9E77",
-    "Pt_24": "#D95F02",
-    "Pt_25": "#E7298A",
-    "Pt_26": "#E6AB02",
-    "Control": "#A6761D"
-}
-
-# Load single-cell object
-dc_diff = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/dc_diff_data/clusterings/dc_diff_3_R3_500mg_20pm_multi_res/1.3/data/filter_qc/dc_diff_3_R3_500mg_20pm_1_3.zarr.zip')
-
-patient_mapping = pd.read_csv("/projects/home/tlchan/projects/ascites/figure_panels/data/patient_name_remapping.csv")
-patient_mapping = dict(zip(patient_mapping['patient_id'], patient_mapping['new_id']))
-
-dc_diff.obs["patient"] = dc_diff.obs["patient"].replace(patient_mapping)
-dc_diff.obs["patient"] = dc_diff.obs["patient"].replace("control", "Control")
-
-fig = python_functions.plot_umap(lin_data=dc_diff,
-                                 color="patient",
-                                 palette=patient_palette,
-                                 legend_loc=None)
-
-plt.show()
-# plt.savefig("/projects/home/tlchan/fig_panels/supp_9f.pdf")
-plt.close(fig)
-```
-
-## Supplemental Figure 9G
-```{r message = F, results = F, warning = F, fig.width = 4, fig.height = 8, supp_9G}
-DC_palette <- c("DC_Diff1" = '#00916E',
-                "DC_Diff2" = "#44DAE5",
-                "DC_Diff3" = "#F88FBD",
-                "DC_Diff4" = '#FFC857',
-                "DC_Diff5" = '#B8ABE0')
-
-diff_cell_type <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/dc_diff_data/dc_diff_3_R3_obs.csv") %>%
-    mutate(DC_start = ifelse(DC_start == "DC1", "cDC1", DC_start)) %>%
-    mutate(DC_start = ifelse(DC_start == "DC2", "cDC2", DC_start))
-
-diff_cell_type <- diff_cell_type %>%
-    filter(DC_start != "invalid") %>%
-    group_by(lineage, DC_start) %>%
-    summarize(count = n())
-
-ggplot(diff_cell_type, aes(x = DC_start, y = count, fill = lineage)) +
-    geom_bar(stat = "identity", position = "fill") +
-    xlab("Starting DC subset") +
-    ylab("% cell type") +
-    labs(fill = "Lineage") +
-    theme_classic(base_size = 23) +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-    scale_fill_manual(values = DC_palette)
-
-# ggsave("/projects/home/tlchan/fig_panels/supp_9g.pdf", width = 4, height = 8)
-```
-
-## Supplemental Figure 9H
-```{r message = F, results = F, warning = F, fig.width = 5, fig.height = 6, supp_9H}
-markers <- read.csv("/projects/home/tlchan/projects/ascites/results/ova_correlation/dc_diff_data/asc_dc_with_diff_combo_markers.csv")
-
-both_up <- markers[markers$dc_pb_lFC >= 1.25 & markers$diff_pb_lFC >= 1.25,]
-ggplot(markers, aes(x = dc_pb_lFC, y = diff_pb_lFC)) +
-    geom_point(data = both_up, color = "red") +
-    geom_point(data = markers[markers$dc_pb_lFC < 1.25 | markers$diff_pb_lFC < 1.25,], color = "grey") +
-    geom_label_repel(data = both_up, label = both_up$featurekey, force = 0.2, max.overlaps = Inf, size = 7) +
-    xlab("log2FC of DC: PIGR, RORC") +
-    ylab("log2FC of DC_Diff4") +
-    theme_classic(base_size = 20)
-
-# ggsave("/projects/home/tlchan/fig_panels/supp_9h.pdf", width = 5, height = 6)
-```
-
-
-## Supplemental Figure 9I
-```{python results = 'hold', supp_9I}
-dc_data = pg.read_input("/projects/home/tlchan/projects/ascites/figure_panels/data/data_cite_objects/dc.zarr.zip")
-
-fig = python_functions.plot_feature(lin_data=dc_data,
-                                    genes=["LST1", "PAK1", "GPR82", "PLBD1", "HPGD", "TOX", "ATP10A", "PAWR", "PRSS3"],
-                                    ncol=3,
-                                    nrow=3)
-
-plt.show()
-# plt.savefig("/projects/home/tlchan/fig_panels/supp_9i.pdf")
-plt.close(fig)
-```
-
-## Supplemental Figure 9J
-```{python results = 'hold', supp_9J}
-dc_diff = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/dc_diff_data/clusterings/dc_diff_3_R3_500mg_20pm_multi_res/1.3/data/filter_qc/dc_diff_3_R3_500mg_20pm_1_3.zarr.zip')
-dc_diff.add_matrix('X', dc_diff.X)
-
-fig = python_functions.plot_feature(lin_data=dc_diff,
-                                    genes=["LST1", "PAK1", "GPR82", "PLBD1", "HPGD", "TOX", "ATP10A", "PAWR", "PRSS3"],
-                                    ncol=3,
-                                    nrow=3)
-
-plt.show()
-# plt.savefig("/projects/home/tlchan/fig_panels/supp_9j.pdf")
-plt.close(fig)
+# ggsave(glue("/projects/home/tlchan/fig_panels/supp_9b.pdf"), width = 8, height = 8)
 ```

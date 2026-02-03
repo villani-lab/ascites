@@ -80,29 +80,3 @@ plot_cluster_abundance("cd4")
 # ggsave("/projects/home/tlchan/fig_panels/fig_2c.pdf", width = 8.5, height = 8)
 ```
 
-## Figure 2D
-```{python results = 'hold', fig_2D}
-cd4_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/integrated_data/clusterings/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.3/data/pseudobulk/ascites_cd4_cite_concat_R7_300mg_20pm_harm_channel_1_3_complete_with_pb.zarr.zip')
-
-pg.umap(cd4_data, rep='pca_cite_concat', min_dist=0.01, spread=2, out_basis='umap_pca_cite_concat')
-
-cd4_data.obsm["X_umap"] = cd4_data.obsm["X_umap_pca_cite_concat"]
-
-fig = python_functions.plot_feature_by_tissue_type(lin_data=cd4_data,
-                                                   genes=["CXCR3", "CXCR6"])
-
-plt.show()
-# plt.savefig("/projects/home/tlchan/fig_panels/fig_2d.pdf")
-plt.close(fig)
-```
-
-## Figure 2E
-```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, fig_2E}
-cd4_res <- read.csv('/projects/home/tlchan/projects/ascites/results/degs/integrated_data/cluster_level/cd4_tissue_type/cd4_de_by_tissue_type_all_results.csv')
-
-plot_upset(res = cd4_res,
-           min_degree = 7)
-
-# ggsave("/projects/home/tlchan/fig_panels/fig_2e.pdf", width = 8, height = 8, dpi = 300)
-```
