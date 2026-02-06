@@ -1,13 +1,11 @@
----
-title: "Figure 4"
-output: rmarkdown::github_document
----
+Figure 4
+================
 
 ## Set up
 
 Load R libraries
-```{r message = F, results = F, warning = F, load_r_libraries}
 
+``` r
 library(colorspace)
 library(ggplot2)
 library(tidyverse)
@@ -18,11 +16,11 @@ library(ggpubr)
 
 library(reticulate)
 use_python("/projects/home/nealpsmith/software/pegasus_new_py/bin/python")
-
 ```
 
 Load python libraries
-```{python load_python_packages}
+
+``` python
 import matplotlib.pyplot as plt
 import pegasus as pg
 import pandas as pd
@@ -41,11 +39,11 @@ colormap = clr.LinearSegmentedColormap.from_list('gene_cmap', ["#e0e0e1", '#4576
 import sys
 sys.path.append("../../functions")
 import python_functions
-
 ```
 
 ## Figure 4A
-```{python results = 'hold', fig_4A}
+
+``` python
 dc_data = pg.read_input("/projects/home/tlchan/projects/ascites/figure_panels/data/data_cite_objects/dc.zarr.zip")
 
 fig = python_functions.plot_feature(lin_data=dc_data,
@@ -59,9 +57,11 @@ plt.show()
 plt.close(fig)
 ```
 
-## Figure 4C
-```{r fig_4c, message = FALSE, warning = FALSE, fig.height = 8, fig.width = 8}
+<img src="figure_4_files/figure-gfm/fig_4A-1.png" width="960" />
 
+## Figure 4C
+
+``` r
 obs <- read.csv("/projects/home/nealpsmith/projects/ascites/prospective_isolation/data/combined_data_with_ascites_dcs_obs.csv",
                  row.names = 1)
 ggplot(obs, aes(x = umap_1, y = umap_2, color = category)) +
@@ -73,12 +73,13 @@ ggplot(obs, aes(x = umap_1, y = umap_2, color = category)) +
   theme(axis.text = element_blank(),
         axis.ticks = element_blank()) +
   guides(color = guide_legend(override.aes = list(size = 4, alpha = 0.8)))
-
 ```
 
-## Figure 4F-H
-```{python fig4f_h, message = FALSE, warning = FALSE}
+![](figure_4_files/figure-gfm/fig_4c-3.png)<!-- -->
 
+## Figure 4F-H
+
+``` python
 processed_data = pg.read_input("/projects/home/nealpsmith/projects/ascites/dc_stability/data/processed_data.zarr")
 adata = processed_data.to_anndata()
 adata.obs["Channel"] = [n.replace("Pheno", "experiment") for n in adata.obs["Channel"]]
@@ -124,13 +125,17 @@ fig = plt.gcf()
 fig.set_size_inches(12, 4)
 fig.tight_layout()
 plt.show()
-plt.close()
+```
 
+<img src="figure_4_files/figure-gfm/fig4f_h-1.png" width="1152" />
+
+``` python
+plt.close()
 ```
 
 ## Figure 4G
-```{r fig_4g, message = FALSE, warning = FALSE, fig.width = 10, fig.height = 5}
 
+``` r
 data <- read.csv("/projects/home/nealpsmith/projects/ascites/dc_stability/data/processed_data_obs.csv",
                  row.names = 1)
 
@@ -153,12 +158,13 @@ ggplot(violin_data, aes(y = clean_names,x = value, fill = clean_names)) +
   facet_wrap(~variable) +
   xlab(glue("logCPM")) + ylab("") +
   theme_classic(base_size = 15)
-
 ```
 
-## Figure 4I
-```{python fig_4i, message = FALSE, warning = FALSE}
+![](figure_4_files/figure-gfm/fig_4g-3.png)<!-- -->
 
+## Figure 4I
+
+``` python
 genes =["RORC", "PRDM16", "PIGR", "S100B", "ACY3", "CCR6", "KIT", "CCR7", "ITGAE", "CLEC9A", "XCR1", "CD1C"]
 genes = [g for g in genes if g in adata.var_names]
 x_loc = np.min(adata.obsm["X_umap"][:,0]) - np.min(adata.obsm["X_umap"][:,0]) * 0.01
@@ -187,19 +193,28 @@ for num, gene in enumerate(genes) :
     cb.ax.set_title("Log(CPM)")
 for noplot in range(num +1, len(ax)) :
     ax[noplot].axis("off")
+```
+
+    ## (np.float64(0.0), np.float64(1.0), np.float64(0.0), np.float64(1.0))
+
+``` python
 fig.text(0.5, 0.03, 'UMAP1', va='center', size = 15)
 fig.text(0.03, 0.5, 'UMAP2', va='center', rotation='vertical', size = 15)
 fig.tight_layout()
 plt.subplots_adjust(left = 0.1, bottom = 0.1)
 # plt.savefig(f"/projects/home/nealpsmith/projects/ascites/dc_stability/figures/umap_dc_genes_oi.pdf")
 plt.show()
-plt.close()
+```
 
+<img src="figure_4_files/figure-gfm/fig_4i-1.png" width="960" />
+
+``` python
+plt.close()
 ```
 
 ## Figure 4J
-```{r fig_4J, message = FALSE, warning = FALSE, fig.height = 6, fig.width = 3}
 
+``` r
 data$dc_type <- ifelse(grepl("DC1|DC2", data$Channel), "cDC", "PRDC")
 
 prdc_clust_by_dc_type <- data %>%
@@ -218,5 +233,6 @@ ggplot(prdc_clust_by_dc_type, aes(x = 1, y = perc_cells, fill = dc_type)) +
   scale_fill_manual(values = c("purple", "orange")) +
   theme(axis.ticks.x = element_blank(),
         axis.text.x = element_blank())
-
 ```
+
+![](figure_4_files/figure-gfm/fig_4J-3.png)<!-- -->
