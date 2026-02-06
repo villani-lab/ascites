@@ -7,13 +7,26 @@ output: rmarkdown::github_document
 
 Load R libraries
 ```{r message = F, results = F, warning = F, load_r_libraries}
-library(reticulate)
-use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
+library(tidyverse)
+library(magrittr)
+library(ggplot2)
+library(scattermore)
+library(glue)
+library(gtools)
+library(ggpubr)
+library(ggrepel)
+library(survival)
+library(survminer)
+library(dplyr)
+library(readr)
 
-setwd('/projects/home/tlchan/github_code/ascites/functions')
-source('plot_abundance.R')
-source('plot_dotplot.R')
-source('plot_upset.R')
+library(reticulate)
+use_python("/projects/home/nealpsmith/software/pegasus_new_py/bin/python")
+
+# setwd('/projects/home/tlchan/github_code/ascites/functions')
+source('../../functions/plot_abundance.R')
+source('../../functions/plot_dotplot.R')
+source('../../functions/plot_upset.R')
 ```
 
 Load python libraries
@@ -22,7 +35,7 @@ import matplotlib.pyplot as plt
 import pegasus as pg
 
 import sys
-sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
+sys.path.append("../../functions")
 import python_functions
 ```
 
@@ -80,3 +93,192 @@ plot_cluster_abundance("cd4")
 # ggsave("/projects/home/tlchan/fig_panels/fig_2c.pdf", width = 8.5, height = 8)
 ```
 
+## Figure 2E and G
+
+```{r fig 2e_g, message = FALSE, warning = FALSE, fig.width = 12, fig.height = 8 }
+
+all_de_res <- read.csv("/projects/home/nealpsmith/projects/ascites/data/tcr/expanded_tcr_pseudobulk_degs.csv")
+
+label_gene_list <- list("cd4" = c("H3F3B", "RPL27A", "JUN", "CX3CR1", "ITM2C", "CD44", "PRF1", "ARID5A", "DUSP1",
+                                  "LAPTM5", "GZMK", "TGFB1", "NKG7", "CXCR3", "CD96", "GNLY", "ZNF683", "HLA-DRA", "GZMH",
+                                  "SLAMF6", "CD40LG", "HMGN2", "IL10RA", "CD6", "NUB1"),
+                        "cd8" = c("PLP2", "CX3CR1", "ITM2C", "PLEK", "CXCR3", "MYC", "CXCR6", "LGALS3", "GZMK", "RPL27A",
+                                  "IL7R", "CD96", "S1PR1", "TNF", "HLA-DRA",
+                                  "CCR7", "GZMA", "TGFB1", "TCF7", "TOX", "IL16", "SOCS2", "CD27",
+                                  "TIGIT", "LAIR1", "ICOS", "IFIT3", "CD70"))
+
+plot_list <- list()
+for (lin in c("cd4", "cd8")){
+  lin_data <- all_de_res %>%
+    dplyr::filter(lineage == lin)
+
+  # label_up <- lin_data %>%
+  #   dplyr::filter(log2FoldChange > 0) %>%
+  #   arrange(pvalue) %>%
+  #   head(10) %>% .$gene
+  #
+  # label_down <- lin_data %>%
+  #   dplyr::filter(log2FoldChange < 0) %>%
+  #   arrange(pvalue) %>%
+  #   head(10) %>% .$gene
+  # all_label <- c(label_up, label_down)
+  all_label <- label_gene_list[[lin]]
+  label_up <- lin_data %>%
+    dplyr::filter(gene %in% all_label, log2FoldChange > 0) %>% .$gene
+  label_down <- lin_data %>%
+    dplyr::filter(gene %in% all_label, log2FoldChange < 0) %>% .$gene
+
+  p <- ggplot(lin_data, aes(x = log2FoldChange, y = -log10(pvalue))) +
+    geom_point(data = lin_data %>% dplyr::filter(padj > 0.1), color = "grey", size = 1) +
+    geom_point(data = lin_data %>% dplyr::filter(padj < 0.1, log2FoldChange > 0), color = "blue", size = 2) +
+    geom_point(data = lin_data %>% dplyr::filter(padj < 0.1, log2FoldChange < 0), color = "red", size = 2) +
+    geom_label_repel(data = lin_data %>% dplyr::filter(gene %in% label_up), aes(label = gene), max.overlaps = 30, color = "blue") +
+    geom_label_repel(data = lin_data %>% dplyr::filter(gene %in% label_down), aes(label = gene), max.overlaps = 30, color = "red") +
+    ggtitle(glue("{lin} : expanded clone DEGs")) +
+    theme_classic(base_size = 20)
+  plot_list <- c(plot_list, list(p))
+
+}
+
+ggarrange(plotlist = plot_list, ncol = 2)
+
+
+
+```
+
+
+```{r fig_2_f_h, message = FALSE, warning = FALSE, fig.height = 8, fig.width = 9}
+
+
+dset_list <- list("cd8" = list("meta" = "/projects/home/nealpsmith/projects/ascites/data/tcr/cd8_TRB_cdr3_pseudo_meta.csv",
+                               "mtx" = "/projects/home/nealpsmith/projects/ascites/data/tcr/cd8_TRB_cdr3_pseudo_count_mtx.csv.gz",
+                               "exp_clones" = "/projects/home/nealpsmith/projects/ascites/data/tcr/cd8_expanded_TRB_cdr3.csv",
+                               "obs" = "/projects/home/nealpsmith/projects/ascites/data/updated_cd8_data_with_tcr_obs.csv.gz"),
+                  "cd4" = list("meta" = "/projects/home/nealpsmith/projects/ascites/data/tcr/cd4_TRB_cdr3_pseudo_meta.csv",
+                               "mtx" = "/projects/home/nealpsmith/projects/ascites/data/tcr/cd4_TRB_cdr3_pseudo_count_mtx.csv.gz",
+                               "exp_clones" = "/projects/home/nealpsmith/projects/ascites/data/tcr/cd4_expanded_TRB_cdr3.csv",
+                               "obs" = "/projects/home/nealpsmith/projects/ascites/data/updated_cd4_data_with_tcr_obs.csv.gz"))
+
+paper_genes <- list("cd8" = c("GZMK", "CXCR6", "CX3CR1"),
+                    "cd4" = c("GZMK", "CXCR3", "CD40LG"))
+
+# Set this for consistency
+patient_colors <- c("Pt_3" = "#CC6677",
+                    "Pt_4" = "#332288",
+                    "Pt_14" = "#DDCC77",
+                    "Pt_16" = "117733",
+                    "Pt_17" = "88CCEE",
+                    "Pt_20" = "882255",
+                    "Pt_23" = "44AA99")
+
+
+for (lin in c("cd8", "cd4")){
+  obs_data <- read.csv(dset_list[[lin]]$obs)
+  mtx <- read.csv(dset_list[[lin]]$mtx, row.names = 1)
+  meta <- read.csv(dset_list[[lin]]$meta, row.names = 1)
+
+  # We defined expanded clones in the "basic_tcr_analysis" script, lets read them in here
+  expanded_tcrs <- read.csv(dset_list[[lin]]$exp_clones,
+                            row.names = 1)
+   meta %<>%
+    rownames_to_column() %>%
+    dplyr::left_join(expanded_tcrs, by = c("tissue_type", "TRB_cdr3", "patient_id")) %>%
+    replace(is.na(.), FALSE) %>%
+    column_to_rownames()
+  # We only want to look at the B1 donors
+  pbmc_b1_patients <- obs_data %>%
+    dplyr::select(Channel, patient_id) %>%
+    dplyr::filter(Channel == "ASC_PBMC_B1_A") %>%
+    distinct() %>%
+    .$patient_id
+
+  norm_mtx <- apply(mtx, 2, function(c){
+    n_total <- sum(c)
+    per_100k <- (c * 1000000) / n_total
+    return(per_100k)
+  })
+  norm_mtx <- log1p(norm_mtx)
+
+  has_both <- meta %>%
+    dplyr::filter(patient_id %in% pbmc_b1_patients, expanded_t == TRUE) %>%
+    group_by(TRB_cdr3, patient_id) %>%
+    summarise(n_times = n()) %>%
+    dplyr::filter(n_times == 2) %>%
+    mutate(paired_analysis = "yes") %>%
+    dplyr::select(-n_times)
+
+
+  meta_temp <- meta %>%
+      rownames_to_column() %>%
+      dplyr::left_join(has_both, by = c("patient_id", "TRB_cdr3")) %>%
+      dplyr::filter(paired_analysis == "yes") %>%
+      column_to_rownames()
+
+  meta_temp$tissue_type <- factor(meta_temp$tissue_type, levels = c("blood", "ascites"))
+  meta_temp$TRB_cdr3 <- factor(meta_temp$TRB_cdr3)
+
+  genes <- paper_genes[[lin]]
+  plot_list <- list()
+  for (gene in genes){
+    plot_df <- norm_mtx[gene,rownames(meta_temp)] %>%
+      as.data.frame() %>%
+      `colnames<-`(c(gene)) %>%
+      rownames_to_column() %>%
+      dplyr::left_join(meta_temp %>% rownames_to_column(), by = "rowname")
+    plot_df$paper_id <- factor(plot_df$paper_id, levels= mixedsort(unique(plot_df$paper_id)))
+
+    p <- ggplot(plot_df, aes(x = tissue_type, y = !!as.symbol(gene), group = TRB_cdr3, fill = paper_id)) +
+      geom_point(pch = 21, size = 3) +
+      scale_fill_manual(values = patient_colors) +
+      geom_line() +
+      ggtitle(gene) +
+      ylab("logCPM") +
+      theme_classic(base_size = 20)
+    plot_list <- c(plot_list, list(p))
+
+  }
+  fig <- ggarrange(plotlist = plot_list, common.legend = TRUE, ncol = 3)
+  print(annotate_figure(fig, top = text_grob(glue("{lin} clones"),
+               color = "black", face = "bold", size = 20)))
+
+}
+
+
+```
+
+## Figure 2I
+```{r fig_2I, message = FALSE, warning = FALSE, fig.width = 10, fig.height = 8}
+
+data <- read_tsv("/projects/home/nealpsmith/temp/survival.tsv")
+
+# 3. Create the Survival Object & Fit the Model
+# We divide by 365 to convert days into years for easier 3/5-year viewing
+surv_obj <- Surv(time = data$OS.time / 365, event = data$OS)
+fit <- survfit(surv_obj ~ group, data = data)
+
+# 4. Calculate Hazard Ratio, 95% CI, and P-values
+# The coxph function gives us the HR and significance
+cox_model <- coxph(surv_obj ~ group, data = data)
+summary(cox_model)
+
+# 5. Get survival probabilities at exactly 3 and 5 years
+# This will show the percentage of patients alive at these time points
+summary(fit, times = c(3, 5))
+
+# 6. Generate the Kaplan-Meier Plot
+plot_list <- ggsurvplot(fit,
+            data = data,
+            pval = TRUE,
+            conf.int = FALSE,
+            risk.table = TRUE,
+            xlim = c(0, 3),
+            legend.labs = c("High GZMK", "Low GZMK"),
+            break.time.by = 1,
+            palette = c("#00008B", "#8fd3fe"),
+            xlab = "Time in Years",
+            title = "Survival Analysis of GZMK Groups in TCGA-STAD")
+plot_list$plot <- plot_list$plot +
+  theme(plot.title = element_text(size = 13))
+plot_list
+
+```
