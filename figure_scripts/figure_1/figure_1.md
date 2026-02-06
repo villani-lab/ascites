@@ -1,12 +1,11 @@
----
-title: "Figure 1"
-output: rmarkdown::github_document
----
+Figure 1
+================
 
 ## Set up
 
 Load R libraries
-```{r message = F, results = F, warning = F, load_r_libraries}
+
+``` r
 library(circlize)
 library(ComplexHeatmap)
 library(ggpubr)
@@ -23,15 +22,16 @@ use_python("/projects/home/nealpsmith/software/pegasus_new_py/bin/python")
 ```
 
 Load python libraries
-```{python load_python_packages}
+
+``` python
 import matplotlib.pyplot as plt
 import pegasus as pg
 import scanpy as sc
 ```
 
-
 ## Figure 1B
-```{r message = F, results = F, warning = F, fig.width = 18, fig.height = 10, fig_1B}
+
+``` r
 # Read in metadata
 metadata <- read_csv("/projects/home/tlchan/projects/ascites/figure_panels/data/fig_1_data/fig_1b_heatmap.csv")
 
@@ -177,12 +177,17 @@ pd <- packLegend(lin_lgd, survival_lgd, B2M_lgd, fill_lgd, direction = "vertical
 # pdf("/projects/home/nealpsmith/projects/ascites/figures/resubmission/fig_panels/fig_1b.pdf", width = 18, height = 10)
 draw(ht)
 draw(pd, x = unit(0.93, "npc"), y = unit(0.58, "npc"))
-# dev.off()
+```
 
+![](figure_1_files/figure-gfm/fig_1B-1.png)<!-- -->
+
+``` r
+# dev.off()
 ```
 
 ## Figure 1C
-```{python results = 'hold', fig_1C}
+
+``` python
 lineage_palette = {
     "B/Plasma cells": "#FF0029",
     "CD4 T cells": "#377EB8",
@@ -228,8 +233,11 @@ plt.show()
 plt.close(lineage_fig)
 ```
 
+<img src="figure_1_files/figure-gfm/fig_1C-1.png" width="576" />
+
 ## Figure 1D
-```{r message = F, results = F, warning = F, fig.width = 8.5, fig.height = 7.5, fig_1D}
+
+``` r
 tissue_palette <- list("ascites" = "#2278B5",
                        "blood" = "#D62A28",
                        "peritoneal" = "#00D2D5",
@@ -379,11 +387,17 @@ peritoneal_fp <- ggplot(peritoneal_res, aes(x = Difference, y = factor(lineage),
     scale_color_manual(values = tissue_palette)
 
 ggarrange(gastric_fp, peritoneal_fp, bp, ncol = 3, nrow = 1, widths = c(0.5, 0.5, 1.0), common.legend = TRUE, legend = "bottom")
+```
+
+![](figure_1_files/figure-gfm/fig_1D-3.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/tlchan/fig_panels/fig_1d.pdf", width = 8.5, height = 7.5)
 ```
 
 ## Figure 1F
-```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 6, fig_1F}
+
+``` r
 sf_names <- read.csv("/projects/home/tlchan/util/secreted_factors/sf_common_names.csv")
 paired_list <- list('ASC_41', 'ASC_43', 'ASC_45', 'ASC_46', 'ASC_48', 'ASC_52', 'ASC_57', 'ASC_61', 'ASC_62', 'ASC_65', 'ASC_66', 'ASC_67')
 
@@ -451,6 +465,10 @@ ggplot(res, aes(x = logFC, y = -log10(p))) +
     geom_point(data = res[res$logFC < 0 & res$p.adj < 0.1,], color = "#D62A28") +
     geom_text_repel(data = res[res$ID %in% label_genes,], aes(label = ID), max.overlaps = Inf, size = 4.5) +
     theme_classic(base_size = 20)
+```
 
+![](figure_1_files/figure-gfm/fig_1F-1.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/tlchan/fig_panels/fig_1f.pdf", width = 8, height = 6, device = cairo_pdf)
 ```

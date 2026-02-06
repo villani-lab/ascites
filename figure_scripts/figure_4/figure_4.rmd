@@ -12,7 +12,7 @@ library(ggplot2)
 library(tidyverse)
 
 library(reticulate)
-use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
+use_python("/projects/home/nealpsmith/software/pegasus_new_py/bin/python")
 ```
 
 Load python libraries
@@ -21,8 +21,9 @@ import matplotlib.pyplot as plt
 import pegasus as pg
 
 import sys
-sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
+sys.path.append("/projects/home/nealpsmith/publication_githubs/ascites/functions")
 import python_functions
+
 ```
 
 ## Figure 4A
@@ -32,11 +33,11 @@ dc_data = pg.read_input("/projects/home/tlchan/projects/ascites/figure_panels/da
 fig = python_functions.plot_feature(lin_data=dc_data,
                                     genes=['cite_CD11c', 'cite_CD1c', 'cite_CD370', 'cite_CD273', 'cite_CD103',
                                            'cite_CD196'],
-                                    ncol=3,
-                                    nrow=2)
+                                    ncol=2,
+                                    nrow=3)
 
-plt.show()
-# plt.savefig("/projects/home/tlchan/fig_panels/fig_4a.pdf")
+# plt.show()
+plt.savefig("/projects/home/nealpsmith/projects/ascites/figures/resubmission/fig_panels/fig_4a.pdf")
 plt.close(fig)
 ```
 
