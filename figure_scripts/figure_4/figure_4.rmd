@@ -76,6 +76,25 @@ ggplot(obs, aes(x = umap_1, y = umap_2, color = category)) +
 
 ```
 
+## Figure 4D
+
+```{python fig4d, results = 'hold'}
+
+dc_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/w_peritoneal/clusterings/ascites_dc_R3_300mg_20pm_harm_channel_multi_res/1.5/data/pseudobulk/ascites_dc_R3_300mg_20pm_harm_channel_1_5_complete_with_pb.zarr.zip')
+
+fig = python_functions.plot_feature(lin_data=dc_data,
+                                    ncol=2,
+                                    nrow=3,
+                                    genes=["CD1C", "CLEC9A", "PRDM16", "RORC", "PIGR", "SFTPD"])
+
+plt.show()
+plt.close(fig)
+
+```
+
+```
+
 ## Figure 4F-H
 ```{python fig4f_h, message = FALSE, warning = FALSE}
 

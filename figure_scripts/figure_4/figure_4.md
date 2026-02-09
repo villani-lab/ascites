@@ -23,6 +23,12 @@ Load python libraries
 ``` python
 import matplotlib.pyplot as plt
 import pegasus as pg
+```
+
+    ## /projects/home/nealpsmith/R/x86_64-pc-linux-gnu-library/4.2/reticulate/python/rpytools/loader.py:120: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+    ##   return _find_and_load(name, import_)
+
+``` python
 import pandas as pd
 import numpy as np
 import matplotlib as mpl
@@ -77,6 +83,25 @@ ggplot(obs, aes(x = umap_1, y = umap_2, color = category)) +
 
 ![](figure_4_files/figure-gfm/fig_4c-3.png)<!-- -->
 
+## Figure 4D
+
+``` python
+dc_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/w_peritoneal/clusterings/ascites_dc_R3_300mg_20pm_harm_channel_multi_res/1.5/data/pseudobulk/ascites_dc_R3_300mg_20pm_harm_channel_1_5_complete_with_pb.zarr.zip')
+
+fig = python_functions.plot_feature(lin_data=dc_data,
+                                    ncol=2,
+                                    nrow=3,
+                                    genes=["CD1C", "CLEC9A", "PRDM16", "RORC", "PIGR", "SFTPD"])
+
+plt.show()
+plt.close(fig)
+```
+
+<img src="figure_4_files/figure-gfm/fig4d-1.png" width="960" />
+
+\`\`\`
+
 ## Figure 4F-H
 
 ``` python
@@ -127,7 +152,7 @@ fig.tight_layout()
 plt.show()
 ```
 
-<img src="figure_4_files/figure-gfm/fig4f_h-1.png" width="1152" />
+<img src="figure_4_files/figure-gfm/fig4f_h-3.png" width="1152" />
 
 ``` python
 plt.close()
@@ -160,7 +185,7 @@ ggplot(violin_data, aes(y = clean_names,x = value, fill = clean_names)) +
   theme_classic(base_size = 15)
 ```
 
-![](figure_4_files/figure-gfm/fig_4g-3.png)<!-- -->
+![](figure_4_files/figure-gfm/fig_4g-5.png)<!-- -->
 
 ## Figure 4I
 
