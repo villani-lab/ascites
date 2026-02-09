@@ -1,12 +1,11 @@
----
-title: "Supplemental Figure 1"
-output: rmarkdown::github_document
----
+Supplemental Figure 1
+================
 
 ## Set up
 
 Load R libraries
-```{r message = F, results = F, warning = F, load_r_libraries}
+
+``` r
 library(circlize)
 library(ComplexHeatmap)
 library(ggpubr)
@@ -21,11 +20,11 @@ source('../../functions/plot_abundance.R')
 source('../../functions/plot_dotplot.R')
 source('../../functions/plot_upset.R')
 source('../../functions/plot_sf_boxplot.R')
-
 ```
 
 Load python libraries
-```{python load_python_packages}
+
+``` python
 import matplotlib.pyplot as plt
 import pandas as pd
 import pegasus as pg
@@ -33,11 +32,11 @@ import pegasus as pg
 import sys
 sys.path.append("../../functions")
 import python_functions
-
 ```
 
 ## Supplemental Figure 1C
-```{r message = F, results = F, warning = F, fig.width = 14, fig.height = 9, supp_1C}
+
+``` r
 lineage_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/lineage_gene_exp.csv')
 lineage_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/lineage_cite_exp.csv')
 
@@ -45,12 +44,17 @@ plot_dotplot(lin_gex = lineage_gex,
              lin_cite = lineage_cite,
              lin = "lineage",
              widths = c(1, .4, .2))
+```
 
+![](supp_figure_1_files/figure-gfm/supp_1C-1.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/tlchan/fig_panels/supp_1c.pdf", width = 14, height = 9)
 ```
 
 ## Supplemental Figure 1D
-```{python results = 'hold', supp_1D}
+
+``` python
 tissue_palette = {
     "Ascites": "#2278B5",
     "Blood": "#D62A28",
@@ -79,8 +83,11 @@ plt.show()
 plt.close(fig)
 ```
 
+<img src="supp_figure_1_files/figure-gfm/supp_1D-1.png" width="576" />
+
 ## Supplemental Figure 1E
-```{r message = F, results = F, warning = F, fig.width = 6, fig.height = 8, supp_1E}
+
+``` r
 lineage_palette <- list("B/Plasma cells" = "#FF0029",
                         "CD4 T cells" = "#377EB8",
                         "CD8 T/NK cells" = "#66A61E",
@@ -101,12 +108,17 @@ ggplot(global_lineage, aes(x = Tissue_Type, y = Count, fill = Lineage)) +
     theme_classic(base_size = 20) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
     scale_fill_manual(values = lineage_palette)
+```
 
+![](supp_figure_1_files/figure-gfm/supp_1E-3.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/tlchan/fig_panels/supp_1e.pdf", width = 6, height = 8)
 ```
 
 ## Supplemental Figure 1F
-```{python results = 'hold', supp_1F}
+
+``` python
 global_data = pg.read_input(
     '/projects/home/tlchan/projects/ascites/w_peritoneal/clusterings/ascites_combo_lineage_R3_300mg_20pm_harm_channel_multi_res/0.3/data/pseudobulk/ascites_combo_lineage_R3_300mg_20pm_harm_channel_0_3_complete_with_pb.zarr.zip')
 
@@ -120,8 +132,11 @@ plt.show()
 plt.close(fig)
 ```
 
+<img src="supp_figure_1_files/figure-gfm/supp_1F-1.png" width="480" />
+
 ## Supplemental Figure 1G
-```{r message = F, results = F, warning = F, fig.width = 11, fig.height = 8, supp_1G}
+
+``` r
 lineage_palette <- list("B/Plasma cells" = "#FF0029",
                         "CD4 T cells" = "#377EB8",
                         "CD8 T/NK cells" = "#66A61E",
@@ -148,13 +163,22 @@ ggplot(global_lineage, aes(x = Patient, y = Count, fill = Lineage)) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
           strip.text = element_text(size = 22)) +
     scale_fill_manual(values = lineage_palette)
+```
+
+![](supp_figure_1_files/figure-gfm/supp_1G-3.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/tlchan/fig_panels/supp_1g.pdf", width = 12, height = 8)
 ```
 
 ## Supplemental Figure 1H
-```{r message = F, results = F, warning = F, fig.width = 9, fig.height = 8, supp_1H}
 
+``` r
 plot_sf_boxplot(analytes = c("CXCL9", "CXCL10", "CXCL16", "IL-12p40", "IL-15", "CCL5"), nrow = 2)
+```
 
+![](supp_figure_1_files/figure-gfm/supp_1H-1.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/tlchan/fig_panels/supp_1h.pdf", width = 9, height = 8)
 ```

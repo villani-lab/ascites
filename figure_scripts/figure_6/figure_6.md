@@ -1,22 +1,20 @@
----
-title: "Figure 6"
-output: rmarkdown::github_document
----
+Figure 6
+================
 
 ## Set up
 
 Load R libraries
-```{r message = F, results = F, warning = F, load_r_libraries}
+
+``` r
 library(colorspace)
 library(glue)
 library(openxlsx)
 library(tidyverse)
-
 ```
 
-
 ## Figure 3F
-```{r message = F, results = F, warning = F, fig.width = 7, fig.height = 8, fig_3F}
+
+``` r
 # "Other" organ types
 other_organs <- c("Adnexa", "Blood", "Bone marrow", "Liver", "Lung", "Muscle")
 
@@ -67,6 +65,10 @@ ggplot(abundance, aes(y = organ, x = percentage, fill = organ_type)) +
     scale_fill_manual(values = tumor_palette) +
     theme_classic(base_size = 15) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
 
+![](figure_6_files/figure-gfm/fig_3F-1.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/tlchan/fig_panels/fig_3f.pdf", width = 7, height = 8)
 ```
