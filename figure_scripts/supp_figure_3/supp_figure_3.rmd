@@ -8,11 +8,12 @@ output: rmarkdown::github_document
 Load R libraries
 ```{r message = F, results = F, warning = F, load_r_libraries}
 library(reticulate)
-use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
+use_python("/projects/home/nealpsmith/software/pegasus_new_py/bin/python")
 
-setwd('/projects/home/tlchan/github_code/ascites/functions')
-source('plot_abundance.R')
-source('plot_dotplot.R')
+
+source('../../functions/plot_abundance.R')
+source('../../functions/plot_dotplot.R')
+
 ```
 
 Load python libraries
@@ -21,8 +22,9 @@ import matplotlib.pyplot as plt
 import pegasus as pg
 
 import sys
-sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
+sys.path.append("../../functions")
 import python_functions
+
 ```
 
 ## Supplementary Figure 3A
@@ -72,5 +74,5 @@ plot_dotplot(lin_gex = b_gex,
 ```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, supp_3C}
 plot_cluster_abundance("bplasma")
 
-ggsave("/projects/home/tlchan/fig_panels/supp_3c.pdf", width = 8, height = 8)
+# ggsave("/projects/home/tlchan/fig_panels/supp_3c.pdf", width = 8, height = 8)
 ```

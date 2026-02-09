@@ -16,11 +16,11 @@ library(openxlsx)
 library(tidyverse)
 
 library(reticulate)
-use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
+use_python("/projects/home/nealpsmith/software/pegasus_new_py/bin/python")
 
-setwd('/projects/home/tlchan/github_code/ascites/functions')
-source('plot_abundance.R')
-source('plot_dotplot.R')
+source('../../functions/plot_abundance.R')
+source('../../functions/plot_dotplot.R')
+
 ```
 
 Load python libraries
@@ -29,8 +29,9 @@ import matplotlib.pyplot as plt
 import pegasus as pg
 
 import sys
-sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
+sys.path.append("../../functions")
 import python_functions
+
 ```
 
 ## Figure 3A

@@ -12,13 +12,13 @@ library(ggrepel)
 library(tidyverse)
 
 library(reticulate)
-use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
+use_python("/projects/home/nealpsmith/software/pegasus_new_py/bin/python")
 
-setwd('/projects/home/tlchan/github_code/ascites/functions')
-source('plot_abundance.R')
-source('plot_deg.R')
-source('plot_dotplot.R')
-source('plot_sf_boxplot.R')
+source('../../functions/plot_abundance.R')
+source('../../functions/plot_dotplot.R')
+source('../../functions/plot_deg.R')
+source('../../functions/plot_sf_boxplot.R')
+
 ```
 
 Load python libraries
@@ -27,8 +27,9 @@ import matplotlib.pyplot as plt
 import pegasus as pg
 
 import sys
-sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
+sys.path.append("../../functions")
 import python_functions
+
 ```
 
 ## Supplementary Figure 4A
@@ -89,7 +90,7 @@ plot_dotplot(lin_gex = monomac_gex,
 ```{r message = F, results = F, warning = F, fig.width = 8.5, fig.height = 8, supp_4C}
 plot_cluster_abundance_w_peritoneal("monomac")
 
-ggsave("/projects/home/tlchan/fig_panels/supp_4c.pdf", width = 14, height = 8)
+# ggsave("/projects/home/tlchan/fig_panels/supp_4c.pdf", width = 14, height = 8)
 ```
 
 ## Supplementary Figure 4D
