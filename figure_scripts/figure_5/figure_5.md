@@ -1,12 +1,11 @@
----
-title: "Figure 5"
-output: rmarkdown::github_document
----
+Figure 5
+================
 
 ## Set up
 
 Load R libraries
-```{r message = F, results = F, warning = F, load_r_libraries}
+
+``` r
 library(circlize)
 library(ComplexHeatmap)
 library(cowplot)
@@ -27,14 +26,16 @@ use_python("/projects/home/nealpsmith/software/spatial_environment/bin/python")
 ```
 
 Load python libraries
-```{python load_python_packages}
+
+``` python
 # import matplotlib.pyplot as plt
 # import scanpy as sc
 # import squidpy as sq
 ```
 
 ## Figure 5B
-```{r message = F, results = F, warning = F, fig.width = 3.5, fig.height = 7, fig_5B}
+
+``` r
 DC_palette <- c("cDC1" = '#B8ABE0', "cDC2" = '#7F3F98', "DC: PIGR, RORC" = '#FFC857', "CD14" = "#36565C")
 
 CFSE_data <- read.csv("/projects/home/tlchan/projects/ascites/figure_panels/data/fig_5_data/combined_CFSE_stats.csv") %>%
@@ -65,14 +66,17 @@ ggplot(CFSE_data, aes(x = factor(cell_category), y = log_CFSE_neg_perc)) +
     stat_pvalue_manual(data = stats, label = "p = {clean_pvals}", size = 7) +
     theme_classic(base_size = 22) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none")
+```
 
+![](figure_5_files/figure-gfm/fig_5B-1.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/tlchan/fig_panels/fig_5b.pdf", width = 3.5, height = 7)
 ```
 
 ## Figure 5C
-```{r fig 5c, message = F, warning = F, fig.width = 8, fig.height = 8}
 
-
+``` r
 all_de_res <- read.csv("/projects/home/nealpsmith/projects/ascites/mlr/data/combined_fastq/degs/mlr_all_de_res.csv")
 
 ## Volcano plots for manuscript ##
@@ -97,12 +101,13 @@ for (group in c("cfse_pos", "cfse_neg")){
 
 }
 ggarrange(plotlist = plot_list)
-
 ```
 
-## Figure 5D
-```{r fig_5d, message = F, warning = F, fig.width = 10, fig.height = 10}
+![](figure_5_files/figure-gfm/fig%205c-1.png)<!-- -->
 
+## Figure 5D
+
+``` r
 dc1_increase <- all_de_res %>%
   dplyr::filter(contrast == "DC1_vs_DC2", log2FoldChange > 0, padj < 0.1) %>%
   .$gene %>% unique(.)
@@ -118,6 +123,11 @@ up_vd <- draw.pairwise.venn(left, right, overlap, category = c("cDC1", "PRDC"),
                    fill = c("#c7bcdc", "#ffd37e"), cat.pos = c(360, 390),
                    alpha = c(0.75, 0.75))
 grid.draw(up_vd);
+```
+
+![](figure_5_files/figure-gfm/fig_5d-1.png)<!-- -->
+
+``` r
 grid.newpage();
 
 dc1_decrease <- all_de_res %>%
@@ -137,12 +147,18 @@ down_vd <- draw.pairwise.venn(left, right, overlap, category = c("cDC1", "PRDC")
 
 # pdf("/projects/home/tlchan/fig_panels/fig_5d.pdf", width = 10, height = 10)
 grid.draw(down_vd);
+```
+
+![](figure_5_files/figure-gfm/fig_5d-2.png)<!-- -->
+
+``` r
 grid.newpage();
 # dev.off()
 ```
 
 ## Figure 5E
-```{r fig5e, message = F, warning = F, fig.width = 3.5, fig.height = 12}
+
+``` r
 hmap_genes <- all_de_res %>%
   dplyr::filter(contrast == "newDC_vs_DC2", padj < 0.1) %>%
   .$gene %>% unique()
@@ -192,11 +208,13 @@ hmap = Heatmap(hmap_df, col = heatmap_col_fun, name = "log2FC",
     rowAnnotation(link = anno_mark(at = match(label_genes, rownames(hmap_df)),labels = label_genes,
                                  labels_gp = gpar(col = "black", fontsize = 15)))
 draw(hmap)
-
 ```
 
+![](figure_5_files/figure-gfm/fig5e-1.png)<!-- -->
+
 ## Figure 5F
-```{python results = 'hold', fig_5F}
+
+``` python
 # spatial_data = sc.read_h5ad('/projects/home/gdreynolds/ascites/xenium_LN/ln_processed_filtered.h5ad')
 #
 # spatial_data.obs['annots'] = 'other'
@@ -232,7 +250,8 @@ draw(hmap)
 ```
 
 ## Figure 5G
-```{r message = F, results = F, warning = F, fig.width = 4.5, fig.height = 8, fig_5G}
+
+``` r
 overenrichment_data <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/spatial_data/spatial_overenrichment_stats.csv")
 overenrichment_data$sig <- ifelse(overenrichment_data$proportion > 1.5, 'sig', 'not_sig')
 
@@ -249,13 +268,17 @@ ggplot(overenrichment_data, aes(x = proportion, y = annots, color = sig)) +
     theme_bw() +
     scale_color_manual(values = c('#231F20', '#EF3D14')) +
     theme(legend.position = "none")
+```
 
+![](figure_5_files/figure-gfm/fig_5G-1.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/tlchan/fig_panels/fig_5g.pdf", width = 4.5, height = 8)
 ```
 
-
 ## Figure 5H
-```{r message = F, results = F, warning = F, fig.width = 4.5, fig.height = 8, fig_5H}
+
+``` r
 niche_palette <- list(
     "Inside DC_RORC niche" = "#C42E60",
     "Outside DC_RORC niche" = "#A8B0B2"
@@ -294,6 +317,10 @@ ggplot(cd4_prolif_data, aes(x = DC_RORC_niche, y = Count)) +
     stat_pvalue_manual(data = stats, label = "p = {clean_pvals}", size = 6, color = "text_color") +
     scale_color_manual(values = c("black" = "#000000", "gray" = "#808080"), guide = "none") +
     theme(strip.text = element_text(face = "italic"), axis.text.x = element_blank())
+```
 
+![](figure_5_files/figure-gfm/fig_5H-1.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/tlchan/fig_panels/fig_5h.pdf", width = 4.5, height = 8)
 ```
