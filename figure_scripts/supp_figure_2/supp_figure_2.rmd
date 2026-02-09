@@ -7,13 +7,24 @@ output: rmarkdown::github_document
 
 Load R libraries
 ```{r message = F, results = F, warning = F, load_r_libraries}
-library(reticulate)
-use_python("/projects/home/tlchan/.conda/envs/myenv/bin/python")
+library(tidyverse)
+library(magrittr)
+library(ggplot2)
+library(scattermore)
+library(glue)
+library(gtools)
+library(ggpubr)
+library(grid)
 
-setwd('/projects/home/tlchan/github_code/ascites/functions')
-source('plot_abundance.R')
-source('plot_dotplot.R')
-source('plot_upset.R')
+
+library(reticulate)
+use_python("/projects/home/nealpsmith/software/pegasus_new_py/bin/python")
+
+
+source('../../functions/plot_abundance.R')
+source('../../functions/plot_dotplot.R')
+source('../../functions/plot_upset.R')
+
 ```
 
 Load python libraries
@@ -22,8 +33,9 @@ import matplotlib.pyplot as plt
 import pegasus as pg
 
 import sys
-sys.path.append("/projects/home/tlchan/github_code/ascites/functions")
+sys.path.append("../../functions")
 import python_functions
+
 ```
 
 ## Supplementary Figure 2A
@@ -110,7 +122,7 @@ plot_dotplot(lin_gex = cd8_gex,
                                "10. Vγ9Vδ2 T cells: cite_TCR-Vdelta2", "2. NK: CX3CR1, cite_CD16",
                                "5. NK: XCL1, cite_CD56", "14. NK: NR4A2, TNF", "16. ILC3: RORC, IL7R"))
 
-ggsave("/projects/home/tlchan/fig_panels/supp_2d.pdf", width = 16, height = 8, device = cairo_pdf)
+# ggsave("/projects/home/tlchan/fig_panels/supp_2d.pdf", width = 16, height = 8, device = cairo_pdf)
 ```
 
 ## Supplementary Figure 2E
@@ -118,27 +130,228 @@ ggsave("/projects/home/tlchan/fig_panels/supp_2d.pdf", width = 16, height = 8, d
 plot_cluster_abundance(lin = "cd8",
                        cluster_order = c('1', '3', '4', '6', '7', '8', '9', '11', '15', '12', '13', '10', '2', '5', '14', '16'))
 
-ggsave("/projects/home/tlchan/fig_panels/supp_2e.pdf", width = 7, height = 8)
+# ggsave("/projects/home/tlchan/fig_panels/supp_2e.pdf", width = 7, height = 8)
 ```
 
-## Supplementary Figure 2F
-```{r message = F, results = F, warning = F, fig.width = 10, fig.height = 8, supp_2F}
-```
 
 ## Supplementary Figure 2G
-```{python results = 'hold', supp_2G}
-cd8_data = pg.read_input(
-    '/projects/home/tlchan/projects/ascites/integrated_data/clusterings/ascites_cd8_cite_concat_R7_300mg_20pm_harm_channel_multi_res/1.9/data/pseudobulk/ascites_cd8_cite_concat_R7_300mg_20pm_harm_channel_1_9_complete_with_pb.zarr.zip')
 
-pg.umap(cd8_data, rep='pca_cite_concat', min_dist=0.01, spread=2, out_basis='umap_pca_cite_concat')
+```{r fig_s2g_i, message = FALSE, warning = FALSE, fig.width = 10, fig.height = 10}
 
-cd8_data.obsm["X_umap"] = cd8_data.obsm["X_umap_pca_cite_concat"]
+data <- read.csv("/projects/home/nealpsmith/projects/ascites/data/updated_cd8_data_with_tcr_obs.csv.gz")
+data$leiden_pca_cite_concat <- as.character(data$leiden_pca_cite_concat)
+data$leiden_pca_cite_concat <- factor(data$leiden_pca_cite_concat, levels = mixedsort(unique(data$leiden_pca_cite_concat)))
 
-fig = python_functions.plot_feature_by_tissue_type(lin_data=cd8_data,
-                                                   genes=["CXCR3", "CXCR6"])
+# Also get the paper IDs
+paper_ids <- read.csv("/projects/home/nealpsmith/projects/ascites/data/patient_paper_ids.csv")
+data %<>% dplyr::left_join(paper_ids, by = "patient_id")
+nk_clusters <- c("2", "5", "10", "14")
 
-plt.show()
-# plt.savefig("/projects/home/tlchan/fig_panels/supp_2g.pdf")
-plt.close(fig)
+tcr_freqs <- data %>%
+  dplyr::select(paper_id, patient_id,tissue_type, TRB_cdr3) %>%
+  dplyr::filter(TRB_cdr3 != "") %>%
+  group_by(paper_id, patient_id,tissue_type, TRB_cdr3) %>%
+  summarise(n_cells = n()) %>%
+  group_by(paper_id, patient_id,tissue_type) %>%
+  mutate(total_cells = sum(n_cells)) %>%
+  mutate(perc_repertoire = n_cells / total_cells * 100) %>%
+  mutate(expanded_t = ifelse(perc_repertoire > 1 & n_cells > 5,TRUE, FALSE))
+
+expanded_tcrs <- tcr_freqs %>%
+  dplyr::filter(expanded_t == TRUE) %>%
+  dplyr::select(patient_id, paper_id, tissue_type, TRB_cdr3, expanded_t)
+
+
+## Which donors are in B1? ##
+pbmc_b1_patients <- data %>%
+  dplyr::select(Channel, paper_id) %>%
+  dplyr::filter(Channel == "ASC_PBMC_B1_A") %>%
+  distinct() %>%
+  .$paper_id
+
+plot_list <- lapply(gtools::mixedsort(pbmc_b1_patients), function(p){
+  plot_df <- data %>%
+    dplyr::filter(paper_id == p, TRB_cdr3 != "") %>%
+    dplyr::select(tissue_type, TRB_cdr3) %>%
+    group_by(tissue_type, TRB_cdr3) %>%
+    summarise(n_cells = n()) %>%
+    ungroup() %>%
+    complete(tissue_type, TRB_cdr3, fill = list("n_cells" = 0)) %>%
+    group_by(tissue_type) %>%
+    mutate(total_cells = sum(n_cells)) %>%
+    mutate(perc_cells = n_cells / total_cells * 100) %>%
+    reshape2::dcast(TRB_cdr3~tissue_type, value.var = "perc_cells")
+  pt_expanded <- expanded_tcrs %>% dplyr::filter(paper_id == p) %>% .$TRB_cdr3
+  plot_df$is_expanded <- ifelse(plot_df$TRB_cdr3 %in% pt_expanded, TRUE, FALSE)
+  max_val <- max(c(plot_df$ascites, plot_df$blood))
+  plot <- ggplot(plot_df, aes(x = ascites+1, y = blood+1, color = is_expanded)) +
+    geom_point() +
+    scale_color_manual(name = "Expanded TCR-beta", values = c("grey", "red")) +
+    ggtitle(p) +
+    xlab("") +
+    ylab("") +
+    # geom_abline(slope = 1, intercept = 1, linetype = "dashed", color = "red") +
+    # scale_x_continuous(limits = c(0, max_val + 5)) +
+    # scale_y_continuous(limits = c(0, max_val + 5)) +
+    scale_x_log10(limits = c(1, max_val + 5)) +
+    scale_y_log10(limits = c(1, max_val + 5)) +
+    annotation_logticks() +
+    theme_classic(base_size = 20)
+  return(plot)
+
+})
+
+figure <- ggarrange(plotlist = plot_list, common.legend = TRUE)
+annotate_figure(figure, left = textGrob("% blood repertoire", rot = 90, vjust = 1, gp = gpar(cex = 3)),
+                    bottom = textGrob("% ascites repertoire", gp = gpar(cex = 3)))
+
 ```
 
+## Supplemental figure 2H
+
+```{r fig_s2h, message = FALSE, warning = FALSE, fig.width = 12, fig.height = 6}
+
+cd8_cluster_palette = c(
+    "1"= "#FF0029",
+    "2"= "#377EB8",
+    "3"= "#66A61E",
+    "4"= "#984EA3",
+    "5"= "#00D2D5",
+    "6"= "#FF7F00",
+    "7"= "#AF8D00",
+    "8"= "#7F80CD",
+    "9"= "#B3E900",
+    "10"= "#C42E60",
+    "11"= "#A65628",
+    "12"= "#F781BF",
+    "13"= "#8DD3C7",
+    "14"= "#BEBADA",
+    "15"= "#FB8072"
+)
+
+
+data %<>%
+  dplyr::left_join(expanded_tcrs, by = c("patient_id", "paper_id", "tissue_type", "TRB_cdr3"))
+
+exp_clone_clust_comp <- data %>%
+  dplyr::filter(expanded_t == TRUE) %>%
+  dplyr::filter(!leiden_pca_cite_concat %in% nk_clusters) %>%
+  dplyr::select(paper_id, tissue_type, TRB_cdr3, leiden_pca_cite_concat) %>%
+  dplyr::group_by(paper_id, tissue_type, leiden_pca_cite_concat) %>%
+  summarise(n_cells = n()) %>%
+  group_by(paper_id, tissue_type) %>%
+  mutate(total_cells = sum(n_cells)) %>%
+  mutate(perc_cells = n_cells / total_cells * 100)
+exp_clone_clust_comp$paper_id <- factor(exp_clone_clust_comp$paper_id, levels = rev(gtools::mixedsort(unique(exp_clone_clust_comp$paper_id))))
+
+ggplot(exp_clone_clust_comp %>% dplyr::filter(paper_id %in% pbmc_b1_patients),
+       aes(x = perc_cells, y = paper_id, fill = leiden_pca_cite_concat)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_manual(values = cd8_cluster_palette, name = "cluster") +
+  facet_wrap(~tissue_type) +
+  ggtitle("Cluster composition of expanded clones : CD8") +
+  xlab("% of expanded cells") +
+  ylab("") +
+  theme_classic(base_size = 20)
+
+
+```
+
+## Supplemental figure 2I
+
+```{r fig_s2i, message = FALSE, warning = FALSE, fig.width = 10, fig.height = 10}
+
+cd4_data <- read.csv("/projects/home/nealpsmith/projects/ascites/data/updated_cd4_data_with_tcr_obs.csv.gz")
+cd4_data$leiden_pca_cite_concat <- as.character(cd4_data$leiden_pca_cite_concat)
+cd4_data$leiden_pca_cite_concat <- factor(cd4_data$leiden_pca_cite_concat, levels = mixedsort(unique(cd4_data$leiden_pca_cite_concat)))
+cd4_data %<>% dplyr::left_join(paper_ids, by = "patient_id")
+
+tcr_freqs <- cd4_data %>%
+  dplyr::select(paper_id, patient_id,tissue_type, TRB_cdr3) %>%
+  dplyr::filter(TRB_cdr3 != "") %>%
+  group_by(paper_id, patient_id,tissue_type, TRB_cdr3) %>%
+  summarise(n_cells = n()) %>%
+  group_by(paper_id, patient_id,tissue_type) %>%
+  mutate(total_cells = sum(n_cells)) %>%
+  mutate(perc_repertoire = n_cells / total_cells * 100) %>%
+  mutate(expanded_t = ifelse(perc_repertoire > 1 & n_cells > 5,TRUE, FALSE))
+
+expanded_tcrs_cd4 <- tcr_freqs %>%
+  dplyr::filter(expanded_t == TRUE) %>%
+  dplyr::select(patient_id, paper_id, tissue_type, TRB_cdr3, expanded_t)
+
+cd4_data %<>%
+  dplyr::left_join(expanded_tcrs_cd4, by = c("patient_id", "paper_id", "tissue_type", "TRB_cdr3"))
+
+pbmc_b1_patients <- cd4_data %>%
+  dplyr::select(Channel, paper_id) %>%
+  dplyr::filter(Channel == "ASC_PBMC_B1_A") %>%
+  distinct() %>%
+  .$paper_id
+
+
+plot_list <- lapply(gtools::mixedsort(pbmc_b1_patients), function(p){
+  plot_df <- cd4_data %>%
+    dplyr::filter(paper_id == p, TRB_cdr3 != "") %>%
+    dplyr::select(tissue_type, TRB_cdr3) %>%
+    group_by(tissue_type, TRB_cdr3) %>%
+    summarise(n_cells = n()) %>%
+    ungroup() %>%
+    complete(tissue_type, TRB_cdr3, fill = list("n_cells" = 0)) %>%
+    group_by(tissue_type) %>%
+    mutate(total_cells = sum(n_cells)) %>%
+    mutate(perc_cells = n_cells / total_cells * 100) %>%
+    reshape2::dcast(TRB_cdr3~tissue_type, value.var = "perc_cells")
+  pt_expanded <- expanded_tcrs_cd4 %>% dplyr::filter(paper_id == p) %>% .$TRB_cdr3
+  plot_df$is_expanded <- ifelse(plot_df$TRB_cdr3 %in% pt_expanded, TRUE, FALSE)
+  max_val <- max(c(plot_df$ascites, plot_df$blood))
+  plot_df$is_expanded <- factor(plot_df$is_expanded, levels = c(FALSE, TRUE))
+  plot <- ggplot(plot_df, aes(x = ascites+1, y = blood+1, color = is_expanded)) +
+    geom_point(show.legend = TRUE) +
+    scale_color_manual(name = "Expanded TCR-beta", values = c("grey", "red"), drop = FALSE) +
+    ggtitle(p) +
+    xlab("") +
+    ylab("") +
+    # geom_abline(slope = 1, intercept = 1, linetype = "dashed", color = "red") +
+    # scale_x_continuous(limits = c(0, max_val + 5)) +
+    # scale_y_continuous(limits = c(0, max_val + 5)) +
+    scale_x_log10(limits = c(1, max_val + 5)) +
+    scale_y_log10(limits = c(1, max_val + 5)) +
+    annotation_logticks() +
+    theme_classic(base_size = 20)
+  return(plot)
+
+})
+
+figure <- ggarrange(plotlist = plot_list, common.legend = TRUE)
+annotate_figure(figure, left = textGrob("% blood repertoire", rot = 90, vjust = 1, gp = gpar(cex = 3)),
+                    bottom = textGrob("% ascites repertoire", gp = gpar(cex = 3)))
+
+```
+
+## Supplemental figure 2J
+
+```{r fig_s2j, message = FALSE, warning = FALSE, fig.width = 12, fig.height = 6}
+
+
+exp_clone_clust_comp_cd4 <- cd4_data %>%
+  dplyr::filter(expanded_t == TRUE) %>%
+  dplyr::select(paper_id, tissue_type, TRB_cdr3, leiden_pca_cite_concat) %>%
+  dplyr::group_by(paper_id, tissue_type, leiden_pca_cite_concat) %>%
+  summarise(n_cells = n()) %>%
+  group_by(paper_id, tissue_type) %>%
+  mutate(total_cells = sum(n_cells)) %>%
+  mutate(perc_cells = n_cells / total_cells * 100)
+exp_clone_clust_comp_cd4$paper_id <- factor(exp_clone_clust_comp_cd4$paper_id, levels = rev(gtools::mixedsort(unique(exp_clone_clust_comp_cd4$paper_id))))
+
+ggplot(exp_clone_clust_comp_cd4 %>% dplyr::filter(paper_id %in% pbmc_b1_patients),
+       aes(x = perc_cells, y = paper_id, fill = leiden_pca_cite_concat)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_fill_manual(values = cd8_cluster_palette, name = "cluster") + # Same as CD8
+  facet_wrap(~tissue_type) +
+  ggtitle("Cluster composition of expanded clones : CD4") +
+  xlab("% of expanded cells") +
+  ylab("") +
+  theme_classic(base_size = 20)
+
+```
