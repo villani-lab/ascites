@@ -1,19 +1,24 @@
----
-title: "Supplemental Figure 10"
-output: rmarkdown::github_document
----
+Supplemental Figure 10
+================
 
 ## Set up
-```{r message = F, results = F, warning = F, load_r_libraries}
 
+``` r
 library(reticulate)
 use_python("/projects/home/nealpsmith/software/pegasus_new_py/bin/python")
-
 ```
+
 Load python libraries
-```{python load_python_packages}
+
+``` python
 import matplotlib.pyplot as plt
 import pegasus as pg
+```
+
+    ## /projects/home/nealpsmith/R/x86_64-pc-linux-gnu-library/4.2/reticulate/python/rpytools/loader.py:120: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+    ##   return _find_and_load(name, import_)
+
+``` python
 
 import sys
 sys.path.append("../../functions")
@@ -21,7 +26,8 @@ import python_functions
 ```
 
 ## Supplemental Figure 10A
-```{python results = 'hold', supp_10A}
+
+``` python
 dataset_dict = {
     "cancer_discovery": "Primary gastric",
     "gastric": "Ascites (MGH)",
@@ -57,8 +63,11 @@ plt.show()
 plt.close(fig)
 ```
 
+<img src="supp_figure_10_files/figure-gfm/supp_10A-1.png" width="576" />
+
 ## Supplemental Figure 10B
-```{python results = 'hold', supp_10B}
+
+``` python
 ext_dc_data = pg.read_input(
     "/projects/home/tlchan/projects/ascites/external_dc_data/clusterings/combo_data_dc_R4_300mg_20pm_harm_dataset_multi_res/1.5/data/pseudobulk/combo_data_dc_R4_300mg_20pm_harm_dataset_1_5_complete_with_pb.zarr.zip")
 
@@ -71,3 +80,5 @@ plt.show()
 # plt.savefig("/projects/home/tlchan/fig_panels/supp_10b.pdf")
 plt.close(fig)
 ```
+
+<img src="supp_figure_10_files/figure-gfm/supp_10B-3.png" width="960" />
