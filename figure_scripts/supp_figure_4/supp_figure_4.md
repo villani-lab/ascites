@@ -1,0 +1,167 @@
+Supplementary Figure 4
+================
+
+## Set up
+
+Load R libraries
+
+``` r
+library(ggpubr)
+library(ggrepel)
+library(tidyverse)
+
+library(reticulate)
+use_python("/projects/home/nealpsmith/software/pegasus_new_py/bin/python")
+
+source('../../functions/plot_abundance.R')
+source('../../functions/plot_dotplot.R')
+source('../../functions/plot_deg.R')
+source('../../functions/plot_sf_boxplot.R')
+```
+
+Load python libraries
+
+``` python
+import matplotlib.pyplot as plt
+import pegasus as pg
+
+import sys
+sys.path.append("../../functions")
+import python_functions
+```
+
+## Supplementary Figure 4A
+
+``` python
+monomac_cluster_palette = {
+    "1": "#FF0029",
+    "2": "#377EB8",
+    "3": "#66A61E",
+    "4": "#984EA3",
+    "5": "#00D2D5",
+    "6": "#FF7F00",
+    "7": "#AF8D00",
+    "8": "#7F80CD",
+    "9": "#B3E900",
+    "10": "#C42E60",
+    "11": "#A65628",
+    "12": "#F781BF",
+    "13": "#8DD3C7",
+    "14": "#BEBADA",
+    "15": "#FB8072"
+}
+
+# Load single-cell object
+monomac_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/w_peritoneal/clusterings/ascites_monomac_R2_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_monomac_R2_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip')
+
+# Relabel obs for function
+monomac_data.obs['Cluster'] = monomac_data.obs['leiden_labels'].cat.remove_unused_categories().astype(str)
+
+fig = python_functions.plot_umap(lin_data=monomac_data,
+                                 palette=monomac_cluster_palette,
+                                 legend_loc=None,
+                                 size=5)
+
+plt.show()
+# plt.savefig("/projects/home/tlchan/fig_panels/supp_4a.pdf")
+plt.close(fig)
+```
+
+<img src="supp_figure_4_files/figure-gfm/supp_4A-1.png" width="576" />
+
+## Supplementary Figure 4B
+
+``` r
+monomac_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/monomac_gene_exp.csv')
+monomac_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/monomac_cite_exp.csv')
+
+plot_dotplot(lin_gex = monomac_gex,
+             lin_cite = monomac_cite,
+             lin = "monomac",
+             widths = c(1, .1, .2),
+             cluster_order = c("1. MM: LYVE1, TREM2", "2. MM: CD14, CCR2-lo", "3. MM: S100A12, MCEMP1",
+                               "4. MM: CLEC10A, FCGR2B", "5. MM: TCF7L2, CX3CR1", "6. MM: LMNA, CRIP2",
+                               "7. MM: ISG15, IFI44L", "8. MM: high mito", "9. MM: IL1B, CCL4",
+                               "10. MM: cycling", "11. MM: MT1G, MT1X", "12. Mast: TPSAB1, CPA3"))
+```
+
+![](supp_figure_4_files/figure-gfm/supp_4B-3.png)<!-- -->
+
+``` r
+# ggsave("/projects/home/tlchan/fig_panels/supp_4b.pdf", width = 14, height = 8)
+```
+
+## Supplementary Figure 4C
+
+``` r
+plot_cluster_abundance_w_peritoneal("monomac")
+```
+
+![](supp_figure_4_files/figure-gfm/supp_4C-1.png)<!-- -->
+
+``` r
+# ggsave("/projects/home/tlchan/fig_panels/supp_4c.pdf", width = 14, height = 8)
+```
+
+## Supplementary Figure 4D
+
+``` r
+monomac_res <- read.csv('/projects/home/tlchan/projects/ascites/results/degs/w_peritoneal/lineage_level/tissue_type_AvB/monomac_de_by_tissue_type_AvB_all_results.csv')
+monomac_meta <- read.csv("/projects/home/tlchan/projects/ascites/results/degs/w_peritoneal/pb_objects/monomac_lineage_pseudobulk_meta.csv", row.names = 1)
+
+monomac_meta <- monomac_meta %>%
+    filter(tissue_type == "blood" | tissue_type == "ascites") %>%
+    mutate(tissue_type = factor(tissue_type, levels = c("blood", "ascites"))) %>%
+    mutate(sex = factor(sex, levels = c('M', 'F')))
+
+label_genes <- c("CXCL1", "IL10", "CXCL8", "CCL2", "CCL20", "HAVCR2", "VEGFA", "SPP1", "HLA-DQB2", "CLU", "SELL", "TREM2", "MEFV", "CPPED1")
+highlight_genes <-  c("CCL2", "CCL20", "CXCL1", "CXCL8", "IL10", "VEGFA")
+
+plot_lineage_deg(res = monomac_res,
+                 meta = monomac_meta,
+                 lin = "Mono/Macs",
+                 contrast = "tissue_type",
+                 ref_var = "blood",
+                 test_var = "ascites",
+                 label_genes = label_genes,
+                 highlight_genes = highlight_genes,
+                 ref_color = "#D62A28",
+                 test_color = "#2278B5",
+                 highlight_color = "#FFBF00")
+```
+
+![](supp_figure_4_files/figure-gfm/supp_4D-1.png)<!-- -->
+
+``` r
+# ggsave("/projects/home/tlchan/fig_panels/supp_4d.pdf", width = 8, height = 8)
+```
+
+## Supplementary Figure 4E
+
+``` python
+monomac_data = pg.read_input(
+    '/projects/home/tlchan/projects/ascites/w_peritoneal/clusterings/ascites_monomac_R2_300mg_20pm_harm_channel_multi_res/0.9/data/pseudobulk/ascites_monomac_R2_300mg_20pm_harm_channel_0_9_complete_with_pb.zarr.zip')
+
+fig = python_functions.plot_feature_by_tissue_type(lin_data=monomac_data,
+                                                   genes=["CCL2", "CCL20", "CXCL1", "CXCL8", "IL10", "VEGFA"])
+
+plt.show()
+# plt.savefig("/projects/home/tlchan/fig_panels/supp_4e.pdf")
+plt.close(fig)
+```
+
+<img src="supp_figure_4_files/figure-gfm/supp_4E-1.png" width="960" />
+
+## Supplementary Figure 4F
+
+``` r
+plot_sf_boxplot(analytes = c("CCL2", "CCL20", "CXCL1", "IL-8", "IL-10", "VEGFA"),
+                nrow = 6)
+```
+
+![](supp_figure_4_files/figure-gfm/supp_4F-3.png)<!-- -->
+
+``` r
+# ggsave("/projects/home/tlchan/fig_panels/supp_4f.pdf", width = 5, height = 18, device = cairo_pdf)
+```

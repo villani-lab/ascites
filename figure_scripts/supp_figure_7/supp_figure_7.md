@@ -1,12 +1,11 @@
----
-title: "Supplemental Figure 7"
-output: rmarkdown::github_document
----
+Supplemental Figure 7
+================
 
 ## Set up
 
 Load R libraries
-```{r message = F, results = F, warning = F, load_r_libraries}
+
+``` r
 library(ggpubr)
 library(ggrepel)
 library(glue)
@@ -14,11 +13,11 @@ library(tidyverse)
 
 library(reticulate)
 use_python("/projects/home/nealpsmith/software/pegasus_new_py/bin/python")
-
 ```
 
 Load python libraries
-```{python load_python_packages}
+
+``` python
 import math
 import matplotlib.pyplot as plt
 import os
@@ -37,11 +36,11 @@ mpl.rcParams['pdf.fonttype'] = 42
 import sys
 sys.path.append("../../functions")
 import python_functions
-
 ```
 
 ## Supplemental Figure 7A
-```{r message = F, results = F, warning = F, fig.width = 5.5, fig.height = 8, supp_7A}
+
+``` r
 # Load data
 abundance <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/w_peritoneal/ascites_abundance.csv")
 
@@ -108,11 +107,17 @@ for (an in analyte_list) {
         theme_classic(base_size = 28)
     print(p)
 }
+```
+
+![](supp_figure_7_files/figure-gfm/supp_7A-1.png)<!-- -->![](supp_figure_7_files/figure-gfm/supp_7A-2.png)<!-- -->
+
+``` r
 # dev.off()
 ```
 
 ## Supplemental Figure 7B
-```{r message = F, results = F, warning = F, fig.width = 5.5, fig.height = 8, supp_7B}
+
+``` r
 # Load data
 abundance <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/w_peritoneal/ascites_abundance.csv")
 
@@ -178,11 +183,17 @@ for (clust in cluster_list) {
         theme_classic(base_size = 28)
     print(p)
 }
+```
+
+![](supp_figure_7_files/figure-gfm/supp_7B-1.png)<!-- -->![](supp_figure_7_files/figure-gfm/supp_7B-2.png)<!-- -->![](supp_figure_7_files/figure-gfm/supp_7B-3.png)<!-- -->![](supp_figure_7_files/figure-gfm/supp_7B-4.png)<!-- -->
+
+``` r
 # dev.off()
 ```
 
 ## Supplemental Figure 7F
-```{python results = 'hold', supp_7F}
+
+``` python
 patient_palette = {
     "Pt_1": "#FF0029",
     "Pt_2": "#377EB8",
@@ -233,8 +244,14 @@ plt.show()
 plt.close(fig)
 ```
 
+    ## <string>:2: FutureWarning: The behavior of Series.replace (and DataFrame.replace) with CategoricalDtype is deprecated. In a future version, replace will only be used for cases that preserve the categories. To change the categories, use ser.cat.rename_categories instead.
+    ## <string>:1: FutureWarning: The behavior of Series.replace (and DataFrame.replace) with CategoricalDtype is deprecated. In a future version, replace will only be used for cases that preserve the categories. To change the categories, use ser.cat.rename_categories instead.
+
+<img src="supp_figure_7_files/figure-gfm/supp_7F-1.png" width="576" />
+
 ## Supplemental Figure 7G
-```{r message = F, results = F, warning = F, fig.width = 4, fig.height = 8, supp_7G}
+
+``` r
 DC_palette <- c("DC_Diff1" = '#00916E',
                 "DC_Diff2" = "#44DAE5",
                 "DC_Diff3" = "#F88FBD",
@@ -258,12 +275,17 @@ ggplot(diff_cell_type, aes(x = DC_start, y = count, fill = lineage)) +
     theme_classic(base_size = 23) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
     scale_fill_manual(values = DC_palette)
+```
 
+![](supp_figure_7_files/figure-gfm/supp_7G-3.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/tlchan/fig_panels/supp_7g.pdf", width = 4, height = 8)
 ```
 
 ## Supplemental Figure 7H
-```{r message = F, results = F, warning = F, fig.width = 5, fig.height = 6, supp_7H}
+
+``` r
 markers <- read.csv("/projects/home/tlchan/projects/ascites/results/ova_correlation/w_peritoneal/asc_dc_with_diff_combo_markers.csv")
 
 both_up <- markers[markers$dc_pb_lFC >= 1.25 & markers$diff_pb_lFC >= 1.25,]
@@ -274,14 +296,17 @@ ggplot(markers, aes(x = dc_pb_lFC, y = diff_pb_lFC)) +
     xlab("log2FC of DC: PIGR, RORC") +
     ylab("log2FC of DC_Diff4") +
     theme_classic(base_size = 20)
+```
 
+![](supp_figure_7_files/figure-gfm/supp_7H-1.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/tlchan/fig_panels/supp_7h.pdf", width = 5, height = 6)
 ```
 
 ## Supplemental Figure 7J-K
 
-```{python fig_s7j_k, message = FALSE, warning = FALSE}
-
+``` python
 processed_data = pg.read_input("/projects/home/nealpsmith/projects/ascites/dc_diff_4/data/processed_data.zarr")
 
 adata = processed_data.to_anndata()
@@ -322,17 +347,27 @@ for num, c in enumerate(cats) :
     ax[num].set_rasterization_zorder(2)
 for noplot in range(num + 1, len(ax)) :
     ax[noplot].axis("off")
+```
+
+    ## (np.float64(0.0), np.float64(1.0), np.float64(0.0), np.float64(1.0))
+    ## (np.float64(0.0), np.float64(1.0), np.float64(0.0), np.float64(1.0))
+
+``` python
 fig = plt.gcf()
 fig.set_size_inches(14, 8)
 fig.tight_layout()
 plt.show()
+```
+
+<img src="supp_figure_7_files/figure-gfm/fig_s7j_k-1.png" width="1344" />
+
+``` python
 plt.close()
 ```
 
 ## Supplemental Figure 7L
 
-```{r fig_s7l, message = FALSE, warning = FALSE, fig.height = 6, fig.width = 10}
-
+``` r
 obs <- read.csv("/projects/home/nealpsmith/projects/ascites/dc_diff_4/data/processed_data_obs.csv",
                 row.names = 1)
 clust_by_channel <- obs %>%
@@ -351,9 +386,11 @@ ggplot(clust_by_channel, aes(x = perc_cells, y = updated_clusters, fill = Channe
   theme_classic(base_size = 20)
 ```
 
-## Supplemental Figure 7M
-```{python fig_s7m, message = FALSE, warning = FALSE}
+![](supp_figure_7_files/figure-gfm/fig_s7l-3.png)<!-- -->
 
+## Supplemental Figure 7M
+
+``` python
 genes =["RORC", "PRDM16", "PIGR", "S100B", "ACY3", "CCR6", "KIT", "CCR7", "ITGAE", "CLEC9A", "XCR1", "CD1C"]
 genes = [g for g in genes if g in adata.var_names]
 x_loc = np.min(adata.obsm["X_umap"][:,0]) - np.min(adata.obsm["X_umap"][:,0]) * 0.01
@@ -382,11 +419,20 @@ for num, gene in enumerate(genes) :
     cb.ax.set_title("Log(CPM)")
 for noplot in range(num +1, len(ax)) :
     ax[noplot].axis("off")
+```
+
+    ## (np.float64(0.0), np.float64(1.0), np.float64(0.0), np.float64(1.0))
+
+``` python
 fig.text(0.5, 0.03, 'UMAP1', va='center', size = 15)
 fig.text(0.03, 0.5, 'UMAP2', va='center', rotation='vertical', size = 15)
 fig.tight_layout()
 plt.subplots_adjust(left = 0.1, bottom = 0.1)
 plt.show()
-plt.close()
+```
 
+<img src="supp_figure_7_files/figure-gfm/fig_s7m-1.png" width="960" />
+
+``` python
+plt.close()
 ```
