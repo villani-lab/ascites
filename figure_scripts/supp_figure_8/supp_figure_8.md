@@ -1,12 +1,11 @@
----
-title: "Supplemental Figure 8"
-output: rmarkdown::github_document
----
+Supplemental Figure 8
+================
 
 ## Set up
 
 Load R libraries
-```{r message = F, results = F, warning = F, load_r_libraries}
+
+``` r
 library(ggpubr)
 library(glue)
 library(openxlsx)
@@ -16,11 +15,11 @@ library(ggplot2)
 
 library(reticulate)
 use_python("/projects/home/nealpsmith/software/pegasus_new_py/bin/python")
-
 ```
 
 Load python libraries
-```{python load_python_packages}
+
+``` python
 import matplotlib.pyplot as plt
 import pegasus as pg
 import scanpy as sc
@@ -39,12 +38,11 @@ colormap = clr.LinearSegmentedColormap.from_list('gene_cmap', ["#e0e0e1", '#4576
 import sys
 sys.path.append("../../functions")
 import python_functions
-
 ```
 
 ## Supplemental Figure 8D
-```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 3, supp_8D}
 
+``` r
 cd4_data <- read.csv("/projects/home/nealpsmith/projects/ascites/mlr/data/combined_fastq/cd4_data_obs.csv")
 cd8_data <- read.csv("/projects/home/nealpsmith/projects/ascites/mlr/data/combined_fastq/cd8_data_obs.csv")
 
@@ -72,10 +70,11 @@ ggplot(n_cells, aes(x = n_cells, y = paper_id, fill = dc_type)) +
   theme_classic(base_size = 20)
 ```
 
+![](supp_figure_8_files/figure-gfm/supp_8D-1.png)<!-- -->
+
 ## Supplemental Figure 8E
 
-```{python fig_s8e, message = FALSE, warning = FALSE}
-
+``` python
 cd4_data = pg.read_input("/projects/home/nealpsmith/projects/ascites/mlr/data/combined_fastq/cd4_data.zarr")
 
 cd4_data.obs["patient_id"] = ["_".join(n.split("_")[0:2]) for n in cd4_data.obs["sample"]]
@@ -124,19 +123,26 @@ for num, c in enumerate(cats) :
     ax[num].set_rasterization_zorder(2)
 for noplot in range(num + 1, len(ax)) :
     ax[noplot].axis("off")
+```
+
+    ## (np.float64(0.0), np.float64(1.0), np.float64(0.0), np.float64(1.0))
+
+``` python
 fig = plt.gcf()
 fig.set_size_inches(12, 8)
 fig.tight_layout()
 plt.show()
-plt.close()
-
 ```
 
+<img src="supp_figure_8_files/figure-gfm/fig_s8e-1.png" width="1152" />
+
+``` python
+plt.close()
+```
 
 ## Supplemental Figure 8F
 
-```{python fig_s8f, message = FALSE, warning = FALSE}
-
+``` python
 # rand_indx_dict = rand_index_plot(W = adata.obsp["W_pca_harmony"],
 #                                       resolutions  = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
 #                                       n_samples = 25, random_state=1)
@@ -160,13 +166,17 @@ plt.axhline(y = 0.9, color = "black", linestyle = "--")
 fig.tight_layout()
 # plt.savefig("/projects/home/nealpsmith/projects/ascites/mlr/figures/combined_fastq/cd4/ari_cd4.pdf")
 plt.show()
-plt.close()
+```
 
+<img src="supp_figure_8_files/figure-gfm/fig_s8f-3.png" width="672" />
+
+``` python
+plt.close()
 ```
 
 ## Supplemental figure 8G
-```{python fig_s8g, message = FALSE, warning = FALSE}
 
+``` python
 genes =["TBX21", "IFNG", "GATA3", "IL5", "IL13", "RORC", "FOXP3", "IL2RA", "PDCD1", "CXCR5", "MKI67", "STMN1"]
 x_loc = np.min(adata.obsm["X_umap"][:,0]) - np.min(adata.obsm["X_umap"][:,0]) * 0.01
 y_loc = np.min(adata.obsm["X_umap"][:,1]) - 0.4
@@ -199,12 +209,17 @@ fig.text(0.03, 0.5, 'UMAP2', va='center', rotation='vertical', size = 15)
 fig.tight_layout()
 plt.subplots_adjust(left = 0.1, bottom = 0.1)
 plt.show()
-plt.close()
+```
 
+<img src="supp_figure_8_files/figure-gfm/fig_s8g-5.png" width="960" />
+
+``` python
+plt.close()
 ```
 
 ## Supplemental figure 8H
-```{python fig_s8h, message = FALSE, warning = FALSE}
+
+``` python
 cd8_data = pg.read_input("/projects/home/nealpsmith/projects/ascites/mlr/data/combined_fastq/cd8_data.zarr")
 pg.leiden(cd8_data, resolution=0.3, rep = "pca_harmony")
 del cd8_data.uns["leiden_labels_colors"]
@@ -252,16 +267,26 @@ for num, c in enumerate(cats) :
     ax[num].set_rasterization_zorder(2)
 for noplot in range(num + 1, len(ax)) :
     ax[noplot].axis("off")
+```
+
+    ## (np.float64(0.0), np.float64(1.0), np.float64(0.0), np.float64(1.0))
+
+``` python
 fig = plt.gcf()
 fig.set_size_inches(12, 8)
 fig.tight_layout()
 plt.show()
-plt.close()
+```
 
+<img src="supp_figure_8_files/figure-gfm/fig_s8h-7.png" width="1152" />
+
+``` python
+plt.close()
 ```
 
 ## Supplemental Figure 8I
-```{python figu_s8i, message = FALSE, warning = FALSE}
+
+``` python
 plot_df = pd.read_csv("/projects/home/nealpsmith/projects/ascites/mlr/data/combined_fastq/cd8_ari.csv")
 fig, ax = plt.subplots(1)
 sns.boxplot(x="index", y="value", data=plot_df, ax = ax)
@@ -276,13 +301,17 @@ ax.set_xlabel("leiden resolution", size = 20)
 plt.axhline(y = 0.9, color = "black", linestyle = "--")
 fig.tight_layout()
 plt.show()
-plt.close()
+```
 
+<img src="supp_figure_8_files/figure-gfm/figu_s8i-9.png" width="672" />
+
+``` python
+plt.close()
 ```
 
 ## Supplemental Figure 8J
-```{python fig_s8j, message = FALSE, warning = FALSE}
 
+``` python
 fig, ax = plt.subplots(ncols = 1, nrows = 3, figsize = (3, 5.5))
 ax = ax.ravel()
 c = "leiden_labels"
@@ -316,13 +345,17 @@ for num, gene in enumerate(["n_genes", "percent_mito"]) :
 fig.tight_layout()
 plt.subplots_adjust(left = 0.1, bottom = 0.1)
 plt.show()
-plt.close()
+```
 
+<img src="supp_figure_8_files/figure-gfm/fig_s8j-11.png" width="288" />
+
+``` python
+plt.close()
 ```
 
 ## Supplemental Figure 8K
-```{python fig_s8k, message = FALSE, warning = FALSE}
 
+``` python
 genes =["TCF7", "IL7R", "GZMB", "PRF1", "IFNG", "TOX", "PDCD1", "LAG3", "HAVCR2", "MKI67"]
 x_loc = np.min(adata.obsm["X_umap"][:,0]) - np.min(adata.obsm["X_umap"][:,0]) * 0.01
 y_loc = np.min(adata.obsm["X_umap"][:,1]) - 0.4
@@ -350,18 +383,28 @@ for num, gene in enumerate(genes) :
     cb.ax.set_title("Log(CPM)")
 for noplot in range(num +1, len(ax)) :
     ax[noplot].axis("off")
+```
+
+    ## (np.float64(0.0), np.float64(1.0), np.float64(0.0), np.float64(1.0))
+    ## (np.float64(0.0), np.float64(1.0), np.float64(0.0), np.float64(1.0))
+
+``` python
 fig.text(0.5, 0.03, 'UMAP1', va='center', size = 15)
 fig.text(0.03, 0.5, 'UMAP2', va='center', rotation='vertical', size = 15)
 fig.tight_layout()
 plt.subplots_adjust(left = 0.1, bottom = 0.1)
 plt.show()
-plt.close()
+```
 
+<img src="supp_figure_8_files/figure-gfm/fig_s8k-13.png" width="960" />
+
+``` python
+plt.close()
 ```
 
 ## Supplemental Figure 8L
-```{r fig_s8l, message = FALSE, warning = FALSE, fig.width = 12, fig.height = 8}
 
+``` r
 all_de_res <- read.csv("/projects/home/nealpsmith/projects/ascites/mlr/data/combined_fastq/degs/mlr_all_de_res.csv")
 
 ## DC1 vs DC2 volcanos ##
@@ -386,6 +429,6 @@ for (group in c("cfse_pos", "cfse_neg")){
 }
 
 ggarrange(plotlist = plot_list, ncol = 2)
-
-
 ```
+
+![](supp_figure_8_files/figure-gfm/fig_s8l-15.png)<!-- -->
