@@ -1,12 +1,11 @@
----
-title: "Figure 3"
-output: rmarkdown::github_document
----
+Figure 3
+================
 
 ## Set up
 
 Load R libraries
-```{r message = F, results = F, warning = F, load_r_libraries}
+
+``` r
 library(circlize)
 library(colorspace)
 library(ComplexHeatmap)
@@ -20,22 +19,22 @@ use_python("/projects/home/nealpsmith/software/pegasus_new_py/bin/python")
 
 source('../../functions/plot_abundance.R')
 source('../../functions/plot_dotplot.R')
-
 ```
 
 Load python libraries
-```{python load_python_packages}
+
+``` python
 import matplotlib.pyplot as plt
 import pegasus as pg
 
 import sys
 sys.path.append("../../functions")
 import python_functions
-
 ```
 
 ## Figure 3A
-```{python results = 'hold', fig_3A}
+
+``` python
 dc_cluster_palette = {
     "1": "#FF0029",
     "2": "#377EB8",
@@ -67,8 +66,11 @@ plt.show()
 plt.close(fig)
 ```
 
+<img src="figure_3_files/figure-gfm/fig_3A-1.png" width="576" />
+
 ## Figure 3B
-```{r message = F, results = F, warning = F, fig.width = 15, fig.height = 8, fig_3B}
+
+``` r
 dc_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/dc_gene_exp.csv')
 dc_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/dc_cite_exp.csv')
 
@@ -81,20 +83,30 @@ plot_dotplot(lin_gex = dc_gex,
                                "7. cDC2: IL22RA2, CD1A", "8. mregDC: LAMP3, CCR7", "9. cDC2: EMP1, LMNA",
                                "10. cDC2: high mito", "11. ASDC: AXL, SIGLEC6", "12. DC: PIGR RORC",
                                "13. DC: IFIT1, ISG15"))
+```
 
+![](figure_3_files/figure-gfm/fig_3B-3.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/tlchan/fig_panels/fig_3b.pdf", width = 15, height = 8)
 ```
 
 ## Figure 3C
-```{r message = F, results = F, warning = F, fig.width = 10, fig.height = 8, fig_3C}
+
+``` r
 plot_cluster_abundance_w_peritoneal(lin = "dc",
                                     n_breaks = 2)
+```
 
+![](figure_3_files/figure-gfm/fig_3C-1.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/tlchan/fig_panels/fig_3c.pdf", width = 9, height = 8)
 ```
 
 ## Figure 3F
-```{python results = 'hold', fig_3G}
+
+``` python
 dc_cluster_palette = {
     "1": "#FF0029",
     "2": "#377EB8",
@@ -117,9 +129,11 @@ plt.show()
 plt.close(fig)
 ```
 
+<img src="figure_3_files/figure-gfm/fig_3G-1.png" width="576" />
 
 ## Figure 3G
-```{r message = F, results = F, warning = F, fig.width = 10.25, fig.height = 4.5, fig_3H}
+
+``` r
 # Use Reds
 reds_colormap <- read.table('/projects/home/tlchan/util/cmaps/reds_cmap.txt', header = FALSE)
 reds_hex <- apply(reds_colormap, 1, function(row) {
@@ -141,12 +155,17 @@ ggplot(lin_gex, aes(x = Gene, y = fct_rev(Cluster), fill = Count, size = Percent
     theme_light(base_size = 25) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, face = "italic")) +
     theme(legend.key.size = unit(.4, "cm"), legend.title = element_text(size = 20), legend.text = element_text(size = 12))
+```
 
+![](figure_3_files/figure-gfm/fig_3H-3.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/tlchan/fig_panels/fig_3h.pdf", width = 8, height = 5)
 ```
 
 ## Figure 3H and I
-```{r message = F, results = F, warning = F, fig.width = 10, fig.height = 9, fig_3I}
+
+``` r
 DC_palette <- c("cDC1" = '#B8ABE0', "cDC2" = '#7F3F98', 'Other' = '#000000')
 
 excel_file <- '/projects/home/tlchan/projects/ascites/results/abundance/dc_diff_data/dc_diff_abundance.xlsx'
@@ -201,12 +220,17 @@ bp <- ggplot(abundance, aes(x = proportion + 1, y = factor(lineage), fill = DC_s
     scale_fill_manual(values = DC_palette)
 
 ggarrange(fp, bp, ncol = 2, nrow = 1, widths = c(0.5, 0.75), common.legend = TRUE, legend = "bottom")
+```
 
+![](figure_3_files/figure-gfm/fig_3I-1.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/tlchan/fig_panels/fig_3i.pdf", width = 8, height = 5, dpi = 300, units = "in")
 ```
 
 ## Figure 3J
-```{r message = F, results = F, warning = F, fig.width = 6, fig.height = 8, fig_3K}
+
+``` r
 corr_mat <- read.csv("/projects/home/tlchan/projects/ascites/results/pearson/w_peritoneal/asc_dc_with_diff_corr_long.csv")
 corr_mat <- corr_mat %>% mutate(dc_clusters = str_extract(dc_clusters, "^[^\\.]+"))
 
@@ -229,12 +253,17 @@ ggplot(corr_mat, aes(x = diff_clusters, y = dc_clusters, fill = Nor)) +
     theme_classic(base_size = 20) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1), legend.position = "bottom") +
     guides(fill = guide_colorbar(title.position = "top", barwidth = 12))
+```
 
+![](figure_3_files/figure-gfm/fig_3K-1.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/tlchan/fig_panels/fig_3k.pdf", width = 5, height = 8)
 ```
 
 ## Figure 3K
-```{python results = 'hold', fig_3L}
+
+``` python
 dc_data = pg.read_input("/projects/home/tlchan/projects/ascites/figure_panels/data/data_cite_objects/dc.zarr.zip")
 
 fig = python_functions.plot_feature(lin_data=dc_data,
@@ -247,8 +276,11 @@ plt.show()
 plt.close(fig)
 ```
 
+<img src="figure_3_files/figure-gfm/fig_3L-1.png" width="480" />
+
 ## Figure 3L
-```{python results = 'hold', fig_3M}
+
+``` python
 dc_diff = pg.read_input(
     '/projects/home/tlchan/projects/ascites/dc_diff_data/clusterings/dc_diff_3_R3_500mg_20pm_multi_res/1.3/data/filter_qc/dc_diff_3_R3_500mg_20pm_1_3.zarr.zip')
 dc_diff.add_matrix('X', dc_diff.X)
@@ -262,3 +294,5 @@ plt.show()
 # plt.savefig("/projects/home/tlchan/fig_panels/fig_3m.pdf")
 plt.close(fig)
 ```
+
+<img src="figure_3_files/figure-gfm/fig_3M-3.png" width="480" />
