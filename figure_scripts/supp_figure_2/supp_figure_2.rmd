@@ -108,8 +108,8 @@ plt.close(fig)
 
 ## Supplementary Figure 2D
 ```{r message = F, results = F, warning = F, fig.width = 16, fig.height = 8, supp_2D}
-cd8_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/cd8_gene_exp.csv')
-cd8_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/cd8_cite_exp.csv')
+cd8_gex <- read.csv('/projects/home/nealpsmith/projects/ascites/figures/resubmission/dotplot_data/cd8_gene_exp.csv')
+cd8_cite <- read.csv('/projects/home/nealpsmith/projects/ascites/figures/resubmission/dotplot_data/cd8_cite_exp.csv')
 
 plot_dotplot(lin_gex = cd8_gex,
              lin_cite = cd8_cite,
@@ -122,7 +122,7 @@ plot_dotplot(lin_gex = cd8_gex,
                                "10. Vγ9Vδ2 T cells: cite_TCR-Vdelta2", "2. NK: CX3CR1, cite_CD16",
                                "5. NK: XCL1, cite_CD56", "14. NK: NR4A2, TNF", "16. ILC3: RORC, IL7R"))
 
-# ggsave("/projects/home/tlchan/fig_panels/supp_2d.pdf", width = 16, height = 8, device = cairo_pdf)
+ggsave("/projects/home/nealpsmith/projects/ascites/figures/resubmission/fig_panels/fig_s2d.pdf", width = 16, height = 8)
 ```
 
 ## Supplementary Figure 2E

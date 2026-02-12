@@ -1,12 +1,11 @@
----
-title: "Supplemental Figure 5"
-output: rmarkdown::github_document
----
+Supplemental Figure 5
+================
 
 ## Set up
 
 Load R libraries
-```{r message = F, results = F, warning = F, load_r_libraries}
+
+``` r
 library(ggpubr)
 library(glue)
 library(openxlsx)
@@ -18,11 +17,11 @@ library(reticulate)
 use_python("/projects/home/nealpsmith/software/pegasus_new_py/bin/python")
 
 source('../../functions/plot_dotplot.R')
-
 ```
 
 Load python libraries
-```{python load_python_packages}
+
+``` python
 import math
 import matplotlib.pyplot as plt
 import os
@@ -33,11 +32,11 @@ import scanpy as sc
 import sys
 sys.path.append("../../functions")
 import python_functions
-
 ```
 
 ## Supplemental Figure 5A
-```{r message = F, results = F, warning = F, fig.width = 8, fig.height = 8, supp_5A}
+
+``` r
 patient_palette <- list(
     "Pt_1" = "#FF0029",
     "Pt_2" = "#377EB8",
@@ -82,12 +81,17 @@ ggplot(abundance, aes(x = factor(cluster), y = count, fill = patient_id)) +
     ylab("Count") +
     scale_fill_manual(name = "Patient", values = patient_palette) +
     theme_classic(base_size = 22)
+```
 
+![](supp_figure_5_files/figure-gfm/supp_5A-1.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/nealpsmith/projects/ascites/figures/resubmission/fig_panels/supp_5a.pdf", width = 9, height = 8)
 ```
 
 ## Supplemental Figure 5B
-```{r message = F, results = F, warning = F, fig.width = 18, fig.height = 8, supp_5B}
+
+``` r
 dc_gex <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/dc_gene_exp_alt.csv')
 dc_cite <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/dotplot_data/dc_cite_exp_alt.csv')
 
@@ -102,12 +106,17 @@ plot_dotplot(lin_gex = dc_gex,
              lin = "dc_alt",
              widths = c(1, .3, .2),
              cluster_order = cluster_order)
+```
 
+![](supp_figure_5_files/figure-gfm/supp_5B-1.png)<!-- -->
+
+``` r
 # ggsave("/projects/home/tlchan/fig_panels/supp_5b.pdf", width = 18, height = 8)
 ```
 
 ## Supplemental Figure 5C
-```{python results = 'hold', supp_5C}
+
+``` python
 dc_data = pg.read_input("/projects/home/tlchan/projects/ascites/figure_panels/data/data_cite_objects/dc.zarr.zip")
 
 fig = python_functions.plot_feature(lin_data=dc_data,
@@ -123,8 +132,11 @@ plt.show()
 plt.close(fig)
 ```
 
+<img src="supp_figure_5_files/figure-gfm/supp_5C-1.png" width="1920" />
+
 ## Supplemental Figure 5D
-```{python results = 'hold', supp_5D}
+
+``` python
 rss_list = list()
 for i in range(0, 10):
     DATA_FOLDER = "/projects/home/tlchan/projects/ascites/results/scenic/w_peritoneal/test_500"
@@ -153,9 +165,11 @@ plt.tight_layout()
 plt.close(fig)
 ```
 
+    ## (0.1608878165, 0.3051544335)
 
 ## Supplemental Figure 5E
-```{r message = F, results = F, warning = F, fig.width = 7, fig.height = 8, fig_3E}
+
+``` r
 manual_regulons <- c("IRF4(+)", "IRF7(+)", "IRF8(+)", "KLF4(+)", "TCF4(+)", "NFKB1(+)", "STAT2(+)")
 
 dc12_regulons <- read.xlsx("/projects/home/tlchan/projects/ascites/results/scenic/w_peritoneal/test_500_top_regulons.xlsx", sheet = "dc_12") %>%
@@ -240,5 +254,10 @@ hmap <- Heatmap(rss_data,
 
 # pdf("/projects/home/tlchan/fig_panels/fig_3e.pdf", width = 7, height = 8)
 draw(hmap, heatmap_legend_side = "bottom")
+```
+
+![](supp_figure_5_files/figure-gfm/fig_3E-3.png)<!-- -->
+
+``` r
 # dev.off()
 ```
