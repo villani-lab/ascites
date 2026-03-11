@@ -1,5 +1,5 @@
 ---
-title: "Supplemental Figure 7"
+title: "Supplemental Figure 6"
 output: rmarkdown::github_document
 ---
 
@@ -40,7 +40,7 @@ import python_functions
 
 ```
 
-## Supplemental Figure 7A
+## Supplemental Figure 6A
 ```{r message = F, results = F, warning = F, fig.width = 5.5, fig.height = 8, supp_7A}
 # Load data
 abundance <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/w_peritoneal/ascites_abundance.csv")
@@ -111,7 +111,7 @@ for (an in analyte_list) {
 # dev.off()
 ```
 
-## Supplemental Figure 7B
+## Supplemental Figure 6B
 ```{r message = F, results = F, warning = F, fig.width = 5.5, fig.height = 8, supp_7B}
 # Load data
 abundance <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/w_peritoneal/ascites_abundance.csv")
@@ -181,7 +181,7 @@ for (clust in cluster_list) {
 # dev.off()
 ```
 
-## Supplemental Figure 7F
+## Supplemental Figure 6F
 ```{python results = 'hold', supp_7F}
 patient_palette = {
     "Pt_1": "#FF0029",
@@ -233,7 +233,7 @@ plt.show()
 plt.close(fig)
 ```
 
-## Supplemental Figure 7G
+## Supplemental Figure 6G
 ```{r message = F, results = F, warning = F, fig.width = 4, fig.height = 8, supp_7G}
 DC_palette <- c("DC_Diff1" = '#00916E',
                 "DC_Diff2" = "#44DAE5",
@@ -262,7 +262,7 @@ ggplot(diff_cell_type, aes(x = DC_start, y = count, fill = lineage)) +
 # ggsave("/projects/home/tlchan/fig_panels/supp_7g.pdf", width = 4, height = 8)
 ```
 
-## Supplemental Figure 7H
+## Supplemental Figure 6H
 ```{r message = F, results = F, warning = F, fig.width = 5, fig.height = 6, supp_7H}
 markers <- read.csv("/projects/home/tlchan/projects/ascites/results/ova_correlation/w_peritoneal/asc_dc_with_diff_combo_markers.csv")
 
@@ -278,7 +278,7 @@ ggplot(markers, aes(x = dc_pb_lFC, y = diff_pb_lFC)) +
 # ggsave("/projects/home/tlchan/fig_panels/supp_7h.pdf", width = 5, height = 6)
 ```
 
-## Supplemental Figure 7J-K
+## Supplemental Figure 6J-K
 
 ```{python fig_s7j_k, message = FALSE, warning = FALSE}
 
@@ -329,7 +329,7 @@ plt.show()
 plt.close()
 ```
 
-## Supplemental Figure 7L
+## Supplemental Figure 6L
 
 ```{r fig_s7l, message = FALSE, warning = FALSE, fig.height = 6, fig.width = 10}
 
@@ -351,7 +351,7 @@ ggplot(clust_by_channel, aes(x = perc_cells, y = updated_clusters, fill = Channe
   theme_classic(base_size = 20)
 ```
 
-## Supplemental Figure 7M
+## Supplemental Figure 6M
 ```{python fig_s7m, message = FALSE, warning = FALSE}
 
 genes =["RORC", "PRDM16", "PIGR", "S100B", "ACY3", "CCR6", "KIT", "CCR7", "ITGAE", "CLEC9A", "XCR1", "CD1C"]

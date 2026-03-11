@@ -1,4 +1,4 @@
-Supplemental Figure 7
+Supplemental Figure 6
 ================
 
 ## Set up
@@ -38,7 +38,7 @@ sys.path.append("../../functions")
 import python_functions
 ```
 
-## Supplemental Figure 7A
+## Supplemental Figure 6A
 
 ``` r
 # Load data
@@ -109,13 +109,13 @@ for (an in analyte_list) {
 }
 ```
 
-![](supp_figure_7_files/figure-gfm/supp_7A-1.png)<!-- -->![](supp_figure_7_files/figure-gfm/supp_7A-2.png)<!-- -->
+![](supp_figure_6_files/figure-gfm/supp_7A-1.png)<!-- -->![](supp_figure_6_files/figure-gfm/supp_7A-2.png)<!-- -->
 
 ``` r
 # dev.off()
 ```
 
-## Supplemental Figure 7B
+## Supplemental Figure 6B
 
 ``` r
 # Load data
@@ -185,13 +185,13 @@ for (clust in cluster_list) {
 }
 ```
 
-![](supp_figure_7_files/figure-gfm/supp_7B-1.png)<!-- -->![](supp_figure_7_files/figure-gfm/supp_7B-2.png)<!-- -->![](supp_figure_7_files/figure-gfm/supp_7B-3.png)<!-- -->![](supp_figure_7_files/figure-gfm/supp_7B-4.png)<!-- -->
+![](supp_figure_6_files/figure-gfm/supp_7B-1.png)<!-- -->![](supp_figure_6_files/figure-gfm/supp_7B-2.png)<!-- -->![](supp_figure_6_files/figure-gfm/supp_7B-3.png)<!-- -->![](supp_figure_6_files/figure-gfm/supp_7B-4.png)<!-- -->
 
 ``` r
 # dev.off()
 ```
 
-## Supplemental Figure 7F
+## Supplemental Figure 6F
 
 ``` python
 patient_palette = {
@@ -247,9 +247,9 @@ plt.close(fig)
     ## <string>:2: FutureWarning: The behavior of Series.replace (and DataFrame.replace) with CategoricalDtype is deprecated. In a future version, replace will only be used for cases that preserve the categories. To change the categories, use ser.cat.rename_categories instead.
     ## <string>:1: FutureWarning: The behavior of Series.replace (and DataFrame.replace) with CategoricalDtype is deprecated. In a future version, replace will only be used for cases that preserve the categories. To change the categories, use ser.cat.rename_categories instead.
 
-<img src="supp_figure_7_files/figure-gfm/supp_7F-1.png" width="576" />
+<img src="supp_figure_6_files/figure-gfm/supp_7F-1.png" width="576" />
 
-## Supplemental Figure 7G
+## Supplemental Figure 6G
 
 ``` r
 DC_palette <- c("DC_Diff1" = '#00916E',
@@ -277,13 +277,13 @@ ggplot(diff_cell_type, aes(x = DC_start, y = count, fill = lineage)) +
     scale_fill_manual(values = DC_palette)
 ```
 
-![](supp_figure_7_files/figure-gfm/supp_7G-3.png)<!-- -->
+![](supp_figure_6_files/figure-gfm/supp_7G-3.png)<!-- -->
 
 ``` r
 # ggsave("/projects/home/tlchan/fig_panels/supp_7g.pdf", width = 4, height = 8)
 ```
 
-## Supplemental Figure 7H
+## Supplemental Figure 6H
 
 ``` r
 markers <- read.csv("/projects/home/tlchan/projects/ascites/results/ova_correlation/w_peritoneal/asc_dc_with_diff_combo_markers.csv")
@@ -298,13 +298,13 @@ ggplot(markers, aes(x = dc_pb_lFC, y = diff_pb_lFC)) +
     theme_classic(base_size = 20)
 ```
 
-![](supp_figure_7_files/figure-gfm/supp_7H-1.png)<!-- -->
+![](supp_figure_6_files/figure-gfm/supp_7H-1.png)<!-- -->
 
 ``` r
 # ggsave("/projects/home/tlchan/fig_panels/supp_7h.pdf", width = 5, height = 6)
 ```
 
-## Supplemental Figure 7J-K
+## Supplemental Figure 6J-K
 
 ``` python
 processed_data = pg.read_input("/projects/home/nealpsmith/projects/ascites/dc_diff_4/data/processed_data.zarr")
@@ -359,13 +359,13 @@ fig.tight_layout()
 plt.show()
 ```
 
-<img src="supp_figure_7_files/figure-gfm/fig_s7j_k-1.png" width="1344" />
+<img src="supp_figure_6_files/figure-gfm/fig_s7j_k-1.png" width="1344" />
 
 ``` python
 plt.close()
 ```
 
-## Supplemental Figure 7L
+## Supplemental Figure 6L
 
 ``` r
 obs <- read.csv("/projects/home/nealpsmith/projects/ascites/dc_diff_4/data/processed_data_obs.csv",
@@ -386,9 +386,9 @@ ggplot(clust_by_channel, aes(x = perc_cells, y = updated_clusters, fill = Channe
   theme_classic(base_size = 20)
 ```
 
-![](supp_figure_7_files/figure-gfm/fig_s7l-3.png)<!-- -->
+![](supp_figure_6_files/figure-gfm/fig_s7l-3.png)<!-- -->
 
-## Supplemental Figure 7M
+## Supplemental Figure 6M
 
 ``` python
 genes =["RORC", "PRDM16", "PIGR", "S100B", "ACY3", "CCR6", "KIT", "CCR7", "ITGAE", "CLEC9A", "XCR1", "CD1C"]
@@ -431,7 +431,7 @@ plt.subplots_adjust(left = 0.1, bottom = 0.1)
 plt.show()
 ```
 
-<img src="supp_figure_7_files/figure-gfm/fig_s7m-1.png" width="960" />
+<img src="supp_figure_6_files/figure-gfm/fig_s7m-1.png" width="960" />
 
 ``` python
 plt.close()
