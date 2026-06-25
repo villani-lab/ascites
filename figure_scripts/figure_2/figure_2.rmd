@@ -99,13 +99,18 @@ plot_cluster_abundance("cd4")
 
 all_de_res <- read.csv("/projects/home/nealpsmith/projects/ascites/data/tcr/expanded_tcr_pseudobulk_degs.csv")
 
-label_gene_list <- list("cd4" = c("H3F3B", "RPL27A", "JUN", "CX3CR1", "ITM2C", "CD44", "PRF1", "ARID5A", "DUSP1",
-                                  "LAPTM5", "GZMK", "TGFB1", "NKG7", "CXCR3", "CD96", "GNLY", "ZNF683", "HLA-DRA", "GZMH",
-                                  "SLAMF6", "CD40LG", "HMGN2", "IL10RA", "CD6", "NUB1"),
-                        "cd8" = c("PLP2", "CX3CR1", "ITM2C", "PLEK", "CXCR3", "MYC", "CXCR6", "LGALS3", "GZMK", "RPL27A",
-                                  "IL7R", "CD96", "S1PR1", "TNF", "HLA-DRA",
-                                  "CCR7", "GZMA", "TGFB1", "TCF7", "TOX", "IL16", "SOCS2", "CD27",
-                                  "TIGIT", "LAIR1", "ICOS", "IFIT3", "CD70"))
+# label_gene_list <- list("cd4" = c("H3F3B", "RPL27A", "JUN", "CX3CR1", "ITM2C", "CD44", "PRF1", "ARID5A", "DUSP1",
+#                                   "LAPTM5", "GZMK", "TGFB1", "NKG7", "CXCR3", "CD96", "GNLY", "ZNF683", "HLA-DRA", "GZMH",
+#                                   "SLAMF6", "CD40LG", "HMGN2", "IL10RA", "CD6", "NUB1"),
+#                         "cd8" = c("PLP2", "CX3CR1", "ITM2C", "PLEK", "CXCR3", "MYC", "CXCR6", "LGALS3", "GZMK", "RPL27A",
+#                                   "IL7R", "CD96", "S1PR1", "TNF", "HLA-DRA",
+#                                   "CCR7", "GZMA", "TGFB1", "TCF7", "TOX", "IL16", "SOCS2", "CD27",
+#                                   "TIGIT", "LAIR1", "ICOS", "IFIT3", "CD70"))
+
+
+label_gene_list <- list("cd4" = c("RPL27A", "JUN", "CX3CR1", "PRF1", "GNLY", "CD40LG", "LAPTM5", "CD44", "ZNF683", "ARID5A", "CXCR3", "IL10RA", "HLA-DRA", "TGFB1"),
+                        "cd8" = c("RPL27A","TOX", "TCF7", "MYC", "CXCR6", "CXCR3", "CCR7", "GZMK", "ITM2C", "CX3CR1", "GZMA", "IFIT3", "CD70", "PLEK"))
+
 
 plot_list <- list()
 for (lin in c("cd4", "cd8")){
@@ -132,8 +137,8 @@ for (lin in c("cd4", "cd8")){
     geom_point(data = lin_data %>% dplyr::filter(padj > 0.1), color = "grey", size = 1) +
     geom_point(data = lin_data %>% dplyr::filter(padj < 0.1, log2FoldChange > 0), color = "blue", size = 2) +
     geom_point(data = lin_data %>% dplyr::filter(padj < 0.1, log2FoldChange < 0), color = "red", size = 2) +
-    geom_label_repel(data = lin_data %>% dplyr::filter(gene %in% label_up), aes(label = gene), max.overlaps = 30, color = "blue") +
-    geom_label_repel(data = lin_data %>% dplyr::filter(gene %in% label_down), aes(label = gene), max.overlaps = 30, color = "red") +
+    geom_label_repel(data = lin_data %>% dplyr::filter(gene %in% label_up), aes(label = gene), max.overlaps = 20, color = "blue", size = 6, fontface = "italic") +
+    geom_label_repel(data = lin_data %>% dplyr::filter(gene %in% label_down), aes(label = gene), max.overlaps = 20, color = "red", size = 6, fontface = "italic") +
     ggtitle(glue("{lin} : expanded clone DEGs")) +
     theme_classic(base_size = 20)
   plot_list <- c(plot_list, list(p))
@@ -141,7 +146,8 @@ for (lin in c("cd4", "cd8")){
 }
 
 ggarrange(plotlist = plot_list, ncol = 2)
-
+ggsave("/projects/home/nealpsmith/projects/ascites/figures/resubmission/fig_panels/fig_2e_g.pdf",
+       width = 12, height = 6, useDingbats = FALSE)
 
 
 ```
@@ -227,9 +233,9 @@ for (lin in c("cd8", "cd4")){
       dplyr::left_join(meta_temp %>% rownames_to_column(), by = "rowname")
     plot_df$paper_id <- factor(plot_df$paper_id, levels= mixedsort(unique(plot_df$paper_id)))
 
-    p <- ggplot(plot_df, aes(x = tissue_type, y = !!as.symbol(gene), group = TRB_cdr3, fill = paper_id)) +
-      geom_point(pch = 21, size = 3) +
-      scale_fill_manual(values = patient_colors) +
+    p <- ggplot(plot_df, aes(x = tissue_type, y = !!as.symbol(gene), group = TRB_cdr3, color = paper_id)) +
+      geom_point(size = 3) +
+      scale_color_manual(values = patient_colors) +
       geom_line() +
       ggtitle(gene) +
       ylab("logCPM") +

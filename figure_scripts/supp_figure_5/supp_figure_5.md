@@ -12,6 +12,8 @@ library(openxlsx)
 library(tidyverse)
 library(circlize)
 library(ComplexHeatmap)
+library(magrittr)
+library(fgsea)
 
 library(reticulate)
 use_python("/projects/home/nealpsmith/software/pegasus_new_py/bin/python")
@@ -27,6 +29,12 @@ import matplotlib.pyplot as plt
 import os
 import pandas as pd
 import pegasus as pg
+```
+
+    ## /projects/home/nealpsmith/R/x86_64-pc-linux-gnu-library/4.2/reticulate/python/rpytools/loader.py:120: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+    ##   return _find_and_load(name, import_)
+
+``` python
 import scanpy as sc
 
 import sys
@@ -116,6 +124,79 @@ plot_dotplot(lin_gex = dc_gex,
 
 ## Supplemental Figure 5C
 
+``` r
+mouse_degs <- read.csv("/projects/home/nealpsmith/projects/ascites/mouse_comps/data/mouse_subsets_logfc_by_cluster.csv")
+
+top_markers <- mouse_degs %>%
+  reshape2::melt(id.vars = c("featurekey")) %>%
+  group_by(variable) %>%
+  dplyr::filter(value > 1.5)
+
+# Clean names
+clean_name_list <- c("cluster_DC1" = "cDC1", "cluster_DC2" = "cDC2", "cluster_Rorc._DC" = "Rorc-lo DC",
+                     "cluster_migratoryDC" = "migratoryDC", "cluster_pDC" = "pDC", "cluster_tDC" = "tDC",
+                     "cluster_TC_I" = "TC I", "cluster_TC_II" = "TC II", "cluster_TC_III" = "TC III",
+                     "cluster_TC_IV" = "TC IV")
+# top_markers$variable <- sapply(top_markers$variable, function(x) clean_name_list[[x]])
+
+gsea_list <- split(top_markers, top_markers$variable)
+gsea_list <- lapply(gsea_list, function(df) df$featurekey)
+
+names(gsea_list) <- sapply(names(gsea_list), function(x) clean_name_list[[x]])
+
+## Read in the human data ##
+human_ova <- read.csv("/projects/home/nealpsmith/projects/ascites/mouse_comps/data/human_subsets_ova_logfc_by_cluster.csv")
+annotations <- read.csv("/projects/home/nealpsmith/projects/ascites/data/ascites_cluster_annotations.csv")
+annotations <- annotations %>% dplyr::filter(lineage == "dc") %>% dplyr::select(cluster, annotation)
+
+human_ova %<>%
+  dplyr::left_join(annotations, by = "cluster")
+
+set.seed(1)
+gsea_res <- lapply(unique(human_ova$annotation), function(cl){
+  ranks <- human_ova %>%
+    dplyr::filter(annotation == cl, percent > 2) %>%
+    dplyr::select(featurekey, logFC) %>%
+    arrange(desc(logFC)) %>%
+    deframe(.)
+  fgsea_res <- fgsea(pathways = gsea_list, stats = ranks, nperm = 10000)
+  fgsea_res$annotation <- cl
+  return(fgsea_res)
+}) %>%
+  do.call(rbind, .)
+
+
+nes_df <- gsea_res %>%
+  dplyr::select(pathway, NES, annotation) %>%
+  reshape2::dcast(pathway~annotation, value.var = "NES") %>%
+  column_to_rownames("pathway")
+colnames(nes_df)[colnames(nes_df) == "DC: PIGR RORC"] <- "RORC_DC:PRDM16, PIGR"
+
+# Can I scale by the columns
+scaled_data <- scale(nes_df)
+
+# dendrograms
+clustering = hclust(dist(t(scaled_data), method = "euclidean"), method = "ward.D2")
+col_hc <- as.dendrogram(clustering)
+
+col_hc[[1]] = rev(col_hc[[1]])
+col_hc[[1]][[1]] <- rev(col_hc[[1]][[1]])
+
+clustering_row = hclust(dist(scaled_data, method = "euclidean"), method = "ward.D2")
+row_hc <- as.dendrogram(clustering_row)
+
+row_hc[[1]] <- rev(row_hc[[1]])
+row_hc[[1]][[1]] <- rev(row_hc[[1]][[1]])
+
+hmap <- Heatmap(scaled_data, name = "Z-score", cluster_columns = col_hc, cluster_rows = row_hc)
+
+draw(hmap)
+```
+
+![](supp_figure_5_files/figure-gfm/fig_s5c-1.png)<!-- -->
+
+## Supplemental Figure 5D
+
 ``` python
 dc_data = pg.read_input("/projects/home/tlchan/projects/ascites/figure_panels/data/data_cite_objects/dc.zarr.zip")
 
@@ -134,7 +215,7 @@ plt.close(fig)
 
 <img src="supp_figure_5_files/figure-gfm/supp_5C-1.png" width="1920" />
 
-## Supplemental Figure 5D
+## Supplemental Figure 5E
 
 ``` python
 rss_list = list()
@@ -167,7 +248,7 @@ plt.close(fig)
 
     ## (0.1608878165, 0.3051544335)
 
-## Supplemental Figure 5E
+## Supplemental Figure 5F
 
 ``` r
 manual_regulons <- c("IRF4(+)", "IRF7(+)", "IRF8(+)", "KLF4(+)", "TCF4(+)", "NFKB1(+)", "STAT2(+)")

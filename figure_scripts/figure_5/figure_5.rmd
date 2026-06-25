@@ -90,13 +90,15 @@ for (group in c("cfse_pos", "cfse_neg")){
     geom_point(data = volcano_df %>% dplyr::filter(padj > 0.1), color ="grey") +
     geom_point(data = volcano_df %>% dplyr::filter(padj < 0.1, log2FoldChange > 0), color ="orange") +
     geom_point(data = volcano_df %>% dplyr::filter(padj < 0.1, log2FoldChange < 0), color ="purple") +
-    geom_label_repel(data = volcano_df %>% dplyr::filter(gene %in% label_genes), aes(label = gene)) +
+    geom_label_repel(data = volcano_df %>% dplyr::filter(gene %in% label_genes), aes(label = gene), size = 10) +
     ggtitle(glue("All {group} PRDC vs cDC2")) +
     theme_classic(base_size = 20)
   plot_list <- c(plot_list, list(p))
 
 }
 ggarrange(plotlist = plot_list)
+ggsave("/projects/home/nealpsmith/projects/ascites/figures/resubmission/fig_panels/fig_5c.pdf",
+       width = 15, height = 8, useDingbats = FALSE)
 
 ```
 
@@ -232,68 +234,20 @@ draw(hmap)
 ```
 
 ## Figure 5G
-```{r message = F, results = F, warning = F, fig.width = 4.5, fig.height = 8, fig_5G}
-overenrichment_data <- read.csv("/projects/home/tlchan/projects/ascites/results/abundance/spatial_data/spatial_overenrichment_stats.csv")
-overenrichment_data$sig <- ifelse(overenrichment_data$proportion > 1.5, 'sig', 'not_sig')
+```{r message = F, results = F, warning = F, fig.width = 6, fig.height = 6, fig_5G}
 
-overenrichment_data <- overenrichment_data %>%
-    filter(is.finite(proportion)) %>%
-    arrange(proportion) %>%
-    mutate(annots = factor(annots, levels = annots))
+data <- read.csv("/projects/home/nealpsmith/projects/ascites/data/spatial/overenrichment_revision_with_lfc.csv") %>%
+  # dplyr::filter(DCsteve_anno != "DC_new") %>%
+  arrange(desc(foldchangeabundance))
+data$DCsteve_anno[data$DCsteve_anno == "DC_new"] <- "DC_RORC"
+data$DCsteve_anno <- factor(data$DCsteve_anno, levels = rev(data$DCsteve_anno))
+# data$foldchangeabundance[data$foldchangeabundance > 3] = 3
+ggplot(data, aes(x = log(foldchangeabundance), y = DCsteve_anno)) +
+  geom_point() +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  ylab("") +
+  xlab("log(fold change abundance)") +
+  theme_classic(base_size = 17)
 
-ggplot(overenrichment_data, aes(x = proportion, y = annots, color = sig)) +
-    geom_point(size = 3) +
-    geom_vline(xintercept = 1.5, linetype = "dotted", color = "black", size = 1.5) +
-    ylab("Cluster") +
-    xlab("Fold Change") +
-    theme_bw() +
-    scale_color_manual(values = c('#231F20', '#EF3D14')) +
-    theme(legend.position = "none")
-
-# ggsave("/projects/home/tlchan/fig_panels/fig_5g.pdf", width = 4.5, height = 8)
 ```
 
-
-## Figure 5H
-```{r message = F, results = F, warning = F, fig.width = 4.5, fig.height = 8, fig_5H}
-niche_palette <- list(
-    "Inside DC_RORC niche" = "#C42E60",
-    "Outside DC_RORC niche" = "#A8B0B2"
-)
-
-cd4_prolif_data <- read.csv('/projects/home/tlchan/projects/ascites/figure_panels/data/violinplot_data/spatial_cd4_prolif_gene_exp.csv') %>%
-    mutate(DC_RORC_niche = ifelse(DC_RORC_niche == "CD4_prolif_non_niche", "Outside DC_RORC niche", "Inside DC_RORC niche")) %>%
-    mutate(DC_RORC_niche = factor(DC_RORC_niche, levels = c("Outside DC_RORC niche", "Inside DC_RORC niche"))) %>%
-    mutate(Gene = factor(Gene, levels = c("CD3E", "CD4", "IFNG", "IL5", "IL13")))
-
-stats <- cd4_prolif_data %>%
-    group_by(Gene) %>%
-    t_test(Count ~ DC_RORC_niche) %>%
-    adjust_pvalue(method = "fdr") %>%
-    add_significance() %>%
-    add_xy_position(x = "DC_RORC_niche") %>%
-    mutate(text_color = ifelse(p.adj < 0.05, "black", "gray"))
-
-stats$clean_pvals <- sapply(stats$p, function(x) {
-    if (x > 0.01) {
-        return(as.character(round(x, 2)))
-    } else if (x < 0.01 & x > 0.001) {
-        return(as.character(round(x, 3)))
-    } else {
-        formatC(x, format = "e", digits = 0)
-    }
-})
-
-ggplot(cd4_prolif_data, aes(x = DC_RORC_niche, y = Count)) +
-    geom_violin(aes(fill = DC_RORC_niche), alpha = 0.75) +
-    geom_jitter(width = 0.1, size = .5) +
-    facet_wrap("Gene", scales = "free_y") +
-    theme_classic(base_size = 20) +
-    scale_fill_manual(values = niche_palette, guide = "none") +
-    scale_y_continuous(expand = expansion(mult = c(0.05, 0.15))) +
-    stat_pvalue_manual(data = stats, label = "p = {clean_pvals}", size = 6, color = "text_color") +
-    scale_color_manual(values = c("black" = "#000000", "gray" = "#808080"), guide = "none") +
-    theme(strip.text = element_text(face = "italic"), axis.text.x = element_blank())
-
-# ggsave("/projects/home/tlchan/fig_panels/fig_5h.pdf", width = 4.5, height = 8)
-```
