@@ -86,6 +86,13 @@ ggplot(abundance, aes(x = factor(cluster), y = count, fill = patient_id)) +
     theme_classic(base_size = 22)
 
 # ggsave("/projects/home/nealpsmith/projects/ascites/figures/resubmission/fig_panels/supp_5a.pdf", width = 9, height = 8)
+#
+# abundance %>%
+# group_by(cluster) %>%
+# mutate(total_cells = sum(count)) %>% mutate(perc_cells = count / total_cells * 100) %>%
+# write.csv("/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_s5a.csv", row.names = FALSE)
+
+
 ```
 
 ## Supplemental Figure 5B
@@ -179,6 +186,8 @@ hmap <- Heatmap(scaled_data, name = "Z-score", cluster_columns = col_hc, cluster
 
 draw(hmap)
 
+write.csv(scaled_data, "/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_s5c.csv")
+
 ```
 
 ## Supplemental Figure 5D
@@ -210,7 +219,7 @@ for i in range(0, 10):
 
 rss_all = pd.concat(rss_list, axis=1)
 rss_data = rss_all.mean(axis=1, skipna=True).to_frame('dc_12').T
-
+rss_data.to_csv("/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_s5e.csv")
 plt.rcParams.update({'font.size': 20})
 
 fig = plt.figure(figsize=(8, 8))
@@ -316,4 +325,7 @@ hmap <- Heatmap(rss_data,
 # pdf("/projects/home/tlchan/fig_panels/fig_3e.pdf", width = 7, height = 8)
 draw(hmap, heatmap_legend_side = "bottom")
 # dev.off()
+
+write.csv(rss_data, "/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_s5f.csv")
+
 ```

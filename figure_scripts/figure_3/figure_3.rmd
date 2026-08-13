@@ -157,7 +157,8 @@ abundance <- read.xlsx(excel_file, sheet = "abundance") %>%
     mutate(DC_start = ifelse(DC_start == "DC1", "cDC1", DC_start)) %>%
     mutate(DC_start = ifelse(DC_start == "DC2", "cDC2", DC_start)) %>%
     mutate(lineage = factor(lineage, levels = lineage_order))
-
+write.csv(abundance, "/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_3i.csv",
+          row.names =FALSE)
 pt_res <- read.xlsx(excel_file, sheet = "DC1vDC2_pt") %>%
     mutate(color = ifelse(color == "DC1", "cDC1", color)) %>%
     mutate(color = ifelse(color == "DC2", "cDC2", color)) %>%

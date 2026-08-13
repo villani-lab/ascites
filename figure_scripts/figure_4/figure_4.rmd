@@ -173,6 +173,15 @@ ggplot(violin_data, aes(y = clean_names,x = value, fill = clean_names)) +
   xlab(glue("logCPM")) + ylab("") +
   theme_classic(base_size = 15)
 
+violin_data$clean_names <- as.character(violin_data$clean_names)
+violin_data$clean_names[violin_data$clean_names == "DC_experiment1_PRDC"] <- "DC_experiment1_DC_RORC"
+violin_data$clean_names[violin_data$clean_names == "DC_experiment2_PRDC"] <- "DC_experiment2_DC_RORC"
+violin_data$clean_names <- sub("experiment1", "Pt_27", violin_data$clean_names)
+violin_data$clean_names <- sub("experiment2", "Pt_28", violin_data$clean_names)
+write.csv(violin_data, "/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_4g.csv",
+          row.names = FALSE)
+
+
 ```
 
 ## Figure 4I

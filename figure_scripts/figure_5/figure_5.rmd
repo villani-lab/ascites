@@ -67,6 +67,12 @@ ggplot(CFSE_data, aes(x = factor(cell_category), y = log_CFSE_neg_perc)) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none")
 
 # ggsave("/projects/home/tlchan/fig_panels/fig_5b.pdf", width = 3.5, height = 7)
+## Supplement ##
+paper_ids <- read.csv("/projects/home/nealpsmith/projects/ascites/data/patient_paper_ids.csv")
+CFSE_data %>% dplyr::left_join(paper_ids, by = "patient_id") %>%
+    dplyr::select(cell_category, paper_id, CFSE_pos, CFSE_neg, log_CFSE_pos_perc, log_CFSE_neg_perc) %>%
+    write.csv("/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_5b.csv", row.names = FALSE)
+
 ```
 
 ## Figure 5C
@@ -122,6 +128,9 @@ up_vd <- draw.pairwise.venn(left, right, overlap, category = c("cDC1", "PRDC"),
 grid.draw(up_vd);
 grid.newpage();
 
+supp_table_df_dc2_up <- data.frame("cat" = rep("increased vs cDC2", 3), "comp" = c("cDC1", "DC_RORC", "both"),
+                            "n_genes" = c(left, right, overlap))
+
 dc1_decrease <- all_de_res %>%
   dplyr::filter(contrast == "DC1_vs_DC2", log2FoldChange < 0, padj < 0.1) %>%
   .$gene %>% unique(.)
@@ -141,6 +150,14 @@ down_vd <- draw.pairwise.venn(left, right, overlap, category = c("cDC1", "PRDC")
 grid.draw(down_vd);
 grid.newpage();
 # dev.off()
+
+
+supp_table_df_dc2_down <- data.frame("cat" = rep("decreased vs cDC2", 3), "comp" = c("cDC1", "DC_RORC", "both"),
+                            "n_genes" = c(left, right, overlap))
+
+supp_table_df <- rbind(supp_table_df_dc2_up, supp_table_df_dc2_down)
+write.csv(supp_table_df, "/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_5d.csv", row.names = FALSE)
+
 ```
 
 ## Figure 5E

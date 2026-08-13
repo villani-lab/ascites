@@ -201,9 +201,31 @@ plot_list <- lapply(gtools::mixedsort(pbmc_b1_patients), function(p){
 
 })
 
+# Also supp table
+# lapply(gtools::mixedsort(pbmc_b1_patients), function(p){
+#   plot_df <- data %>%
+#     dplyr::filter(paper_id == p, TRB_cdr3 != "") %>%
+#     dplyr::select(tissue_type, TRB_cdr3) %>%
+#     group_by(tissue_type, TRB_cdr3) %>%
+#     summarise(n_cells = n()) %>%
+#     ungroup() %>%
+#     complete(tissue_type, TRB_cdr3, fill = list("n_cells" = 0)) %>%
+#     group_by(tissue_type) %>%
+#     mutate(total_cells = sum(n_cells)) %>%
+#     mutate(perc_cells = n_cells / total_cells * 100) %>%
+#     reshape2::dcast(TRB_cdr3~tissue_type, value.var = "perc_cells")
+#   pt_expanded <- expanded_tcrs %>% dplyr::filter(paper_id == p) %>% .$TRB_cdr3
+#   plot_df$is_expanded <- ifelse(plot_df$TRB_cdr3 %in% pt_expanded, TRUE, FALSE)
+#     plot_df$paper_id <- p
+#   return(plot_df)
+# }) %>%
+#   do.call(rbind, .) %>%
+#   write.csv("/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_s2g.csv", row.names = FALSE)
+
 figure <- ggarrange(plotlist = plot_list, common.legend = TRUE)
 annotate_figure(figure, left = textGrob("% blood repertoire", rot = 90, vjust = 1, gp = gpar(cex = 3)),
                     bottom = textGrob("% ascites repertoire", gp = gpar(cex = 3)))
+
 
 ```
 
@@ -254,6 +276,8 @@ ggplot(exp_clone_clust_comp %>% dplyr::filter(paper_id %in% pbmc_b1_patients),
   ylab("") +
   theme_classic(base_size = 20)
 
+exp_clone_clust_comp %>% dplyr::filter(paper_id %in% pbmc_b1_patients) %>%
+  write.csv("/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_s2h.csv", row.names = FALSE)
 
 ```
 
@@ -323,6 +347,33 @@ plot_list <- lapply(gtools::mixedsort(pbmc_b1_patients), function(p){
 
 })
 
+## Supp table ##
+lapply(gtools::mixedsort(pbmc_b1_patients), function(p){
+  plot_df <- cd4_data %>%
+    dplyr::filter(paper_id == p, TRB_cdr3 != "") %>%
+    dplyr::select(tissue_type, TRB_cdr3) %>%
+    group_by(tissue_type, TRB_cdr3) %>%
+    summarise(n_cells = n()) %>%
+    ungroup() %>%
+    complete(tissue_type, TRB_cdr3, fill = list("n_cells" = 0)) %>%
+    group_by(tissue_type) %>%
+    mutate(total_cells = sum(n_cells)) %>%
+    mutate(perc_cells = n_cells / total_cells * 100) %>%
+    reshape2::dcast(TRB_cdr3~tissue_type, value.var = "perc_cells")
+  pt_expanded <- expanded_tcrs_cd4 %>% dplyr::filter(paper_id == p) %>% .$TRB_cdr3
+  plot_df$is_expanded <- ifelse(plot_df$TRB_cdr3 %in% pt_expanded, TRUE, FALSE)
+  max_val <- max(c(plot_df$ascites, plot_df$blood))
+  plot_df$is_expanded <- factor(plot_df$is_expanded, levels = c(FALSE, TRUE))
+  plot_df$paper_id <- p
+
+  return(plot_df)
+
+}) %>%
+  do.call(rbind, .) %>%
+  write.csv("/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_s2i.csv", row.names = FALSE)
+
+
+
 figure <- ggarrange(plotlist = plot_list, common.legend = TRUE)
 annotate_figure(figure, left = textGrob("% blood repertoire", rot = 90, vjust = 1, gp = gpar(cex = 3)),
                     bottom = textGrob("% ascites repertoire", gp = gpar(cex = 3)))
@@ -353,5 +404,9 @@ ggplot(exp_clone_clust_comp_cd4 %>% dplyr::filter(paper_id %in% pbmc_b1_patients
   xlab("% of expanded cells") +
   ylab("") +
   theme_classic(base_size = 20)
+
+
+exp_clone_clust_comp_cd4 %>% dplyr::filter(paper_id %in% pbmc_b1_patients) %>%
+  write.csv("/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_s2j.csv", row.names = FALSE)
 
 ```

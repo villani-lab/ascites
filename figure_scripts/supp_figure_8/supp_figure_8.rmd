@@ -70,6 +70,12 @@ ggplot(n_cells, aes(x = n_cells, y = paper_id, fill = dc_type)) +
   xlab("# cells") +
   ylab("") +
   theme_classic(base_size = 20)
+
+## Supp table ##
+n_cells$dc_type <- as.character(n_cells$dc_type)
+n_cells$dc_type[n_cells$dc_type == "PRDC"] <- "DC_RORC"
+write.csv(n_cells, "/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_s8d.csv", row.names = FALSE)
+
 ```
 
 ## Supplemental Figure 8E

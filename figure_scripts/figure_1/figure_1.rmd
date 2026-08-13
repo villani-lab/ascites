@@ -306,6 +306,12 @@ bp <- ggplot(combo_abundance, aes(x = lin_percentage + 1, y = factor(lineage), f
     theme(axis.text.y = element_blank(), axis.text = element_text(size = 20)) +
     scale_fill_manual(values = tissue_palette)
 
+# Write out boxplot info for supp table
+combo_abundance <- combo_abundance %>%
+  dplyr::left_join(paper_ids, by = "patient_id")
+write.csv(combo_abundance, "/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_1e.csv",
+          row.names = FALSE)
+
 # Keep ascites as reference
 combo_abundance <- combo_abundance %>%
     mutate(tissue_type = factor(tissue_type, levels = c("ascites", "blood", "peritoneal")))

@@ -20,9 +20,11 @@ other_organs <- c("Adnexa", "Blood", "Bone marrow", "Liver", "Lung", "Muscle")
 
 # Load data, update values
 abundance <- read.csv("/projects/home/tlchan/projects/ascites/figure_panels/data/fig_3_data/external_dcs_obs.csv")
+abundance$organ[abundance$organ == "Adult washing"] <- "Peritoneal washing"
+abundance$organ[abundance$organ == "Pediatric washing"] <- "Peritoneal washing"
 
 abundance <- abundance %>%
-    filter(!dataset %in% c("tonsil")) %>%
+    filter(!dataset %in% c("tonsil"), ) %>%
     mutate(organ_type = ifelse(organ_type %in% other_organs, "Other", organ_type)) %>%
     group_by(organ, organ_type, dataset, Channel, leiden_labels) %>%
     summarize(n_cell = n())
@@ -47,16 +49,24 @@ organ_levels <- list("Other", "Upper quadrant", "Skeletal muscle", "Lung", "Live
                      "Thymus", "Thoracic LN", "Spleen", "Mesenteric LN", "Transverse colon", "Sigmoid colon", "Jejunum LP", "Jejunum epithelium", "Ileum", "Doudenum", "Caecum", "Bowel",
                      "Stomach", "Omentum", "Peritoneum", "Peritoneal washing", "Ascites")
 
-tumor_palette <- list("Peritoneum" = "#66A61E", "GI tract" = "#984EA3", "Lymphoid" = "#00D2D5", "Other" = "#FF7F00")
+# tumor_palette <- list("Peritoneum" = "#66A61E", "GI tract" = "#984EA3", "Lymphoid" = "#00D2D5", "Other" = "#FF7F00")
+tumor_palette <- list("Primary tumor" = "#66A61E", "Metastasis" = "#984EA3", "Normal" = "#00D2D5")
 
+
+abundance$tumor_type <- "Normal"
+abundance$tumor_type[abundance$organ %in% c("Stomach", "Adnexa")] <- "Primary tumor"
+abundance$tumor_type[abundance$organ %in% c("Ascites", "Peritoneum", "Omentum",
+                                            "Bowel",  "Upper quadrant", "Other")] <- "Metastasis"
+abundance$tumor_type[abundance$organ == "Omentum" & abundance$dataset == "Healthy tissue"] <- "Normal"
+abundance$dataset[abundance$dataset == "Ovarian_Cancer"] <- "Ovarian Cancer"
 abundance <- abundance %>%
     filter(leiden_labels == 'dc_17') %>%
     mutate(organ = factor(organ, levels = organ_levels),
-           dataset = factor(dataset, levels = c('GEA', 'Ovarian_Cancer', 'Healthy tissue')))
+           dataset = factor(dataset, levels = c('GEA', 'Ovarian Cancer', 'Healthy tissue')))
 
-ggplot(abundance, aes(y = organ, x = percentage, fill = organ_type)) +
-    geom_boxplot(outlier.shape = NA) +
-    geom_point(pch = 21, position = position_jitterdodge(), size = 3) +
+ggplot(abundance, aes(y = organ, x = percentage, fill = tumor_type)) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.7) +
+    geom_point(pch = 21, position = position_jitterdodge(), size = 1.5) +
     labs(fill = "Organ type") +
     scale_x_continuous(expand = expansion(mult = c(0.1, 0.3))) +
     ylab("Tissue") +
@@ -70,5 +80,8 @@ ggplot(abundance, aes(y = organ, x = percentage, fill = organ_type)) +
 ![](figure_6_files/figure-gfm/fig_3F-1.png)<!-- -->
 
 ``` r
-# ggsave("/projects/home/tlchan/fig_panels/fig_3f.pdf", width = 7, height = 8)
+# ggsave("/projects/home/nealpsmith/projects/ascites/figures/resubmission/fig_panels/fig_6a.pdf", width = 7, height = 8)
+
+## Write out supplement ##
+write.csv(abundance, "/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_6a.csv", row.names = FALSE)
 ```

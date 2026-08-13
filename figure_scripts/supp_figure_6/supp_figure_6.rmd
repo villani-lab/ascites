@@ -88,6 +88,7 @@ c12_stats <- abundance %>%
 analyte_list <- c("IL-6", "IL-10")
 
 # pdf("/projects/home/tlchan/fig_panels/supp_7a.pdf", width = 5.5, height = 8)
+supp_df <- data.frame()
 for (an in analyte_list) {
     sf_data <- read.csv("/projects/home/tlchan/projects/ascites/results/secreted_factors/integrated_data/secreted_factors_updated.csv", row.names = 1)
     sf_data <- sf_data[sf_data["diluted"] == "No",]
@@ -97,6 +98,7 @@ for (an in analyte_list) {
 
     sf_data <- sf_data %>%
         merge(c12_stats, by = "patient_id")
+  supp_df <- rbind(supp_df, sf_data)
 
     p <- ggplot(sf_data, aes(x = log_concentration, y = log_newDC_proportion)) +
         geom_point(pch = 19, size = 4) +
@@ -109,6 +111,8 @@ for (an in analyte_list) {
     print(p)
 }
 # dev.off()
+write.csv(supp_df, "/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_s6a.csv", row.names = FALSE)
+
 ```
 
 ## Supplemental Figure 6B
@@ -164,9 +168,12 @@ dc_stats <- merge(c12_stats, else_stats, by = "patient_id")
 cluster_list <- c('1', '2', '9', '13')
 
 # pdf("/projects/home/tlchan/fig_panels/supp_7b.pdf", width = 5.5, height = 8)
+supp_df <- data.frame()
+
 for (clust in cluster_list) {
     clust_data <- dc_stats %>%
         filter(cluster == clust)
+  supp_df <- rbind(supp_df, clust_data)
 
     p <- ggplot(clust_data, aes(x = log_proportion, y = log_newDC_proportion)) +
         geom_point(pch = 19, size = 4) +
@@ -179,6 +186,14 @@ for (clust in cluster_list) {
     print(p)
 }
 # dev.off()
+# paper_ids <- read.csv("/projects/home/nealpsmith/projects/ascites/data/patient_paper_ids.csv")
+# supp_df %>%
+#     rename("log_DC_RORC_proportion" = "log_newDC_proportion") %>%
+#     left_join(paper_ids, by = "patient_id") %>%
+#     dplyr::select(-patient_id) %>%
+#     write.csv("/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_s6b.csv", row.names = FALSE)
+
+
 ```
 
 ## Supplemental Figure 6F
@@ -260,6 +275,9 @@ ggplot(diff_cell_type, aes(x = DC_start, y = count, fill = lineage)) +
     scale_fill_manual(values = DC_palette)
 
 # ggsave("/projects/home/tlchan/fig_panels/supp_7g.pdf", width = 4, height = 8)
+
+# write.csv(diff_cell_type, "/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_s6g.csv", row.names = FALSE)
+
 ```
 
 ## Supplemental Figure 6H
@@ -349,6 +367,10 @@ ggplot(clust_by_channel, aes(x = perc_cells, y = updated_clusters, fill = Channe
   xlab("% cells") + ylab("cluster") +
   ggtitle("% of cluster by channel") +
   theme_classic(base_size = 20)
+
+write.csv(clust_by_channel, "/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_s6l.csv", row.names = FALSE)
+
+
 ```
 
 ## Supplemental Figure 6M

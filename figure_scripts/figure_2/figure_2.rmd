@@ -177,7 +177,7 @@ patient_colors <- c("Pt_3" = "#CC6677",
                     "Pt_20" = "882255",
                     "Pt_23" = "44AA99")
 
-
+supp_table_df <- data.frame()
 for (lin in c("cd8", "cd4")){
   obs_data <- read.csv(dset_list[[lin]]$obs)
   mtx <- read.csv(dset_list[[lin]]$mtx, row.names = 1)
@@ -242,13 +242,19 @@ for (lin in c("cd8", "cd4")){
       theme_classic(base_size = 20)
     plot_list <- c(plot_list, list(p))
 
+    supp <- plot_df %>% dplyr::select(!!as.symbol(gene), paper_id, tissue_type, TRB_cdr3) %>%
+      rename( "expression" = !!as.symbol(gene)) %>% mutate(gene = gene, lineage = lin)
+    supp_table_df <- rbind(supp_table_df, supp)
+
   }
   fig <- ggarrange(plotlist = plot_list, common.legend = TRUE, ncol = 3)
   print(annotate_figure(fig, top = text_grob(glue("{lin} clones"),
                color = "black", face = "bold", size = 20)))
 
 }
-
+write.csv(supp_table_df,
+          "/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_2_f_h.csv",
+          row.names = FALSE)
 
 ```
 

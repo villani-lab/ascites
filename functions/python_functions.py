@@ -99,7 +99,7 @@ def plot_feature(lin_data, genes, ncol, nrow):
             # Last row if more than one row
             ax[num].set_xlabel('UMAP1', fontsize=23)
 
-        ax[num].set_rasterization_zorder(2)
+        # ax[num].set_rasterization_zorder(2)
 
     for i in range(len(ax) - (len(ax) - len(genes)), len(ax)):
         ax[i].set_axis_off()

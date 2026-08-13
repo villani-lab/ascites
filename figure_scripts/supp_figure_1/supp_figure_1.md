@@ -114,6 +114,10 @@ ggplot(global_lineage, aes(x = Tissue_Type, y = Count, fill = Lineage)) +
 
 ``` r
 # ggsave("/projects/home/tlchan/fig_panels/supp_1e.pdf", width = 6, height = 8)
+
+global_lineage %>% group_by(Tissue_Type) %>%
+    mutate(total_cells = sum(Count)) %>% mutate(perc_cells = Count / total_cells) %>%
+    write.csv("/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_s1.csv", row.names = FALSE)
 ```
 
 ## Supplemental Figure 1F
@@ -128,11 +132,11 @@ fig = python_functions.plot_feature(lin_data=global_data,
                                     genes=["LYVE1", "C1QA"])
 
 plt.show()
-# plt.savefig("/projects/home/tlchan/fig_panels/supp_1f.pdf")
+plt.savefig("/projects/home/nealpsmith/projects/ascites/figures/resubmission/fig_panels/supp_1f.pdf")
 plt.close(fig)
 ```
 
-<img src="supp_figure_1_files/figure-gfm/supp_1F-1.png" width="480" />
+<img src="supp_figure_1_files/figure-gfm/supp_1F-1.png" width="480" /><img src="supp_figure_1_files/figure-gfm/supp_1F-2.png" width="672" />
 
 ## Supplemental Figure 1G
 
@@ -165,10 +169,12 @@ ggplot(global_lineage, aes(x = Patient, y = Count, fill = Lineage)) +
     scale_fill_manual(values = lineage_palette)
 ```
 
-![](supp_figure_1_files/figure-gfm/supp_1G-3.png)<!-- -->
+![](supp_figure_1_files/figure-gfm/supp_1G-5.png)<!-- -->
 
 ``` r
 # ggsave("/projects/home/tlchan/fig_panels/supp_1g.pdf", width = 12, height = 8)
+
+write.csv(global_lineage, "/projects/home/nealpsmith/projects/ascites/data/plot_data/fig_s1f.csv", row.names = FALSE)
 ```
 
 ## Supplemental Figure 1H
